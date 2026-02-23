@@ -15,6 +15,56 @@ function getPointerPosition(canvas, event) {
   };
 }
 
+function RulesModal({ onClose }) {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>游戏规则</h2>
+          <button className="close-btn" onClick={onClose}>×</button>
+        </div>
+        <div className="rules-content">
+          <section>
+            <h3>🎨 游戏流程</h3>
+            <p>1. 玩家轮流当画家，其他人猜词</p>
+            <p>2. 每回合 75 秒，全员猜中或时间到则结束</p>
+            <p>3. 所有人当过一次画家后游戏结束</p>
+          </section>
+          <section>
+            <h3>🏆 计分规则</h3>
+            <p><strong>猜词者：</strong>基础分 10 分 + 剩余时间奖励</p>
+            <p><strong>画家：</strong>每有一个人猜中 +5 分</p>
+          </section>
+          <section>
+            <h3>⚠️ 注意事项</h3>
+            <p>• 画家不能写字、写拼音或直接给提示</p>
+            <p>• 猜词者在聊天框输入答案</p>
+            <p>• 只有系统判定的答案才算分</p>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RulesButton({ onClick, className = "", iconOnly = false }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rules-btn ${iconOnly ? "icon-only" : ""} ${className}`}
+      title="游戏规则"
+      aria-label="查看游戏规则"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+      {!iconOnly && <span>游戏规则</span>}
+    </button>
+  );
+}
+
 export default function App() {
   const socketRef = useRef(null);
   const canvasRef = useRef(null);
@@ -45,6 +95,8 @@ export default function App() {
   const [penColor, setPenColor] = useState("#111111");
   const [penWidth, setPenWidth] = useState(4);
   const [timeLeft, setTimeLeft] = useState(0);
+
+  const [showRules, setShowRules] = useState(false);
 
   useEffect(() => {
     const socket = io(SERVER_URL, {
@@ -290,7 +342,10 @@ export default function App() {
         跳到游戏内容
       </a>
       <aside className="left-panel">
-        <h2>房间：{roomId}</h2>
+        <div className="room-header">
+          <h2>房间：{roomId}</h2>
+          <RulesButton onClick={() => setShowRules(true)} />
+        </div>
         <div className="status-row">
           <span>玩家：{roomState.players.length}</span>
           <span aria-live="polite">剩余：{timeLeft}秒</span>
@@ -386,6 +441,7 @@ export default function App() {
           </form>
         </section>
       </main>
+      {showRules && <RulesModal onClose={() => setShowRules(false)} />}
     </div>
   );
 }
