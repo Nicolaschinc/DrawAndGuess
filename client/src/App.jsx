@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
+const SERVER_URL =
+  import.meta.env.VITE_SERVER_URL ??
+  (import.meta.env.DEV ? "http://localhost:3001" : window.location.origin);
 
 function getPointerPosition(canvas, event) {
   const rect = canvas.getBoundingClientRect();
