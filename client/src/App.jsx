@@ -16,6 +16,72 @@ function getPointerPosition(canvas, event) {
   };
 }
 
+const EFFECT_TYPES = [
+  { type: "🌸", label: "鲜花" },
+  { type: "🩴", label: "拖鞋" },
+  { type: "🥚", label: "鸡蛋" },
+  { type: "💋", label: "飞吻" },
+  { type: "💣", label: "炸弹" },
+];
+
+function EffectToolbar({ onThrow, usage, disabled }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="effect-toolbar">
+      <button
+        className={`effect-toggle-btn ${expanded ? "active" : ""}`}
+        onClick={() => setExpanded(!expanded)}
+        title="互动道具"
+        disabled={disabled}
+      >
+        🎁
+      </button>
+      {expanded && (
+        <div className="effect-list">
+          {EFFECT_TYPES.map(({ type, label }) => {
+            const count = usage[type] || 0;
+            const isLimit = count >= 5;
+            return (
+              <button
+                key={type}
+                className="effect-btn"
+                onClick={() => onThrow(type)}
+                disabled={disabled || isLimit}
+                title={`${label} (剩余 ${5 - count})`}
+              >
+                {type}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EffectOverlay({ effects, onAnimationEnd }) {
+  return (
+    <div className="effect-overlay">
+      {effects.map((effect) => (
+        <div
+          key={effect.id}
+          className="flying-effect"
+          style={{
+            "--start-x": `${effect.startX}px`,
+            "--start-y": `${effect.startY}px`,
+            "--target-x": `${effect.targetX}px`,
+            "--target-y": `${effect.targetY}px`,
+          }}
+          onAnimationEnd={() => onAnimationEnd(effect.id)}
+        >
+          {effect.type}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function RulesModal({ onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -101,6 +167,9 @@ export default function App() {
   const [showRules, setShowRules] = useState(false);
   const [showToolbar, setShowToolbar] = useState(false);
 
+  const [effectUsage, setEffectUsage] = useState({});
+  const [flyingEffects, setFlyingEffects] = useState([]);
+
   useEffect(() => {
     const socket = io(SERVER_URL, {
       transports: ["websocket"],
@@ -115,7 +184,13 @@ export default function App() {
     });
 
     socket.on("room_state", (state) => {
-      setRoomState(state);
+      setRoomState((prev) => {
+        // Reset effect usage if drawer changes
+        if (prev.game.drawerId !== state.game.drawerId) {
+          setEffectUsage({});
+        }
+        return state;
+      });
       redrawAll(state.strokes);
     });
 
@@ -127,6 +202,28 @@ export default function App() {
       setMessages((prev) => [...prev, { type: "system", ...msg }]);
     });
 
+    socket.on("effect_thrown", ({ type, senderId, targetId }) => {
+      console.log("收到特效:", type, "从", senderId, "到", targetId);
+      const startX = window.innerWidth / 2;
+      const startY = window.innerHeight / 2;
+      
+      const targetEl = document.getElementById(`player-${targetId}`);
+      let targetX = startX;
+      let targetY = startY;
+
+      if (targetEl) {
+        const rect = targetEl.getBoundingClientRect();
+        targetX = rect.left + rect.width / 2;
+        targetY = rect.top + rect.height / 2;
+      }
+
+      const id = Date.now() + Math.random().toString();
+      setFlyingEffects((prev) => [
+        ...prev,
+        { id, type, startX, startY, targetX, targetY },
+      ]);
+    });
+
     socket.on("draw", (stroke) => drawStroke(stroke));
 
     socket.on("clear_canvas", () => clearCanvas());
@@ -135,6 +232,24 @@ export default function App() {
       socket.disconnect();
     };
   }, []);
+
+  function handleThrowEffect(type) {
+    if (isDrawer) return;
+    
+    console.log("尝试投掷特效:", type);
+    // Optimistic update
+    setEffectUsage((prev) => ({
+      ...prev,
+      [type]: (prev[type] || 0) + 1,
+    }));
+
+    socketRef.current?.emit("throw_effect", { type });
+  }
+
+  function handleAnimationEnd(id) {
+    setFlyingEffects((prev) => prev.filter((e) => e.id !== id));
+  }
+
 
 
   function resizeCanvas() {
@@ -295,6 +410,23 @@ export default function App() {
     socketRef.current?.emit("clear_canvas");
   }
 
+  const renderWordBox = () => {
+    if (roomState.game.status === "playing" && roomState.game.word) {
+      return (
+        <div className="word-box">
+          画：<strong>{roomState.game.word}</strong>
+        </div>
+      );
+    }
+    if (roomState.game.status === "playing") {
+      return (
+        <div className="word-box">
+          提示：{roomState.game.hint}
+        </div>
+      );
+    }
+    return null;
+  };
 
   if (!joined) {
     return (
@@ -341,6 +473,17 @@ export default function App() {
 
   return (
     <div className="layout">
+      {/* Mobile Word Overlay */}
+      {roomState.game.started && (
+        <div className="mobile-word-overlay">
+          {isDrawer ? (
+            <span>画：<strong>{roomState.game.word}</strong></span>
+          ) : (
+            <span>提示：{roomState.game.maskedWord}</span>
+          )}
+        </div>
+      )}
+
       <a className="skip-link" href="#game-main">
         跳到游戏内容
       </a>
@@ -367,8 +510,14 @@ export default function App() {
         )}
 
         <ul className="players">
-          {roomState.players.map((p) => (
-            <li key={p.id}>
+          {[...roomState.players]
+            .sort((a, b) => {
+              if (a.id === roomState.game.drawerId) return -1;
+              if (b.id === roomState.game.drawerId) return 1;
+              return 0;
+            })
+            .map((p) => (
+            <li key={p.id} id={`player-${p.id}`}>
               <span>
                 {p.name}
                 {p.id === roomState.game.drawerId ? " (画家)" : ""}
@@ -516,6 +665,11 @@ export default function App() {
               </li>
             ))}
           </ul>
+          <EffectToolbar 
+            onThrow={handleThrowEffect} 
+            usage={effectUsage} 
+            disabled={!roomState.game.started || isDrawer} 
+          />
           <form onSubmit={sendChat} className="chat-form">
             <input
               name="chat_message"
@@ -530,6 +684,7 @@ export default function App() {
         </section>
       </main>
       {showRules && <RulesModal onClose={() => setShowRules(false)} />}
+      <EffectOverlay effects={flyingEffects} onAnimationEnd={handleAnimationEnd} />
     </div>
   );
 }

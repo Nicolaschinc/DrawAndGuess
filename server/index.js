@@ -34,6 +34,7 @@ function makeRoom() {
       drawerId: null,
       guessed: new Set(),
       timer: null,
+      effectUsage: new Map(), // userId -> { effectType: count }
     },
     strokes: [],
   };
@@ -174,6 +175,7 @@ function startRound(roomId) {
   room.game.currentCategory = picked.category;
   room.game.roundEndsAt = Date.now() + ROUND_SECONDS * 1000;
   room.game.guessed = new Set();
+  room.game.effectUsage = new Map();
   room.strokes = [];
 
   io.to(roomId).emit("clear_canvas");
@@ -316,6 +318,38 @@ io.on("connection", (socket) => {
     io.to(roomId).emit("chat_message", {
       sender: player.name,
       text: msg,
+    });
+  });
+
+  socket.on("throw_effect", ({ type }) => {
+    const roomId = socket.data.roomId;
+    if (!roomId) return;
+
+    const room = rooms.get(roomId);
+    if (!room || !room.game.started) return;
+    
+    // Only spectators can throw effects
+    if (room.game.drawerId === socket.id) return;
+
+    const allowedEffects = ["🌸", "🩴", "🥚", "💋", "💣"];
+    if (!allowedEffects.includes(type)) return;
+
+    // Check usage limit
+    if (!room.game.effectUsage.has(socket.id)) {
+      room.game.effectUsage.set(socket.id, {});
+    }
+    const userUsage = room.game.effectUsage.get(socket.id);
+    const currentCount = userUsage[type] || 0;
+
+    if (currentCount >= 5) return;
+
+    userUsage[type] = currentCount + 1;
+
+    // Broadcast effect
+    io.to(roomId).emit("effect_thrown", {
+      type,
+      senderId: socket.id,
+      targetId: room.game.drawerId,
     });
   });
 
