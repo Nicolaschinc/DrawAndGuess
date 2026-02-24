@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { Palette, Brush, Trash2, X, Settings, Share2 } from "lucide-react";
+import { encryptRoomId } from "../utils/crypto";
 import {
   EffectToolbar,
   EffectOverlay,
   RulesModal,
   RulesButton,
   JoinRoomModal,
+  ToastModal,
 } from "../components/GameUI";
 
 const SERVER_URL =
@@ -62,13 +64,23 @@ export default function GameRoom() {
 
   const [showRules, setShowRules] = useState(false);
   const [showToolbar, setShowToolbar] = useState(false);
+  const [toast, setToast] = useState(null); // { title, message }
 
   const [effectUsage, setEffectUsage] = useState({});
   const [flyingEffects, setFlyingEffects] = useState([]);
 
   // Handle joining when name is available
   useEffect(() => {
-    if (!name || joined) return;
+    // If already joined, do nothing
+    if (joined) return;
+
+    // If no name is provided, show the join modal (handled by rendering logic below)
+    if (!name) return;
+
+    // Clean up any existing socket connection to prevent duplicates
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
 
     const socket = io(SERVER_URL, {
       transports: ["websocket"],
@@ -139,7 +151,7 @@ export default function GameRoom() {
     return () => {
       socket.disconnect();
     };
-  }, [roomId, name, joined, navigate]);
+  }, [roomId, name, navigate]);
 
   function handleJoinModalSubmit(newName) {
     setName(newName);
@@ -352,8 +364,11 @@ export default function GameRoom() {
             <button 
               className="rules-btn icon-only"
               onClick={() => {
-                const url = `${window.location.origin}/room/${roomId}`;
-                navigator.clipboard.writeText(url).then(() => alert("链接已复制！"));
+                const hash = encryptRoomId(roomId);
+                const url = `${window.location.origin}${import.meta.env.BASE_URL}share/${hash}`;
+                navigator.clipboard.writeText(url).then(() => {
+                  setToast({ title: "链接已复制", message: "快去邀请好友加入游戏吧！" });
+                });
               }}
               title="分享房间链接"
             >
@@ -554,6 +569,13 @@ export default function GameRoom() {
         </section>
       </main>
       {showRules && <RulesModal onClose={() => setShowRules(false)} />}
+      {toast && (
+        <ToastModal 
+          title={toast.title} 
+          message={toast.message} 
+          onClose={() => setToast(null)} 
+        />
+      )}
       <EffectOverlay effects={flyingEffects} onAnimationEnd={handleAnimationEnd} />
     </div>
   );

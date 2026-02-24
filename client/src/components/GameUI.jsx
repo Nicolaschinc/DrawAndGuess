@@ -66,6 +66,33 @@ export function EffectOverlay({ effects, onAnimationEnd }) {
   );
 }
 
+export function ToastModal({ title, message, onClose }) {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content join-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>{title}</h2>
+          <button className="close-btn" onClick={onClose}>×</button>
+        </div>
+        <div className="join-modal-body" style={{ paddingBottom: "24px" }}>
+          <p style={{ margin: "10px 0 20px", fontSize: "16px", color: "var(--ink-600)" }}>
+            {message}
+          </p>
+          <div className="modal-actions" style={{ justifyContent: "stretch", display: "flex" }}>
+            <button 
+              onClick={onClose} 
+              className="start-btn"
+              style={{ flex: 1 }}
+            >
+              确定
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function RulesModal({ onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
