@@ -2,6 +2,7 @@ import express from "express";
 import http from "http";
 import cors from "cors";
 import { Server } from "socket.io";
+import { getRandomWord } from "./wordManager.js";
 
 const app = express();
 app.use(cors());
@@ -17,28 +18,6 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 3001;
 const ROUND_SECONDS = 75;
-const WORDS = [
-  "猫",
-  "房子",
-  "香蕉",
-  "飞机",
-  "电脑",
-  "吉他",
-  "龙",
-  "机器人",
-  "山",
-  "相机",
-  "披萨",
-  "彩虹",
-  "自行车",
-  "蝴蝶",
-  "企鹅",
-  "太阳",
-  "月亮",
-  "苹果",
-  "汽车",
-  "雨伞",
-];
 
 const rooms = new Map();
 
@@ -60,7 +39,7 @@ function makeRoom() {
 }
 
 function pickWord() {
-  return WORDS[Math.floor(Math.random() * WORDS.length)];
+  return getRandomWord();
 }
 
 function getRoom(roomId) {
