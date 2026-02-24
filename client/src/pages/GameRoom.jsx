@@ -334,8 +334,8 @@ export default function GameRoom() {
   if (!joined) {
      return (
         <div className="join-page">
-           <div className="join-card">
-              <p>正在加入房间...</p>
+           <div className="join-card" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "200px" }}>
+              <p style={{ margin: 0, color: "var(--ink-600)" }}>正在加入房间...</p>
            </div>
         </div>
      );
@@ -366,9 +366,39 @@ export default function GameRoom() {
               onClick={() => {
                 const hash = encryptRoomId(roomId);
                 const url = `${window.location.origin}${import.meta.env.BASE_URL}share/${hash}`;
-                navigator.clipboard.writeText(url).then(() => {
-                  setToast({ title: "链接已复制", message: "快去邀请好友加入游戏吧！" });
-                });
+                
+                // Fallback for non-secure contexts (http) or older browsers
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                  navigator.clipboard.writeText(url).then(() => {
+                    setToast({ title: "链接已复制", message: "快去邀请好友加入游戏吧！" });
+                  }).catch(err => {
+                    console.error("Clipboard write failed", err);
+                    alert("复制失败，请手动复制链接: " + url);
+                  });
+                } else {
+                  // Fallback method using textarea
+                  const textArea = document.createElement("textarea");
+                  textArea.value = url;
+                  textArea.style.position = "fixed";
+                  textArea.style.left = "-9999px";
+                  document.body.appendChild(textArea);
+                  textArea.focus();
+                  textArea.select();
+                  
+                  try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                      setToast({ title: "链接已复制", message: "快去邀请好友加入游戏吧！" });
+                    } else {
+                      alert("复制失败，请手动复制链接: " + url);
+                    }
+                  } catch (err) {
+                    console.error('Fallback copy failed', err);
+                    alert("复制失败，请手动复制链接: " + url);
+                  }
+                  
+                  document.body.removeChild(textArea);
+                }
               }}
               title="分享房间链接"
             >
