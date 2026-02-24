@@ -9,17 +9,17 @@ const allWords = Object.values(wordsData).flat();
 
 console.log("Total words loaded from JSON:", allWords.length);
 
-const word = getRandomWord();
-console.log("Random word picked:", word);
+const picked = getRandomWord();
+console.log("Random word picked:", picked);
 
-if (typeof word === 'string' && word.length > 0) {
-  console.log("Test Passed: getRandomWord returned a valid string.");
+if (typeof picked === 'object' && picked.word && picked.category) {
+  console.log("Test Passed: getRandomWord returned a valid object.");
 } else {
   console.error("Test Failed: getRandomWord returned invalid result.");
   process.exit(1);
 }
 
-if (allWords.includes(word)) {
+if (allWords.includes(picked.word)) {
     console.log("Test Passed: Picked word exists in the database.");
 } else {
     console.error("Test Failed: Picked word NOT found in the database.");

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { io } from "socket.io-client";
+import { Palette, Brush, Trash2, X, Settings } from "lucide-react";
 
 const SERVER_URL =
   import.meta.env.VITE_SERVER_URL ??
@@ -94,9 +95,11 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [penColor, setPenColor] = useState("#111111");
   const [penWidth, setPenWidth] = useState(4);
+  const [activeTool, setActiveTool] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
 
   const [showRules, setShowRules] = useState(false);
+  const [showToolbar, setShowToolbar] = useState(false);
 
   useEffect(() => {
     const socket = io(SERVER_URL, {
@@ -381,33 +384,118 @@ export default function App() {
       </aside>
 
       <main className="board-panel" id="game-main">
-        <div className="tool-row">
-          <label>
-            颜色
-            <input
-              type="color"
-              value={penColor}
-              onChange={(e) => setPenColor(e.target.value)}
-              disabled={!canDraw}
-            />
-          </label>
-          <label>
-            笔粗
-            <input
-              type="range"
-              min="1"
-              max="24"
-              value={penWidth}
-              onChange={(e) => setPenWidth(Number(e.target.value))}
-              disabled={!canDraw}
-            />
-          </label>
-          <button onClick={clearByDrawer} disabled={!canDraw}>
-            清空画布
-          </button>
-        </div>
-
         <div className="canvas-wrap">
+          <button 
+            className={`toolbar-trigger ${showToolbar ? 'active' : ''}`}
+            onClick={() => setShowToolbar(!showToolbar)}
+            title="工具栏"
+          >
+            <Settings size={20} />
+          </button>
+
+          {showToolbar && (
+            <div className="floating-toolbar">
+              <div className="tool-group">
+                <button
+                  className={`tool-btn ${activeTool === "color" ? "active" : ""}`}
+                  onClick={() => setActiveTool(activeTool === "color" ? null : "color")}
+                  disabled={!canDraw}
+                  title="颜色"
+                  aria-label="选择颜色"
+                  aria-expanded={activeTool === "color"}
+                >
+                  <Palette size={20} />
+                  <span className="color-indicator" style={{ backgroundColor: penColor }} />
+                </button>
+                {activeTool === "color" && (
+                  <div className="tool-popup color-popup">
+                    <div className="popup-header">
+                      <span>选择颜色</span>
+                      <button className="popup-close" onClick={() => setActiveTool(null)}>
+                        <X size={14} />
+                      </button>
+                    </div>
+                    <div className="popup-content">
+                      <input
+                        type="color"
+                        className="color-picker-input"
+                        value={penColor}
+                        onChange={(e) => setPenColor(e.target.value)}
+                      />
+                      <div className="color-presets">
+                        {["#111111", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#ffffff"].map(c => (
+                          <button
+                            key={c}
+                            className="color-preset-btn"
+                            style={{ backgroundColor: c }}
+                            onClick={() => setPenColor(c)}
+                            aria-label={`选择颜色 ${c}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="tool-group">
+                <button
+                  className={`tool-btn ${activeTool === "width" ? "active" : ""}`}
+                  onClick={() => setActiveTool(activeTool === "width" ? null : "width")}
+                  disabled={!canDraw}
+                  title="笔刷大小"
+                  aria-label="调整笔刷大小"
+                  aria-expanded={activeTool === "width"}
+                >
+                  <Brush size={20} />
+                  <span className="width-indicator">{penWidth}</span>
+                </button>
+                {activeTool === "width" && (
+                  <div className="tool-popup width-popup">
+                    <div className="popup-header">
+                      <span>笔刷大小</span>
+                      <button className="popup-close" onClick={() => setActiveTool(null)}>
+                        <X size={14} />
+                      </button>
+                    </div>
+                    <div className="popup-content">
+                      <input
+                        type="range"
+                        min="1"
+                        max="24"
+                        value={penWidth}
+                        onChange={(e) => setPenWidth(Number(e.target.value))}
+                        className="width-slider"
+                      />
+                      <div className="width-preview-box">
+                        <div
+                          className="width-preview-dot"
+                          style={{
+                            width: penWidth,
+                            height: penWidth,
+                            backgroundColor: penColor
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="tool-divider" />
+
+              <button
+                className="tool-btn danger"
+                onClick={clearByDrawer}
+                disabled={!canDraw}
+                title="清空画布"
+                aria-label="清空画布"
+              >
+                <Trash2 size={20} />
+              </button>
+            </div>
+          )}
+
           <canvas
             ref={canvasRef}
             className="canvas"

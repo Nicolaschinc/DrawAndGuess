@@ -30,6 +30,7 @@ function makeRoom() {
       started: false,
       roundEndsAt: null,
       currentWord: null,
+      currentCategory: null,
       drawerId: null,
       guessed: new Set(),
       timer: null,
@@ -49,6 +50,14 @@ function getRoom(roomId) {
   return rooms.get(roomId);
 }
 
+const CATEGORY_MAP = {
+  "Animals": "动物",
+  "Objects": "物品",
+  "Foods": "食物",
+  "Places": "场所",
+  "Actions": "动作"
+};
+
 function roomStateFor(room, viewerId) {
   const { game } = room;
   const players = room.playerOrder
@@ -62,6 +71,8 @@ function roomStateFor(room, viewerId) {
       };
     });
 
+  const categoryName = CATEGORY_MAP[game.currentCategory] || game.currentCategory || "未知";
+
   return {
     players,
     hostId: room.hostId,
@@ -73,7 +84,7 @@ function roomStateFor(room, viewerId) {
       word: game.drawerId === viewerId ? game.currentWord : null,
       maskedWord:
         game.currentWord && game.drawerId !== viewerId
-          ? "□".repeat(game.currentWord.length)
+          ? `提示: ${categoryName} (${game.currentWord.length}字)`
           : null,
     },
     strokes: room.strokes,
@@ -126,6 +137,7 @@ function endRound(roomId, reason = "timeout") {
 
   room.game.drawerId = nextDrawer(room);
   room.game.currentWord = null;
+  room.game.currentCategory = null;
   room.game.roundEndsAt = null;
   room.game.guessed = new Set();
   room.strokes = [];
@@ -157,7 +169,9 @@ function startRound(roomId) {
   }
 
   room.game.started = true;
-  room.game.currentWord = pickWord();
+  const picked = pickWord();
+  room.game.currentWord = picked.word;
+  room.game.currentCategory = picked.category;
   room.game.roundEndsAt = Date.now() + ROUND_SECONDS * 1000;
   room.game.guessed = new Set();
   room.strokes = [];
