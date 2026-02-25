@@ -11,10 +11,11 @@ import {
   calculateDrawerScore, 
   shouldEndRound 
 } from "./gameLogic.js";
+import { EVENTS } from "../shared/events.mjs";
 
 export default function registerSocketHandlers(io) {
-  io.on("connection", (socket) => {
-    socket.on("join_room", ({ roomId, name }, cb = () => {}) => {
+  io.on(EVENTS.CONNECTION, (socket) => {
+    socket.on(EVENTS.JOIN_ROOM, ({ roomId, name }, cb = () => {}) => {
       const safeRoomId = String(roomId || "").trim().toLowerCase().slice(0, 24);
       const safeName = String(name || "").trim().slice(0, 20);
 
@@ -41,7 +42,7 @@ export default function registerSocketHandlers(io) {
         room.hostId = socket.id;
       }
 
-      io.to(safeRoomId).emit("system_message", { 
+      io.to(safeRoomId).emit(EVENTS.SYSTEM_MESSAGE, { 
         text: `${safeName} 加入了房间。`,
         relatedUser: { id: socket.id, name: safeName }
       });
@@ -49,7 +50,7 @@ export default function registerSocketHandlers(io) {
       cb({ ok: true });
     });
 
-    socket.on("start_game", () => {
+    socket.on(EVENTS.START_GAME, () => {
       const roomId = socket.data.roomId;
       if (!roomId) return;
       const room = rooms.get(roomId);
@@ -66,7 +67,7 @@ export default function registerSocketHandlers(io) {
       startRound(io, roomId);
     });
 
-    socket.on("draw", (stroke) => {
+    socket.on(EVENTS.DRAW, (stroke) => {
       const roomId = socket.data.roomId;
       if (!roomId) return;
 
@@ -83,10 +84,10 @@ export default function registerSocketHandlers(io) {
       };
 
       room.strokes.push(safeStroke);
-      socket.to(roomId).emit("draw", safeStroke);
+      socket.to(roomId).emit(EVENTS.DRAW, safeStroke);
     });
 
-    socket.on("clear_canvas", () => {
+    socket.on(EVENTS.CLEAR_CANVAS, () => {
       const roomId = socket.data.roomId;
       if (!roomId) return;
 
@@ -94,10 +95,10 @@ export default function registerSocketHandlers(io) {
       if (!room || room.game.drawerId !== socket.id) return;
 
       room.strokes = [];
-      io.to(roomId).emit("clear_canvas");
+      io.to(roomId).emit(EVENTS.CLEAR_CANVAS);
     });
 
-    socket.on("chat_message", (text) => {
+    socket.on(EVENTS.CHAT_MESSAGE, (text) => {
       const roomId = socket.data.roomId;
       if (!roomId) return;
 
@@ -132,7 +133,7 @@ export default function registerSocketHandlers(io) {
         const drawer = room.players.get(room.game.drawerId);
         if (drawer) drawer.score += drawerScore;
 
-        io.to(roomId).emit("system_message", {
+        io.to(roomId).emit(EVENTS.SYSTEM_MESSAGE, {
           text: `${player.name} 猜对了！(+${guesserScore} 分)`,
           relatedUser: { id: socket.id, name: player.name }
         });
@@ -156,14 +157,14 @@ export default function registerSocketHandlers(io) {
         return;
       }
 
-      io.to(roomId).emit("chat_message", {
+      io.to(roomId).emit(EVENTS.CHAT_MESSAGE, {
         sender: player.name,
         senderId: socket.id,
         text: msg,
       });
     });
 
-    socket.on("throw_effect", ({ type }) => {
+    socket.on(EVENTS.THROW_EFFECT, ({ type }) => {
       const roomId = socket.data.roomId;
       if (!roomId) return;
 
@@ -188,14 +189,14 @@ export default function registerSocketHandlers(io) {
       userUsage[type] = currentCount + 1;
 
       // Broadcast effect
-      io.to(roomId).emit("effect_thrown", {
+      io.to(roomId).emit(EVENTS.EFFECT_THROWN, {
         type,
         senderId: socket.id,
         targetId: room.game.drawerId,
       });
     });
 
-    socket.on("disconnect", () => {
+    socket.on(EVENTS.DISCONNECT, () => {
       const roomId = socket.data.roomId;
       if (!roomId) return;
 
@@ -208,7 +209,7 @@ export default function registerSocketHandlers(io) {
       room.game.guessed.delete(socket.id);
 
       if (leaving) {
-        io.to(roomId).emit("system_message", {
+        io.to(roomId).emit(EVENTS.SYSTEM_MESSAGE, {
           text: `${leaving.name} 离开了房间。`,
           relatedUser: { id: socket.id, name: leaving.name }
         });

@@ -4,6 +4,7 @@ import { io } from "socket.io-client";
 import { Palette, Brush, Trash2, X, Settings, Share2, LogOut, Ellipsis, CircleHelp, Image as ImageIcon, Maximize, Minimize } from "lucide-react";
 import { encryptRoomId } from "../utils/crypto";
 import { getPlayerColor } from "../utils/playerColor";
+import { EVENTS } from "@shared/events.mjs";
 import {
   EffectToolbar,
   EffectOverlay,
@@ -109,9 +110,9 @@ export default function GameRoom() {
 
     socketRef.current = socket;
 
-    socket.on("connect", () => {
+    socket.on(EVENTS.CONNECT, () => {
       // Once connected, try to join room
-      socket.emit("join_room", { roomId, name }, (res) => {
+      socket.emit(EVENTS.JOIN_ROOM, { roomId, name }, (res) => {
         if (!res?.ok) {
           alert(res?.error || "加入失败");
           navigate("/"); // Go back home on failure
@@ -123,11 +124,11 @@ export default function GameRoom() {
       });
     });
 
-    socket.on("disconnect", () => {
+    socket.on(EVENTS.DISCONNECT, () => {
       setJoined(false);
     });
 
-    socket.on("room_state", (state) => {
+    socket.on(EVENTS.ROOM_STATE, (state) => {
       setRoomState((prev) => {
         if (prev.game.drawerId !== state.game.drawerId) {
           setEffectUsage({});
@@ -138,15 +139,15 @@ export default function GameRoom() {
       redrawAll(state.strokes);
     });
 
-    socket.on("chat_message", (msg) => {
+    socket.on(EVENTS.CHAT_MESSAGE, (msg) => {
       setMessages((prev) => [...prev, { type: "chat", ...msg }]);
     });
 
-    socket.on("system_message", (msg) => {
+    socket.on(EVENTS.SYSTEM_MESSAGE, (msg) => {
       setMessages((prev) => [...prev, { type: "system", ...msg }]);
     });
 
-    socket.on("effect_thrown", ({ type, senderId, targetId }) => {
+    socket.on(EVENTS.EFFECT_THROWN, ({ type, senderId, targetId }) => {
       const startX = window.innerWidth / 2;
       const startY = window.innerHeight / 2;
       
@@ -167,11 +168,11 @@ export default function GameRoom() {
       ]);
     });
 
-    socket.on("draw", (stroke) => {
+    socket.on(EVENTS.DRAW, (stroke) => {
       strokesRef.current.push(stroke);
       drawStroke(stroke);
     });
-    socket.on("clear_canvas", () => {
+    socket.on(EVENTS.CLEAR_CANVAS, () => {
       strokesRef.current = [];
       clearCanvas();
     });
@@ -192,7 +193,7 @@ export default function GameRoom() {
       ...prev,
       [type]: (prev[type] || 0) + 1,
     }));
-    socketRef.current?.emit("throw_effect", { type });
+    socketRef.current?.emit(EVENTS.THROW_EFFECT, { type });
   }
 
   function handleAnimationEnd(id) {
@@ -345,13 +346,13 @@ export default function GameRoom() {
   }
 
   function startGame() {
-    socketRef.current?.emit("start_game");
+    socketRef.current?.emit(EVENTS.START_GAME);
   }
 
   function sendChat(event) {
     event.preventDefault();
     if (!chatInput.trim()) return;
-    socketRef.current?.emit("chat_message", chatInput.trim());
+    socketRef.current?.emit(EVENTS.CHAT_MESSAGE, chatInput.trim());
     setChatInput("");
   }
 
@@ -389,7 +390,7 @@ export default function GameRoom() {
 
     drawStroke(stroke);
     strokesRef.current.push(stroke);
-    socketRef.current?.emit("draw", stroke);
+    socketRef.current?.emit(EVENTS.DRAW, stroke);
     lastPointRef.current = now;
   }
 
@@ -401,7 +402,7 @@ export default function GameRoom() {
 
   function clearByDrawer() {
     if (!isDrawer) return;
-    socketRef.current?.emit("clear_canvas");
+    socketRef.current?.emit(EVENTS.CLEAR_CANVAS);
   }
 
   useEffect(() => {

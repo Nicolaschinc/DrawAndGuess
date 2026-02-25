@@ -7,6 +7,7 @@ import {
   calculateNextDrawer,
   ROUND_SECONDS 
 } from "./gameLogic.js";
+import { EVENTS } from "../shared/events.mjs";
 
 const CATEGORY_MAP = {
   "Animals": "动物",
@@ -67,7 +68,7 @@ export function broadcastRoom(io, roomId) {
   for (const socketId of room.playerOrder) {
     const socket = io.sockets.sockets.get(socketId);
     if (!socket) continue;
-    socket.emit("room_state", roomStateFor(room, socketId));
+    socket.emit(EVENTS.ROOM_STATE, roomStateFor(room, socketId));
   }
 }
 
@@ -93,7 +94,7 @@ export function endRound(io, roomId, reason = "timeout") {
 
   stopRound(room);
 
-  io.to(roomId).emit("system_message", {
+  io.to(roomId).emit(EVENTS.SYSTEM_MESSAGE, {
       text:
         reason === "all_guessed"
           ? `回合结束，答案是「${room.game.currentWord}」。`
@@ -109,7 +110,7 @@ export function endRound(io, roomId, reason = "timeout") {
 
   if (allDrawn) {
     room.game.started = false;
-    io.to(roomId).emit("system_message", {
+    io.to(roomId).emit(EVENTS.SYSTEM_MESSAGE, {
       text: "游戏结束！所有玩家都已作画。",
     });
     broadcastRoom(io, roomId);
@@ -141,7 +142,7 @@ export function startRound(io, roomId) {
   room.playerOrder = room.playerOrder.filter((id) => room.players.has(id));
   if (room.playerOrder.length < 2) {
     room.game.started = false;
-    io.to(roomId).emit("system_message", {
+    io.to(roomId).emit(EVENTS.SYSTEM_MESSAGE, {
       text: "至少需要 2 名玩家才能开始。",
     });
     broadcastRoom(io, roomId);
@@ -197,8 +198,8 @@ export function startRound(io, roomId) {
   const drawer = room.players.get(room.game.drawerId);
   const drawerName = drawer?.name || "画家";
   
-  io.to(roomId).emit("clear_canvas");
-  io.to(roomId).emit("system_message", {
+  io.to(roomId).emit(EVENTS.CLEAR_CANVAS);
+  io.to(roomId).emit(EVENTS.SYSTEM_MESSAGE, {
     text: `${drawerName} 正在画。`,
     relatedUser: drawer ? { id: room.game.drawerId, name: drawerName } : null,
   });
