@@ -64,6 +64,7 @@ export default function GameRoom() {
 
   const [showRules, setShowRules] = useState(false);
   const [showToolbar, setShowToolbar] = useState(false);
+  const [showMobilePlayers, setShowMobilePlayers] = useState(false);
   const [toast, setToast] = useState(null); // { title, message }
 
   const [effectUsage, setEffectUsage] = useState({});
@@ -343,24 +344,13 @@ export default function GameRoom() {
 
   return (
     <div className="layout">
-      {/* Mobile Word Overlay */}
-      {roomState.game.started && (
-        <div className="mobile-word-overlay">
-          {isDrawer ? (
-            <span>画：<strong>{roomState.game.word}</strong></span>
-          ) : (
-            <span>提示：{roomState.game.maskedWord}</span>
-          )}
-        </div>
-      )}
-
       <a className="skip-link" href="#game-main">
         跳到游戏内容
       </a>
       <aside className="left-panel">
         <div className="room-header">
           <h2>房间：{roomId}</h2>
-          <div style={{ display: "flex", gap: "4px" }}>
+          <div className="header-actions">
             <button 
               className="rules-btn icon-only"
               onClick={() => {
@@ -418,13 +408,30 @@ export default function GameRoom() {
             : roomState.game.maskedWord || "等待游戏开始"}
         </div>
 
-        {isHost && (
-          <button onClick={startGame} className="start-btn">
-            开始游戏
-          </button>
-        )}
+        <div className={`mobile-actions-row ${isHost ? "" : "single"}`}>
+          {isHost && (
+            <button onClick={startGame} className="start-btn">
+              开始游戏
+            </button>
+          )}
 
-        <ul className="players">
+          <div className="mobile-players-toggle-wrap">
+            <button
+              type="button"
+              className={`mobile-players-toggle ${showMobilePlayers ? "active" : ""}`}
+              onClick={() => setShowMobilePlayers((prev) => !prev)}
+              aria-expanded={showMobilePlayers}
+              aria-controls="players-list"
+            >
+              玩家榜 ({roomState.players.length})
+            </button>
+          </div>
+        </div>
+
+        <ul
+          id="players-list"
+          className={`players ${showMobilePlayers ? "is-open" : "is-collapsed"}`}
+        >
           {[...roomState.players]
             .sort((a, b) => {
               if (a.id === roomState.game.drawerId) return -1;
