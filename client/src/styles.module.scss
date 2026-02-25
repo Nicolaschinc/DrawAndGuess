@@ -1327,6 +1327,9 @@ input[type="range"] {
     display: grid;
     grid-template-columns: 300px 1fr;
     grid-template-rows: 1fr;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
   }
 
   .left-panel {
@@ -1370,6 +1373,13 @@ input[type="range"] {
     max-height: none;
     min-height: 0;
     height: 100%;
+    overflow: hidden; /* Prevent container scrolling */
+  }
+
+  .messages {
+    overflow-y: auto; /* Enable vertical scrolling for messages */
+    height: 100%; /* Ensure it fills available space */
+    min-height: 0; /* Critical: Allow grid item to shrink below content size */
   }
 
   .chat-form {
@@ -1412,10 +1422,42 @@ input[type="range"] {
   border-color: transparent;
 }
 
+.fullscreen-trigger {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 100;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--line-soft);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink-600);
+  transition: all 0.2s;
+}
+
+/* Adjust position when in fullscreen mode to respect safe areas */
+.canvas-wrap:fullscreen .fullscreen-trigger,
+.canvas-wrap:-webkit-full-screen .fullscreen-trigger {
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  right: calc(12px + env(safe-area-inset-right, 0px));
+}
+
+.fullscreen-trigger:hover {
+  background: var(--paper-1);
+  color: var(--ink-800);
+  transform: scale(1.05);
+}
+
 .floating-toolbar {
   position: absolute;
-  top: 12px;
-  left: 64px;
+  top: 64px;
+  left: 12px;
   z-index: 100;
   display: flex;
   gap: 8px;
@@ -1425,12 +1467,12 @@ input[type="range"] {
   border-radius: var(--radius-sm);
   border: 1px solid var(--line-soft);
   box-shadow: var(--shadow-md);
-  animation: slideRight 0.2s cubic-bezier(0.2, 0, 0, 1);
+  animation: slideDown 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
-@keyframes slideRight {
-  from { opacity: 0; transform: translateX(-10px); }
-  to { opacity: 1; transform: translateX(0); }
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Effect Toolbar */
@@ -1587,9 +1629,11 @@ input[type="range"] {
   left: 64px;
 }
 
+/* 
 .floating-toolbar-shifted {
   left: 116px;
-}
+} 
+*/
 
 .modal-content-ref {
   max-width: 600px;

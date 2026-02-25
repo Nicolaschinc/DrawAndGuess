@@ -1,0 +1,229 @@
+import { rooms, getRoom } from "./roomStore.js";
+import { 
+  broadcastRoom, 
+  nextDrawer, 
+  stopRound, 
+  startRound, 
+  endRound 
+} from "./engine.js";
+
+export default function registerSocketHandlers(io) {
+  io.on("connection", (socket) => {
+    socket.on("join_room", ({ roomId, name }, cb = () => {}) => {
+      const safeRoomId = String(roomId || "").trim().toLowerCase().slice(0, 24);
+      const safeName = String(name || "").trim().slice(0, 20);
+
+      if (!safeRoomId || !safeName) {
+        cb({ ok: false, error: "请填写房间 ID 和名称。" });
+        return;
+      }
+
+      const room = getRoom(safeRoomId);
+
+      socket.join(safeRoomId);
+      socket.data.roomId = safeRoomId;
+
+      room.players.set(socket.id, {
+        name: safeName,
+        score: 0,
+      });
+
+      if (!room.playerOrder.includes(socket.id)) {
+        room.playerOrder.push(socket.id);
+      }
+
+      if (!room.hostId || !room.players.has(room.hostId)) {
+        room.hostId = socket.id;
+      }
+
+      io.to(safeRoomId).emit("system_message", { 
+        text: `${safeName} 加入了房间。`,
+        relatedUser: { id: socket.id, name: safeName }
+      });
+      broadcastRoom(io, safeRoomId);
+      cb({ ok: true });
+    });
+
+    socket.on("start_game", () => {
+      const roomId = socket.data.roomId;
+      if (!roomId) return;
+      const room = rooms.get(roomId);
+      if (!room || room.hostId !== socket.id) return;
+
+      room.game.drawnPlayers = new Set();
+      const firstDrawer = nextDrawer(room);
+      room.game.drawerId = firstDrawer;
+      
+      if (firstDrawer) {
+        room.game.drawnPlayers.add(firstDrawer);
+      }
+
+      startRound(io, roomId);
+    });
+
+    socket.on("draw", (stroke) => {
+      const roomId = socket.data.roomId;
+      if (!roomId) return;
+
+      const room = rooms.get(roomId);
+      if (!room || room.game.drawerId !== socket.id || !room.game.started) return;
+
+      const safeStroke = {
+        x0: Number(stroke?.x0),
+        y0: Number(stroke?.y0),
+        x1: Number(stroke?.x1),
+        y1: Number(stroke?.y1),
+        color: String(stroke?.color || "#111111").slice(0, 10),
+        width: Math.max(1, Math.min(24, Number(stroke?.width) || 4)),
+      };
+
+      room.strokes.push(safeStroke);
+      socket.to(roomId).emit("draw", safeStroke);
+    });
+
+    socket.on("clear_canvas", () => {
+      const roomId = socket.data.roomId;
+      if (!roomId) return;
+
+      const room = rooms.get(roomId);
+      if (!room || room.game.drawerId !== socket.id) return;
+
+      room.strokes = [];
+      io.to(roomId).emit("clear_canvas");
+    });
+
+    socket.on("chat_message", (text) => {
+      const roomId = socket.data.roomId;
+      if (!roomId) return;
+
+      const room = rooms.get(roomId);
+      if (!room) return;
+
+      const player = room.players.get(socket.id);
+      if (!player) return;
+
+      const msg = String(text || "").trim().slice(0, 100);
+      if (!msg) return;
+
+      const normalized = msg.trim();
+      const word = room.game.currentWord?.trim();
+      const isDrawer = room.game.drawerId === socket.id;
+
+      if (
+        room.game.started &&
+        word &&
+        !isDrawer &&
+        !room.game.guessed.has(socket.id) &&
+        normalized === word
+      ) {
+        room.game.guessed.add(socket.id);
+
+        const now = Date.now();
+        const remaining = Math.max(0, Math.floor((room.game.roundEndsAt - now) / 1000));
+        const guesserScore = 10 + Math.floor(remaining / 5);
+        const drawerScore = 5;
+
+        player.score += guesserScore;
+        const drawer = room.players.get(room.game.drawerId);
+        if (drawer) drawer.score += drawerScore;
+
+        io.to(roomId).emit("system_message", {
+          text: `${player.name} 猜对了！(+${guesserScore} 分)`,
+          relatedUser: { id: socket.id, name: player.name }
+        });
+
+        broadcastRoom(io, roomId);
+
+        const activeGuessers = room.playerOrder.filter(
+          (id) => id !== room.game.drawerId && room.players.has(id)
+        ).length;
+
+        if (room.game.guessed.size >= activeGuessers && activeGuessers > 0) {
+          endRound(io, roomId, "all_guessed");
+        }
+
+        return;
+      }
+
+      io.to(roomId).emit("chat_message", {
+        sender: player.name,
+        senderId: socket.id,
+        text: msg,
+      });
+    });
+
+    socket.on("throw_effect", ({ type }) => {
+      const roomId = socket.data.roomId;
+      if (!roomId) return;
+
+      const room = rooms.get(roomId);
+      if (!room || !room.game.started) return;
+      
+      // Only spectators can throw effects
+      if (room.game.drawerId === socket.id) return;
+
+      const allowedEffects = ["🌸", "🩴", "🥚", "💋", "💣"];
+      if (!allowedEffects.includes(type)) return;
+
+      // Check usage limit
+      if (!room.game.effectUsage.has(socket.id)) {
+        room.game.effectUsage.set(socket.id, {});
+      }
+      const userUsage = room.game.effectUsage.get(socket.id);
+      const currentCount = userUsage[type] || 0;
+
+      if (currentCount >= 5) return;
+
+      userUsage[type] = currentCount + 1;
+
+      // Broadcast effect
+      io.to(roomId).emit("effect_thrown", {
+        type,
+        senderId: socket.id,
+        targetId: room.game.drawerId,
+      });
+    });
+
+    socket.on("disconnect", () => {
+      const roomId = socket.data.roomId;
+      if (!roomId) return;
+
+      const room = rooms.get(roomId);
+      if (!room) return;
+
+      const leaving = room.players.get(socket.id);
+      room.players.delete(socket.id);
+      room.playerOrder = room.playerOrder.filter((id) => id !== socket.id);
+      room.game.guessed.delete(socket.id);
+
+      if (leaving) {
+        io.to(roomId).emit("system_message", {
+          text: `${leaving.name} 离开了房间。`,
+          relatedUser: { id: socket.id, name: leaving.name }
+        });
+      }
+
+      if (room.hostId === socket.id) {
+        room.hostId = room.playerOrder[0] || null;
+      }
+
+      if (!room.players.size) {
+        stopRound(room);
+        rooms.delete(roomId);
+        return;
+      }
+
+      if (room.game.drawerId === socket.id) {
+        const nextId = nextDrawer(room);
+        room.game.drawerId = nextId;
+        if (nextId && room.game.started) {
+          if (!room.game.drawnPlayers) room.game.drawnPlayers = new Set();
+          room.game.drawnPlayers.add(nextId);
+          startRound(io, roomId);
+        }
+      }
+
+      broadcastRoom(io, roomId);
+    });
+  });
+}

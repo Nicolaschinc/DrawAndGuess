@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
-import { Palette, Brush, Trash2, X, Settings, Share2, LogOut, Ellipsis, CircleHelp, Image as ImageIcon } from "lucide-react";
+import { Palette, Brush, Trash2, X, Settings, Share2, LogOut, Ellipsis, CircleHelp, Image as ImageIcon, Maximize, Minimize } from "lucide-react";
 import { encryptRoomId } from "../utils/crypto";
 import { getPlayerColor } from "../utils/playerColor";
 import {
@@ -80,6 +80,15 @@ export default function GameRoom() {
   const [effectUsage, setEffectUsage] = useState({});
   const [flyingEffects, setFlyingEffects] = useState([]);
   const headerMenuRef = useRef(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    function handleFullscreenChange() {
+      setIsFullscreen(!!document.fullscreenElement);
+    }
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   // Handle joining when name is available
   useEffect(() => {
@@ -395,32 +404,28 @@ export default function GameRoom() {
     socketRef.current?.emit("clear_canvas");
   }
 
-  const fetchReferenceImages = async () => {
-    // Check if word exists before fetching
-    if (!roomState.game.word) {
-        console.warn("Cannot fetch reference images: No word selected.");
-        return;
-    }
-    
-    setLoadingImages(true);
-    setShowReferenceModal(true);
-    // Don't clear previous images immediately if we want to show loading state over them, 
-    // but for now clearing is fine to show fresh state
-    setReferenceImages([]);
+  useEffect(() => {
+    if (isDrawer && roomState.game.word) {
+      setReferenceImages([]);
+      
+      const loadReferenceImages = async () => {
+        setLoadingImages(true);
+        try {
+          const res = await fetch(`${SERVER_URL}/api/reference-images?word=${encodeURIComponent(roomState.game.word)}`);
+          const data = await res.json();
+          if (data.images) {
+            setReferenceImages(data.images);
+          }
+        } catch (err) {
+          console.error("Failed to fetch reference images", err);
+        } finally {
+          setLoadingImages(false);
+        }
+      };
 
-    try {
-      const res = await fetch(`${SERVER_URL}/api/reference-images?word=${encodeURIComponent(roomState.game.word)}`);
-      const data = await res.json();
-      if (data.images) {
-        setReferenceImages(data.images);
-      }
-    } catch (err) {
-      console.error("Failed to fetch reference images", err);
-      setToast({ title: "错误", message: "获取参考图失败" });
-    } finally {
-      setLoadingImages(false);
+      loadReferenceImages();
     }
-  };
+  }, [isDrawer, roomState.game.word]);
 
   function handleShareLink() {
     const hash = encryptRoomId(roomId);
@@ -464,6 +469,19 @@ export default function GameRoom() {
     navigate("/");
   }
 
+  function toggleFullScreen() {
+    const canvasWrap = canvasRef.current?.parentElement;
+    if (!canvasWrap) return;
+
+    if (!document.fullscreenElement) {
+      canvasWrap.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
   useEffect(() => {
     function handleOutsideClick(event) {
       if (!headerMenuRef.current) return;
@@ -474,6 +492,12 @@ export default function GameRoom() {
     document.addEventListener("pointerdown", handleOutsideClick);
     return () => document.removeEventListener("pointerdown", handleOutsideClick);
   }, []);
+
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   // If not joined and no name, show Join Modal
   if (showJoinModal) {
@@ -575,7 +599,7 @@ export default function GameRoom() {
           </div>
         )}
 
-        <div className={cx(styles["mobile-actions-row"], !isHost && styles.single)}>
+        <div className={cx(styles["mobile-actions-row"], !(isHost && !roomState.game.started) && styles.single)}>
           {isHost && !roomState.game.started && (
             <button onClick={startGame} className={styles["start-btn"]}>
               开始游戏
@@ -639,7 +663,7 @@ export default function GameRoom() {
           {canShowReference && (
             <button
               className={cx(styles["toolbar-trigger"], styles["toolbar-trigger-ai"])}
-              onClick={fetchReferenceImages}
+              onClick={() => setShowReferenceModal(true)}
               disabled={!canDraw}
               title="AI 参考图"
               aria-label="AI 参考图"
@@ -649,7 +673,7 @@ export default function GameRoom() {
           )}
 
           {showToolbar && (
-            <div className={cx(styles["floating-toolbar"], styles["floating-toolbar-shifted"])}>
+            <div className={cx(styles["floating-toolbar"])}>
               <div className={styles["tool-group"]}>
                 <button
                   className={cx(styles["tool-btn"], activeTool === "color" && styles.active)}
@@ -761,6 +785,15 @@ export default function GameRoom() {
             onContextMenu={(e) => e.preventDefault()}
             aria-label="绘图画布"
           />
+
+          <button
+            className={styles["fullscreen-trigger"]}
+            onClick={toggleFullScreen}
+            title={isFullscreen ? "退出全屏" : "全屏模式"}
+            aria-label={isFullscreen ? "退出全屏" : "全屏模式"}
+          >
+            {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+          </button>
         </div>
 
         <section className={styles["chat-box"]}>
@@ -776,6 +809,7 @@ export default function GameRoom() {
                 )}
               </li>
             ))}
+            <div ref={messagesEndRef} />
           </ul>
           <EffectToolbar 
             onThrow={handleThrowEffect} 

@@ -23,7 +23,12 @@ const openai = new OpenAI({
  */
 export async function fetchTrendingWords(count = 10, excludeWords = []) {
   if (!apiKey) {
-    console.warn('⚠️  AI Service Warning: API Key missing or default. Skipping AI fetch.');
+    console.warn('⚠️  AI Service Warning: API Key is missing in .env file. Skipping AI fetch.');
+    return [];
+  }
+  
+  if (apiKey === 'dummy' || apiKey.includes('NEW-ROTATED-KEY')) {
+    console.warn('⚠️  AI Service Warning: API Key is a placeholder (invalid). Please update .env with a real key. Skipping AI fetch.');
     return [];
   }
 
