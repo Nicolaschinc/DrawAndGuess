@@ -1,0 +1,59 @@
+
+/* ... existing styles ... */
+
+.toolbar-trigger-ai {
+  left: 64px;
+}
+
+.floating-toolbar-shifted {
+  left: 116px;
+}
+
+.modal-content-ref {
+  max-width: 600px;
+  width: 90%;
+}
+
+.ref-popup-content {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.ref-loading,
+.ref-empty {
+  padding: 20px;
+  text-align: center;
+}
+
+.ref-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.ref-item {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.ref-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.ref-hint {
+  margin-top: 15px;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+/* Error placeholder style injected via JS, adding class for it too if possible, but JS injection is tricky. 
+   For now, we'll leave the JS injection as is or create a class for it and use className assignment if logic permits.
+   The JS error handler uses innerHTML, so we can't easily use CSS modules there without global scope or complex logic.
+   I will skip the error handler innerHTML styles for now as they are dynamically inserted HTML strings.
+*/

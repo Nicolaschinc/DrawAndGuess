@@ -1581,3 +1581,66 @@ input[type="range"] {
     animation: flyEffectMobile 0.9s cubic-bezier(0.2, 0, 0.2, 1) forwards;
   }
 }
+
+/* Reference Images */
+.toolbar-trigger-ai {
+  left: 64px;
+}
+
+.floating-toolbar-shifted {
+  left: 116px;
+}
+
+.modal-content-ref {
+  max-width: 600px;
+  width: 90%;
+}
+
+.ref-popup-content {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.ref-loading,
+.ref-empty {
+  padding: 20px;
+  text-align: center;
+}
+
+.ref-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.ref-item {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.ref-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.ref-hint {
+  margin-top: 15px;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+.ref-error-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  color: #999;
+  font-size: 12px;
+}

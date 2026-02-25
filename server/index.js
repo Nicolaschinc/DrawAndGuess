@@ -2,8 +2,8 @@ import express from "express";
 import http from "http";
 import cors from "cors";
 import { Server } from "socket.io";
-import { getRandomWord, addHotWords } from "./wordManager.js";
-import { fetchTrendingWords } from "./aiService.js";
+import { getRandomWord, addHotWords, getAllWordsList } from "./wordManager.js";
+import { fetchTrendingWords, fetchReferenceImages } from "./aiService.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -14,7 +14,8 @@ app.get("/health", (_, res) => res.json({ ok: true }));
 
 app.post("/api/refresh-hot-words", async (_, res) => {
   try {
-    const words = await fetchTrendingWords(10);
+    const existingWords = getAllWordsList();
+    const words = await fetchTrendingWords(10, existingWords);
     if (words && words.length > 0) {
       addHotWords(words);
       res.json({ success: true, count: words.length, words });
@@ -24,6 +25,21 @@ app.post("/api/refresh-hot-words", async (_, res) => {
   } catch (err) {
     console.error("Error refreshing hot words:", err);
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get("/api/reference-images", async (req, res) => {
+  const { word } = req.query;
+  if (!word) {
+    return res.status(400).json({ error: "Word is required" });
+  }
+  
+  try {
+    const images = await fetchReferenceImages(word);
+    res.json({ images });
+  } catch (err) {
+    console.error("Error fetching reference images:", err);
+    res.status(500).json({ error: "Failed to fetch images" });
   }
 });
 
@@ -111,6 +127,7 @@ function roomStateFor(room, viewerId) {
       drawerId: game.drawerId,
       roundEndsAt: game.roundEndsAt,
       guessedIds: Array.from(game.guessed),
+      roundDuration: ROUND_SECONDS,
       word: game.drawerId === viewerId ? game.currentWord : null,
       maskedWord:
         game.currentWord && game.drawerId !== viewerId
@@ -163,11 +180,11 @@ function endRound(roomId, reason = "timeout") {
   stopRound(room);
 
   io.to(roomId).emit("system_message", {
-    text:
-      reason === "all_guessed"
-        ? `回合结束，答案是「${room.game.currentWord}」。`
-        : `时间到，答案是「${room.game.currentWord}」。`,
-  });
+      text:
+        reason === "all_guessed"
+          ? `回合结束，答案是「${room.game.currentWord}」。`
+          : `时间到，答案是「${room.game.currentWord}」。`,
+    });
 
   if (!room.game.drawnPlayers) {
     room.game.drawnPlayers = new Set();
@@ -265,13 +282,16 @@ function startRound(roomId) {
   room.game.effectUsage = new Map();
   room.strokes = [];
 
+  room.game.timer = setTimeout(() => endRound(roomId, "timeout"), ROUND_SECONDS * 1000);
+
+  const drawer = room.players.get(room.game.drawerId);
+  const drawerName = drawer?.name || "画家";
+  
   io.to(roomId).emit("clear_canvas");
   io.to(roomId).emit("system_message", {
-    text: `${room.players.get(room.game.drawerId)?.name || "画家"}正在画。`,
+    text: `${drawerName} 正在画。`,
+    relatedUser: drawer ? { id: room.game.drawerId, name: drawerName } : null,
   });
-
-  stopRound(room);
-  room.game.timer = setTimeout(() => endRound(roomId, "timeout"), ROUND_SECONDS * 1000);
 
   broadcastRoom(roomId);
 }
@@ -304,7 +324,10 @@ io.on("connection", (socket) => {
       room.hostId = socket.id;
     }
 
-    io.to(safeRoomId).emit("system_message", { text: `${safeName} 加入了房间。` });
+    io.to(safeRoomId).emit("system_message", { 
+      text: `${safeName} 加入了房间。`,
+      relatedUser: { id: socket.id, name: safeName }
+    });
     broadcastRoom(safeRoomId);
     cb({ ok: true });
   });
@@ -394,6 +417,7 @@ io.on("connection", (socket) => {
 
       io.to(roomId).emit("system_message", {
         text: `${player.name} 猜对了！(+${guesserScore} 分)`,
+        relatedUser: { id: socket.id, name: player.name }
       });
 
       broadcastRoom(roomId);
@@ -411,6 +435,7 @@ io.on("connection", (socket) => {
 
     io.to(roomId).emit("chat_message", {
       sender: player.name,
+      senderId: socket.id,
       text: msg,
     });
   });
@@ -462,6 +487,7 @@ io.on("connection", (socket) => {
     if (leaving) {
       io.to(roomId).emit("system_message", {
         text: `${leaving.name} 离开了房间。`,
+        relatedUser: { id: socket.id, name: leaving.name }
       });
     }
 

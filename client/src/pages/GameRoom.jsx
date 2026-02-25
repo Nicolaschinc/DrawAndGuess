@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
-import { Palette, Brush, Trash2, X, Settings, Share2, LogOut, Ellipsis, CircleHelp } from "lucide-react";
+import { Palette, Brush, Trash2, X, Settings, Share2, LogOut, Ellipsis, CircleHelp, Image as ImageIcon } from "lucide-react";
 import { encryptRoomId } from "../utils/crypto";
+import { getPlayerColor } from "../utils/playerColor";
 import {
   EffectToolbar,
   EffectOverlay,
@@ -72,6 +73,9 @@ export default function GameRoom() {
   const [showMobilePlayers, setShowMobilePlayers] = useState(false);
   const [toast, setToast] = useState(null); // { title, message }
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [showReferenceModal, setShowReferenceModal] = useState(false);
+  const [referenceImages, setReferenceImages] = useState([]);
+  const [loadingImages, setLoadingImages] = useState(false);
 
   const [effectUsage, setEffectUsage] = useState({});
   const [flyingEffects, setFlyingEffects] = useState([]);
@@ -244,9 +248,42 @@ export default function GameRoom() {
     return roomState.players.find((p) => p.id === socket.id) || null;
   }, [roomState.players]);
 
+  const renderSystemMessage = (msg) => {
+    if (!msg.relatedUser || !msg.text.includes(msg.relatedUser.name)) {
+      return msg.text;
+    }
+    const parts = msg.text.split(msg.relatedUser.name);
+    return (
+      <>
+        {parts.map((part, i) => (
+          <span key={i}>
+            {part}
+            {i < parts.length - 1 && (
+              <span style={{ color: getPlayerColor(msg.relatedUser.id), fontWeight: 600 }}>
+                {msg.relatedUser.name}
+              </span>
+            )}
+          </span>
+        ))}
+      </>
+    );
+  };
+
   const isHost = roomState.hostId === socketRef.current?.id;
   const isDrawer = roomState.game.drawerId === socketRef.current?.id;
   const canDraw = isDrawer && roomState.game.started;
+  
+  // Calculate if 10 seconds have passed in the current round
+  // Use Date.now() directly to ensure accuracy and avoid state sync issues
+  const roundEndsAt = roomState.game.roundEndsAt;
+  const roundDuration = roomState.game.roundDuration || 75; 
+  
+  let canShowReference = false;
+  if (canDraw && roundEndsAt) {
+    const remainingMs = roundEndsAt - Date.now();
+    const elapsedSeconds = (roundDuration * 1000 - remainingMs) / 1000;
+    canShowReference = elapsedSeconds >= 10;
+  }
 
   function clearCanvas() {
     const canvas = canvasRef.current;
@@ -357,6 +394,33 @@ export default function GameRoom() {
     if (!isDrawer) return;
     socketRef.current?.emit("clear_canvas");
   }
+
+  const fetchReferenceImages = async () => {
+    // Check if word exists before fetching
+    if (!roomState.game.word) {
+        console.warn("Cannot fetch reference images: No word selected.");
+        return;
+    }
+    
+    setLoadingImages(true);
+    setShowReferenceModal(true);
+    // Don't clear previous images immediately if we want to show loading state over them, 
+    // but for now clearing is fine to show fresh state
+    setReferenceImages([]);
+
+    try {
+      const res = await fetch(`${SERVER_URL}/api/reference-images?word=${encodeURIComponent(roomState.game.word)}`);
+      const data = await res.json();
+      if (data.images) {
+        setReferenceImages(data.images);
+      }
+    } catch (err) {
+      console.error("Failed to fetch reference images", err);
+      setToast({ title: "错误", message: "获取参考图失败" });
+    } finally {
+      setLoadingImages(false);
+    }
+  };
 
   function handleShareLink() {
     const hash = encryptRoomId(roomId);
@@ -544,7 +608,7 @@ export default function GameRoom() {
             .map((p) => (
             <li key={p.id} id={`player-${p.id}`}>
               <span>
-                {p.name}
+                <span style={{ color: getPlayerColor(p.id), fontWeight: 600 }}>{p.name}</span>
                 {p.id === roomState.game.drawerId ? " (画家)" : ""}
                 {p.id === roomState.hostId ? " (房主)" : ""}
                 {roomState.game.guessedIds.includes(p.id) ? " (已猜中)" : ""}
@@ -554,7 +618,12 @@ export default function GameRoom() {
           ))}
         </ul>
 
-        <p className={styles.me}>你：{me?.name || "-"}</p>
+        <p className={styles.me}>
+          你：
+          <span style={{ color: me ? getPlayerColor(me.id) : 'inherit', fontWeight: 600 }}>
+            {me?.name || "-"}
+          </span>
+        </p>
       </aside>
 
       <main className={styles["board-panel"]} id="game-main">
@@ -567,8 +636,20 @@ export default function GameRoom() {
             <Settings size={20} />
           </button>
 
+          {canShowReference && (
+            <button
+              className={cx(styles["toolbar-trigger"], styles["toolbar-trigger-ai"])}
+              onClick={fetchReferenceImages}
+              disabled={!canDraw}
+              title="AI 参考图"
+              aria-label="AI 参考图"
+            >
+              <ImageIcon size={20} />
+            </button>
+          )}
+
           {showToolbar && (
-            <div className={styles["floating-toolbar"]}>
+            <div className={cx(styles["floating-toolbar"], styles["floating-toolbar-shifted"])}>
               <div className={styles["tool-group"]}>
                 <button
                   className={cx(styles["tool-btn"], activeTool === "color" && styles.active)}
@@ -686,7 +767,13 @@ export default function GameRoom() {
           <ul className={styles.messages} role="log" aria-live="polite" aria-label="聊天消息">
             {messages.map((m, idx) => (
               <li key={idx} className={m.type === "system" ? styles["msg-system"] : styles["msg-chat"]}>
-                {m.type === "system" ? m.text : `${m.sender}: ${m.text}`}
+                {m.type === "system" ? (
+                  renderSystemMessage(m)
+                ) : (
+                  <>
+                    <span style={{ color: getPlayerColor(m.senderId), fontWeight: 600 }}>{m.sender}</span>: {m.text}
+                  </>
+                )}
               </li>
             ))}
           </ul>
@@ -709,6 +796,46 @@ export default function GameRoom() {
         </section>
       </main>
       {showRules && <RulesModal onClose={() => setShowRules(false)} />}
+      {showReferenceModal && (
+        <div className={styles["modal-overlay"]}>
+          <div className={cx(styles["modal-content"], styles["modal-content-ref"])}>
+            <div className={styles["modal-header"]}>
+              <h2>参考图 - {roomState.game.word}</h2>
+              <button className={styles["close-btn"]} onClick={() => setShowReferenceModal(false)}>
+                <X size={24} />
+              </button>
+            </div>
+            <div className={cx(styles["popup-content"], styles["ref-popup-content"])}>
+              {loadingImages ? (
+                <div className={styles["ref-loading"]}>正在生成参考图...</div>
+              ) : referenceImages.length > 0 ? (
+                <div className={styles["ref-grid"]}>
+                  {referenceImages.map((url, idx) => (
+                    <div key={idx} className={styles["ref-item"]}>
+                      <img 
+                        src={url} 
+                        alt={`参考图 ${idx + 1}`} 
+                        className={styles["ref-img"]}
+                        onClick={() => window.open(url, '_blank')}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = `<div class="${styles["ref-error-placeholder"]}">图片加载失败</div>`;
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className={styles["ref-empty"]}>未找到相关参考图</div>
+              )}
+              <p className={styles["ref-hint"]}>
+                *图片由 AI 实时生成，仅供参考，请勿直接照抄哦~
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showLeaveConfirm && (
         <ConfirmModal
           title="退出房间"
