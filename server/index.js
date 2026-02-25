@@ -2,11 +2,30 @@ import express from "express";
 import http from "http";
 import cors from "cors";
 import { Server } from "socket.io";
-import { getRandomWord } from "./wordManager.js";
+import { getRandomWord, addHotWords } from "./wordManager.js";
+import { fetchTrendingWords } from "./aiService.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 app.use(cors());
 app.get("/health", (_, res) => res.json({ ok: true }));
+
+app.post("/api/refresh-hot-words", async (_, res) => {
+  try {
+    const words = await fetchTrendingWords(10);
+    if (words && words.length > 0) {
+      addHotWords(words);
+      res.json({ success: true, count: words.length, words });
+    } else {
+      res.status(500).json({ success: false, error: "Failed to fetch words from AI" });
+    }
+  } catch (err) {
+    console.error("Error refreshing hot words:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -35,6 +54,9 @@ function makeRoom() {
       guessed: new Set(),
       drawnPlayers: new Set(),
       timer: null,
+      hintTimers: [],
+      currentHint: null,
+      allHints: [],
       effectUsage: new Map(), // userId -> { effectType: count }
     },
     strokes: [],
@@ -57,7 +79,8 @@ const CATEGORY_MAP = {
   "Objects": "物品",
   "Foods": "食物",
   "Places": "场所",
-  "Actions": "动作"
+  "Actions": "动作",
+  "热门": "热门话题"
 };
 
 function roomStateFor(room, viewerId) {
@@ -74,6 +97,11 @@ function roomStateFor(room, viewerId) {
     });
 
   const categoryName = CATEGORY_MAP[game.currentCategory] || game.currentCategory || "未知";
+  
+  let hintText = `提示: ${categoryName}`;
+  if (game.currentHint) {
+    hintText = `提示: ${game.currentHint}`;
+  }
 
   return {
     players,
@@ -86,7 +114,7 @@ function roomStateFor(room, viewerId) {
       word: game.drawerId === viewerId ? game.currentWord : null,
       maskedWord:
         game.currentWord && game.drawerId !== viewerId
-          ? `提示: ${categoryName} (${game.currentWord.length}字)`
+          ? `${hintText} (${game.currentWord.length}字)`
           : null,
     },
     strokes: room.strokes,
@@ -121,6 +149,10 @@ function stopRound(room) {
   if (room.game.timer) {
     clearTimeout(room.game.timer);
     room.game.timer = null;
+  }
+  if (room.game.hintTimers) {
+    room.game.hintTimers.forEach(t => clearTimeout(t));
+    room.game.hintTimers = [];
   }
 }
 
@@ -201,6 +233,33 @@ function startRound(roomId) {
   const picked = pickWord();
   room.game.currentWord = picked.word;
   room.game.currentCategory = picked.category;
+  room.game.allHints = picked.hints || [];
+  room.game.currentHint = null;
+  
+  // Setup hint timers if hints are available
+  if (room.game.allHints.length > 0) {
+    // Hint 1: Immediate
+    room.game.currentHint = room.game.allHints[0];
+    
+    // Hint 2: 25s
+    const t1 = setTimeout(() => {
+      if (room.game.started && room.game.allHints[1]) {
+        room.game.currentHint = room.game.allHints[1];
+        broadcastRoom(roomId);
+      }
+    }, 25000);
+    room.game.hintTimers.push(t1);
+
+    // Hint 3: 50s
+    const t2 = setTimeout(() => {
+      if (room.game.started && room.game.allHints[2]) {
+        room.game.currentHint = room.game.allHints[2];
+        broadcastRoom(roomId);
+      }
+    }, 50000);
+    room.game.hintTimers.push(t2);
+  }
+  
   room.game.roundEndsAt = Date.now() + ROUND_SECONDS * 1000;
   room.game.guessed = new Set();
   room.game.effectUsage = new Map();
@@ -430,6 +489,21 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`Server listening on http://localhost:${PORT}`);
+  
+  // Auto fetch hot words on startup
+  try {
+    console.log("Fetching trending words from AI...");
+    const existingWords = getAllWordsList();
+    const words = await fetchTrendingWords(10, existingWords);
+    if (words && words.length > 0) {
+      addHotWords(words);
+      console.log(`Successfully added ${words.length} trending words from AI.`);
+    } else {
+      console.log("No trending words fetched from AI.");
+    }
+  } catch (err) {
+    console.error("Failed to fetch initial trending words:", err.message);
+  }
 });
