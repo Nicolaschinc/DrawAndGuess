@@ -33,6 +33,7 @@ function makeRoom() {
       currentCategory: null,
       drawerId: null,
       guessed: new Set(),
+      drawnPlayers: new Set(),
       timer: null,
       effectUsage: new Map(), // userId -> { effectType: count }
     },
@@ -136,7 +137,29 @@ function endRound(roomId, reason = "timeout") {
         : `时间到，答案是「${room.game.currentWord}」。`,
   });
 
-  room.game.drawerId = nextDrawer(room);
+  if (!room.game.drawnPlayers) {
+    room.game.drawnPlayers = new Set();
+  }
+
+  // Check if all players have been the drawer
+  const allDrawn = room.playerOrder.every(id => room.game.drawnPlayers.has(id));
+
+  if (allDrawn) {
+    room.game.started = false;
+    io.to(roomId).emit("system_message", {
+      text: "游戏结束！所有玩家都已作画。",
+    });
+    broadcastRoom(roomId);
+    return;
+  }
+
+  const nextId = nextDrawer(room);
+  room.game.drawerId = nextId;
+  
+  if (nextId) {
+    room.game.drawnPlayers.add(nextId);
+  }
+  
   room.game.currentWord = null;
   room.game.currentCategory = null;
   room.game.roundEndsAt = null;
@@ -166,7 +189,12 @@ function startRound(roomId) {
   }
 
   if (!room.game.drawerId || !room.players.has(room.game.drawerId)) {
-    room.game.drawerId = nextDrawer(room);
+    const nextId = nextDrawer(room);
+    room.game.drawerId = nextId;
+    if (nextId) {
+      if (!room.game.drawnPlayers) room.game.drawnPlayers = new Set();
+      room.game.drawnPlayers.add(nextId);
+    }
   }
 
   room.game.started = true;
@@ -228,7 +256,14 @@ io.on("connection", (socket) => {
     const room = rooms.get(roomId);
     if (!room || room.hostId !== socket.id) return;
 
-    room.game.drawerId = nextDrawer(room);
+    room.game.drawnPlayers = new Set();
+    const firstDrawer = nextDrawer(room);
+    room.game.drawerId = firstDrawer;
+    
+    if (firstDrawer) {
+      room.game.drawnPlayers.add(firstDrawer);
+    }
+
     startRound(roomId);
   });
 
@@ -382,8 +417,11 @@ io.on("connection", (socket) => {
     }
 
     if (room.game.drawerId === socket.id) {
-      room.game.drawerId = nextDrawer(room);
-      if (room.game.started) {
+      const nextId = nextDrawer(room);
+      room.game.drawerId = nextId;
+      if (nextId && room.game.started) {
+        if (!room.game.drawnPlayers) room.game.drawnPlayers = new Set();
+        room.game.drawnPlayers.add(nextId);
         startRound(roomId);
       }
     }

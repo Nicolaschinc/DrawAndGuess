@@ -643,11 +643,11 @@ input[type="range"] {
   color: #fff;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 8px 18px rgb(15 118 110 / 26%);
+  box-shadow: 0 4px 10px rgb(15 118 110 / 20%);
   user-select: none;
-  font-size: 14px;
-  padding: 10px 16px;
-  min-height: var(--touch-min);
+  font-size: 13px;
+  padding: 8px 14px;
+  min-height: 36px;
   border-radius: var(--radius-sm);
   transition: border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
   display: flex;
@@ -725,6 +725,27 @@ input[type="range"] {
   margin: 0;
   font-size: 1.1rem;
   color: var(--ink-800);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.room-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--paper-2);
+  color: var(--ink-600);
+  border-radius: 999px;
+  font-size: 0.75em;
+  font-weight: normal;
+  white-space: nowrap;
+}
+
+.room-status.playing {
+  background: color-mix(in oklab, var(--accent-300), white 60%);
+  color: var(--accent-500);
 }
 
 .status-row {

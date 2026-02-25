@@ -8,4 +8,7 @@ export default defineConfig({
     // Vite uses string replacement, so the value should be a stringified string (e.g. '"1.0.0"')
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
   },
+  server: {
+    host: true,
+  },
 });

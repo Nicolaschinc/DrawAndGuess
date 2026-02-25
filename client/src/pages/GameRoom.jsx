@@ -17,7 +17,7 @@ const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 
 const SERVER_URL =
   import.meta.env.VITE_SERVER_URL ??
-  (import.meta.env.DEV ? "http://localhost:3001" : window.location.origin);
+  (import.meta.env.DEV ? `http://${window.location.hostname}:3001` : window.location.origin);
 
 function getPointerPosition(canvas, event) {
   const rect = canvas.getBoundingClientRect();
@@ -38,6 +38,7 @@ export default function GameRoom() {
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
   const lastPointRef = useRef(null);
+  const strokesRef = useRef([]);
 
   // Name state might come from router state or be empty
   const [name, setName] = useState(location.state?.name || "");
@@ -120,6 +121,7 @@ export default function GameRoom() {
         }
         return state;
       });
+      strokesRef.current = state.strokes;
       redrawAll(state.strokes);
     });
 
@@ -152,8 +154,14 @@ export default function GameRoom() {
       ]);
     });
 
-    socket.on("draw", (stroke) => drawStroke(stroke));
-    socket.on("clear_canvas", () => clearCanvas());
+    socket.on("draw", (stroke) => {
+      strokesRef.current.push(stroke);
+      drawStroke(stroke);
+    });
+    socket.on("clear_canvas", () => {
+      strokesRef.current = [];
+      clearCanvas();
+    });
 
     return () => {
       socket.disconnect();
@@ -208,10 +216,10 @@ export default function GameRoom() {
     const canvas = canvasRef.current;
     if (!canvas || !joined) return;
     resizeCanvas();
-    redrawAll(roomState.strokes);
+    redrawAll(strokesRef.current);
     const ro = new ResizeObserver(() => {
       resizeCanvas();
-      redrawAll(roomState.strokes);
+      redrawAll(strokesRef.current);
     });
     ro.observe(canvas);
     return () => ro.disconnect();
@@ -248,13 +256,40 @@ export default function GameRoom() {
   }
 
   function drawStroke(stroke) {
+    const canvas = canvasRef.current;
     const ctx = ctxRef.current;
-    if (!ctx) return;
+    if (!canvas || !ctx) return;
+
+    // Use client dimensions for denormalization to match CSS pixels
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+
+    let x0 = stroke.x0;
+    let y0 = stroke.y0;
+    let x1 = stroke.x1;
+    let y1 = stroke.y1;
+    let lineWidth = stroke.width;
+
+    // Check if stroke is normalized (flag or heuristic)
+    // We prefer the explicit flag, but fallback to heuristic for safety during transition
+    const isNormalized = stroke.normalized === true || (stroke.x0 <= 1 && stroke.x0 >= 0 && stroke.y0 <= 1 && stroke.y0 >= 0);
+
+    if (isNormalized) {
+      x0 *= w;
+      y0 *= h;
+      x1 *= w;
+      y1 *= h;
+      // Scale line width relative to canvas width (base 1000px)
+      lineWidth = stroke.width * (w / 1000);
+    }
+
     ctx.strokeStyle = stroke.color;
-    ctx.lineWidth = stroke.width;
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
     ctx.beginPath();
-    ctx.moveTo(stroke.x0, stroke.y0);
-    ctx.lineTo(stroke.x1, stroke.y1);
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
     ctx.stroke();
   }
 
@@ -293,16 +328,21 @@ export default function GameRoom() {
     const now = getPointerPosition(canvas, event);
     const prev = lastPointRef.current;
 
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+
     const stroke = {
-      x0: prev.x,
-      y0: prev.y,
-      x1: now.x,
-      y1: now.y,
+      x0: prev.x / w,
+      y0: prev.y / h,
+      x1: now.x / w,
+      y1: now.y / h,
       color: penColor,
       width: penWidth,
+      normalized: true,
     };
 
     drawStroke(stroke);
+    strokesRef.current.push(stroke);
     socketRef.current?.emit("draw", stroke);
     lastPointRef.current = now;
   }
@@ -408,7 +448,10 @@ export default function GameRoom() {
       </a>
       <aside className={styles["left-panel"]}>
         <div className={styles["room-header"]}>
-          <h2>房间：{roomId}</h2>
+          <h2>
+            房间：{roomId}
+            {!roomState.game.started && <span className={styles["room-status"]}>等待开始</span>}
+          </h2>
           <div className={styles["header-actions"]} ref={headerMenuRef}>
             <button
               className={cx(styles["header-menu-trigger"], showHeaderMenu && styles.active)}
@@ -460,14 +503,16 @@ export default function GameRoom() {
           <span aria-live="polite">剩余：{timeLeft}秒</span>
         </div>
 
-        <div className={styles["word-box"]} aria-live="polite">
-          {isDrawer
-            ? `你的词：${roomState.game.word || "等待回合"}`
-            : roomState.game.maskedWord || "等待游戏开始"}
-        </div>
+        {roomState.game.started && (
+          <div className={styles["word-box"]} aria-live="polite">
+            {isDrawer
+              ? `你的词：${roomState.game.word || "等待回合"}`
+              : roomState.game.maskedWord}
+          </div>
+        )}
 
         <div className={cx(styles["mobile-actions-row"], !isHost && styles.single)}>
-          {isHost && (
+          {isHost && !roomState.game.started && (
             <button onClick={startGame} className={styles["start-btn"]}>
               开始游戏
             </button>
