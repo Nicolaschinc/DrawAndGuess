@@ -67,24 +67,31 @@ export default function registerSocketHandlers(io) {
       startRound(io, roomId);
     });
 
-    socket.on(EVENTS.DRAW, (stroke) => {
+    socket.on(EVENTS.DRAW, (data) => {
       const roomId = socket.data.roomId;
       if (!roomId) return;
 
       const room = rooms.get(roomId);
       if (!room || room.game.drawerId !== socket.id || !room.game.started) return;
 
-      const safeStroke = {
+      // Handle both single stroke and batched strokes
+      const strokes = Array.isArray(data) ? data : [data];
+      
+      const safeStrokes = strokes.map(stroke => ({
         x0: Number(stroke?.x0),
         y0: Number(stroke?.y0),
         x1: Number(stroke?.x1),
         y1: Number(stroke?.y1),
         color: String(stroke?.color || "#111111").slice(0, 10),
         width: Math.max(1, Math.min(24, Number(stroke?.width) || 4)),
-      };
+        normalized: !!stroke?.normalized,
+      }));
 
-      room.strokes.push(safeStroke);
-      socket.to(roomId).emit(EVENTS.DRAW, safeStroke);
+      if (safeStrokes.length > 0) {
+        room.strokes.push(...safeStrokes);
+        // Emit batch to clients
+        socket.to(roomId).emit(EVENTS.DRAW, safeStrokes);
+      }
     });
 
     socket.on(EVENTS.CLEAR_CANVAS, () => {

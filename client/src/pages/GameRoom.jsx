@@ -1,18 +1,21 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
-import { Palette, Brush, Trash2, X, Settings, Share2, LogOut, Ellipsis, CircleHelp, Image as ImageIcon, Maximize, Minimize } from "lucide-react";
+import { Share2, LogOut, Ellipsis, CircleHelp } from "lucide-react";
 import { encryptRoomId } from "../utils/crypto";
 import { getPlayerColor } from "../utils/playerColor";
 import { EVENTS } from "@shared/events.mjs";
 import {
-  EffectToolbar,
   EffectOverlay,
   RulesModal,
   JoinRoomModal,
   ToastModal,
   ConfirmModal,
 } from "../components/GameUI";
+import GameTimer from "../components/GameTimer";
+import PlayerList from "../components/PlayerList";
+import ChatBox from "../components/ChatBox";
+import CanvasControls from "../components/CanvasControls";
 import styles from "../styles.module.scss";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");
@@ -41,6 +44,8 @@ export default function GameRoom() {
   const ctxRef = useRef(null);
   const lastPointRef = useRef(null);
   const strokesRef = useRef([]);
+  const localDrawQueue = useRef([]);
+  const socketDrawQueue = useRef([]);
 
   // Name state might come from router state or be empty
   const [name, setName] = useState(location.state?.name || "");
@@ -61,12 +66,10 @@ export default function GameRoom() {
     strokes: [],
   });
 
-  const [chatInput, setChatInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [penColor, setPenColor] = useState("#111111");
   const [penWidth, setPenWidth] = useState(4);
   const [activeTool, setActiveTool] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(0);
 
   const [showRules, setShowRules] = useState(false);
   const [showToolbar, setShowToolbar] = useState(false);
@@ -91,15 +94,115 @@ export default function GameRoom() {
     return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
+  // Drawing Loop (rAF)
+  useEffect(() => {
+    let animationFrameId;
+    const renderLoop = () => {
+      if (localDrawQueue.current.length > 0) {
+        const strokesToDraw = localDrawQueue.current;
+        localDrawQueue.current = []; // Clear queue
+        
+        for (const s of strokesToDraw) {
+          drawStroke(s);
+        }
+      }
+      animationFrameId = requestAnimationFrame(renderLoop);
+    };
+    renderLoop();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
+  // Socket Batch Sending (Throttle)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (socketDrawQueue.current.length > 0) {
+        const batch = [...socketDrawQueue.current];
+        socketDrawQueue.current = [];
+        socketRef.current?.emit(EVENTS.DRAW, batch);
+      }
+    }, 40); // 25Hz
+    return () => clearInterval(interval);
+  }, []);
+
+  // Helper to draw a single stroke
+  const drawStroke = useCallback((stroke) => {
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    if (!canvas || !ctx) return;
+
+    // Use client dimensions for denormalization to match CSS pixels
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+
+    let x0 = stroke.x0;
+    let y0 = stroke.y0;
+    let x1 = stroke.x1;
+    let y1 = stroke.y1;
+    let lineWidth = stroke.width;
+
+    const isNormalized = stroke.normalized === true || (stroke.x0 <= 1 && stroke.x0 >= 0 && stroke.y0 <= 1 && stroke.y0 >= 0);
+
+    if (isNormalized) {
+      x0 *= w;
+      y0 *= h;
+      x1 *= w;
+      y1 *= h;
+      // Scale line width relative to canvas width (base 1000px)
+      lineWidth = stroke.width * (w / 1000);
+    }
+
+    ctx.strokeStyle = stroke.color;
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+  }, []); // Dependencies are refs, so empty array is fine
+
+  const clearCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    if (!canvas || !ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }, []);
+
+  const redrawAll = useCallback((strokes) => {
+    clearCanvas();
+    for (const s of strokes) drawStroke(s);
+  }, [clearCanvas, drawStroke]);
+
+  const resizeCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    if (w <= 0 || h <= 0) return;
+
+    // Mobile optimization: Cap DPR at 1.5 for small screens
+    const isMobile = window.innerWidth < 768;
+    const maxDpr = isMobile ? 1.5 : 2;
+    const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
+
+    const width = Math.floor(w * dpr);
+    const height = Math.floor(h * dpr);
+    if (canvas.width === width && canvas.height === height) return;
+    
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(dpr, dpr);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctxRef.current = ctx;
+  }, []);
+
   // Handle joining when name is available
   useEffect(() => {
-    // If already joined, do nothing
     if (joined) return;
-
-    // If no name is provided, show the join modal (handled by rendering logic below)
     if (!name) return;
 
-    // Clean up any existing socket connection to prevent duplicates
     if (socketRef.current) {
       socketRef.current.disconnect();
     }
@@ -111,11 +214,10 @@ export default function GameRoom() {
     socketRef.current = socket;
 
     socket.on(EVENTS.CONNECT, () => {
-      // Once connected, try to join room
       socket.emit(EVENTS.JOIN_ROOM, { roomId, name }, (res) => {
         if (!res?.ok) {
           alert(res?.error || "加入失败");
-          navigate("/"); // Go back home on failure
+          navigate("/");
           return;
         }
         setJoined(true);
@@ -168,10 +270,13 @@ export default function GameRoom() {
       ]);
     });
 
-    socket.on(EVENTS.DRAW, (stroke) => {
-      strokesRef.current.push(stroke);
-      drawStroke(stroke);
+    socket.on(EVENTS.DRAW, (data) => {
+      // Handle both single stroke and array of strokes
+      const newStrokes = Array.isArray(data) ? data : [data];
+      strokesRef.current.push(...newStrokes);
+      localDrawQueue.current.push(...newStrokes);
     });
+
     socket.on(EVENTS.CLEAR_CANVAS, () => {
       strokesRef.current = [];
       clearCanvas();
@@ -180,52 +285,34 @@ export default function GameRoom() {
     return () => {
       socket.disconnect();
     };
-  }, [roomId, name, navigate]);
+  }, [roomId, name, navigate, redrawAll, clearCanvas]);
 
-  function handleJoinModalSubmit(newName) {
+  const handleJoinModalSubmit = useCallback((newName) => {
     setName(newName);
-    // The effect will trigger join
-  }
+  }, []);
 
-  function handleThrowEffect(type) {
-    if (isDrawer) return;
+  const handleThrowEffect = useCallback((type) => {
+    if (roomState.game.drawerId === socketRef.current?.id) return;
     setEffectUsage((prev) => ({
       ...prev,
       [type]: (prev[type] || 0) + 1,
     }));
     socketRef.current?.emit(EVENTS.THROW_EFFECT, { type });
-  }
+  }, [roomState.game.drawerId]);
 
-  function handleAnimationEnd(id) {
+  const handleAnimationEnd = useCallback((id) => {
     setFlyingEffects((prev) => prev.filter((e) => e.id !== id));
-  }
+  }, []);
 
-  function resizeCanvas() {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-    if (w <= 0 || h <= 0) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const width = Math.floor(w * dpr);
-    const height = Math.floor(h * dpr);
-    if (canvas.width === width && canvas.height === height) return;
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    ctx.scale(dpr, dpr);
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctxRef.current = ctx;
-  }
-
+  // Resize canvas when strokes change (initial load mostly)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     resizeCanvas();
     redrawAll(roomState.strokes);
-  }, [roomState.strokes.length]);
+  }, [roomState.strokes.length, resizeCanvas, redrawAll]);
 
+  // Resize observer
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !joined) return;
@@ -237,20 +324,7 @@ export default function GameRoom() {
     });
     ro.observe(canvas);
     return () => ro.disconnect();
-  }, [joined]);
-
-  useEffect(() => {
-    const tick = setInterval(() => {
-      if (!roomState.game.roundEndsAt) {
-        setTimeLeft(0);
-        return;
-      }
-      const left = Math.max(0, Math.ceil((roomState.game.roundEndsAt - Date.now()) / 1000));
-      setTimeLeft(left);
-    }, 300);
-
-    return () => clearInterval(tick);
-  }, [roomState.game.roundEndsAt]);
+  }, [joined, resizeCanvas, redrawAll]);
 
   const me = useMemo(() => {
     const socket = socketRef.current;
@@ -258,36 +332,17 @@ export default function GameRoom() {
     return roomState.players.find((p) => p.id === socket.id) || null;
   }, [roomState.players]);
 
-  const renderSystemMessage = (msg) => {
-    if (!msg.relatedUser || !msg.text.includes(msg.relatedUser.name)) {
-      return msg.text;
-    }
-    const parts = msg.text.split(msg.relatedUser.name);
-    return (
-      <>
-        {parts.map((part, i) => (
-          <span key={i}>
-            {part}
-            {i < parts.length - 1 && (
-              <span style={{ color: getPlayerColor(msg.relatedUser.id), fontWeight: 600 }}>
-                {msg.relatedUser.name}
-              </span>
-            )}
-          </span>
-        ))}
-      </>
-    );
-  };
-
   const isHost = roomState.hostId === socketRef.current?.id;
   const isDrawer = roomState.game.drawerId === socketRef.current?.id;
   const canDraw = isDrawer && roomState.game.started;
   
-  // Calculate if 10 seconds have passed in the current round
-  // Use Date.now() directly to ensure accuracy and avoid state sync issues
   const roundEndsAt = roomState.game.roundEndsAt;
   const roundDuration = roomState.game.roundDuration || 75; 
   
+  // Memoize canShowReference calculation to avoid unnecessary re-renders
+  // Actually this depends on time, but we only check it when rendering.
+  // Since we removed timeLeft state, this logic needs to be robust.
+  // We can just calculate it on render.
   let canShowReference = false;
   if (canDraw && roundEndsAt) {
     const remainingMs = roundEndsAt - Date.now();
@@ -295,116 +350,90 @@ export default function GameRoom() {
     canShowReference = elapsedSeconds >= 10;
   }
 
-  function clearCanvas() {
-    const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-    if (!canvas || !ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-
-  function drawStroke(stroke) {
-    const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-    if (!canvas || !ctx) return;
-
-    // Use client dimensions for denormalization to match CSS pixels
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-
-    let x0 = stroke.x0;
-    let y0 = stroke.y0;
-    let x1 = stroke.x1;
-    let y1 = stroke.y1;
-    let lineWidth = stroke.width;
-
-    // Check if stroke is normalized (flag or heuristic)
-    // We prefer the explicit flag, but fallback to heuristic for safety during transition
-    const isNormalized = stroke.normalized === true || (stroke.x0 <= 1 && stroke.x0 >= 0 && stroke.y0 <= 1 && stroke.y0 >= 0);
-
-    if (isNormalized) {
-      x0 *= w;
-      y0 *= h;
-      x1 *= w;
-      y1 *= h;
-      // Scale line width relative to canvas width (base 1000px)
-      lineWidth = stroke.width * (w / 1000);
-    }
-
-    ctx.strokeStyle = stroke.color;
-    ctx.lineWidth = lineWidth;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.beginPath();
-    ctx.moveTo(x0, y0);
-    ctx.lineTo(x1, y1);
-    ctx.stroke();
-  }
-
-  function redrawAll(strokes) {
-    clearCanvas();
-    for (const s of strokes) drawStroke(s);
-  }
-
-  function startGame() {
+  const startGame = useCallback(() => {
     socketRef.current?.emit(EVENTS.START_GAME);
-  }
+  }, []);
 
-  function sendChat(event) {
-    event.preventDefault();
-    if (!chatInput.trim()) return;
-    socketRef.current?.emit(EVENTS.CHAT_MESSAGE, chatInput.trim());
-    setChatInput("");
-  }
+  const onSendMessage = useCallback((text) => {
+    socketRef.current?.emit(EVENTS.CHAT_MESSAGE, text);
+  }, []);
 
-  function onPointerDown(event) {
+  const onPointerDown = useCallback((event) => {
     if (!isDrawer || !roomState.game.started) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     event.preventDefault();
     canvas.setPointerCapture(event.pointerId);
     lastPointRef.current = getPointerPosition(canvas, event);
-  }
+  }, [isDrawer, roomState.game.started]);
 
-  function onPointerMove(event) {
+  const onPointerMove = useCallback((event) => {
     if (!isDrawer || !roomState.game.started) return;
     if (!lastPointRef.current) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     event.preventDefault();
 
-    const now = getPointerPosition(canvas, event);
-    const prev = lastPointRef.current;
-
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
+    
+    // Use getCoalescedEvents for higher precision
+    const events = event.getCoalescedEvents ? event.getCoalescedEvents() : [event];
+    
+    let prev = lastPointRef.current;
 
-    const stroke = {
-      x0: prev.x / w,
-      y0: prev.y / h,
-      x1: now.x / w,
-      y1: now.y / h,
-      color: penColor,
-      width: penWidth,
-      normalized: true,
-    };
+    for (const e of events) {
+      const now = getPointerPosition(canvas, e);
+      
+      // Skip if position hasn't changed
+      if (now.x === prev.x && now.y === prev.y) continue;
 
-    drawStroke(stroke);
-    strokesRef.current.push(stroke);
-    socketRef.current?.emit(EVENTS.DRAW, stroke);
-    lastPointRef.current = now;
-  }
+      const stroke = {
+        x0: prev.x / w,
+        y0: prev.y / h,
+        x1: now.x / w,
+        y1: now.y / h,
+        color: penColor,
+        width: penWidth,
+        normalized: true,
+      };
 
-  function onPointerUp(event) {
+      // Push to queues
+      localDrawQueue.current.push(stroke);
+      socketDrawQueue.current.push(stroke);
+      strokesRef.current.push(stroke);
+
+      prev = now;
+    }
+    
+    lastPointRef.current = prev;
+  }, [isDrawer, roomState.game.started, penColor, penWidth]);
+
+  const onPointerUp = useCallback((event) => {
     const canvas = canvasRef.current;
     if (canvas) canvas.releasePointerCapture(event.pointerId);
     lastPointRef.current = null;
-  }
+  }, []);
 
-  function clearByDrawer() {
+  const clearByDrawer = useCallback(() => {
     if (!isDrawer) return;
     socketRef.current?.emit(EVENTS.CLEAR_CANVAS);
-  }
+  }, [isDrawer]);
 
+  const toggleFullScreen = useCallback(() => {
+    const canvasWrap = canvasRef.current?.parentElement;
+    if (!canvasWrap) return;
+
+    if (!document.fullscreenElement) {
+      canvasWrap.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }, []);
+
+  // Fetch reference images
   useEffect(() => {
     if (isDrawer && roomState.game.word) {
       setReferenceImages([]);
@@ -428,7 +457,7 @@ export default function GameRoom() {
     }
   }, [isDrawer, roomState.game.word]);
 
-  function handleShareLink() {
+  const handleShareLink = useCallback(() => {
     const hash = encryptRoomId(roomId);
     const url = `${window.location.origin}${import.meta.env.BASE_URL}share/${hash}`;
 
@@ -463,25 +492,12 @@ export default function GameRoom() {
     }
 
     document.body.removeChild(textArea);
-  }
+  }, [roomId]);
 
-  function leaveRoom() {
+  const leaveRoom = useCallback(() => {
     socketRef.current?.disconnect();
     navigate("/");
-  }
-
-  function toggleFullScreen() {
-    const canvasWrap = canvasRef.current?.parentElement;
-    if (!canvasWrap) return;
-
-    if (!document.fullscreenElement) {
-      canvasWrap.requestFullscreen().catch((err) => {
-        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-      });
-    } else {
-      document.exitFullscreen();
-    }
-  }
+  }, [navigate]);
 
   useEffect(() => {
     function handleOutsideClick(event) {
@@ -494,13 +510,6 @@ export default function GameRoom() {
     return () => document.removeEventListener("pointerdown", handleOutsideClick);
   }, []);
 
-  const messagesEndRef = useRef(null);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // If not joined and no name, show Join Modal
   if (showJoinModal) {
     const randomName = "玩家" + Math.floor(1000 + Math.random() * 9000);
     return (
@@ -511,7 +520,6 @@ export default function GameRoom() {
             onJoin={handleJoinModalSubmit}
             onCancel={() => navigate("/")}
           />
-         {/* Background can be anything, but using join-page style for consistency */}
          <div className={cx(styles["join-card"], styles["join-card-muted"])}>
             <h1>你画我猜</h1>
             <p className={styles.hint}>正在连接...</p>
@@ -589,7 +597,7 @@ export default function GameRoom() {
         </div>
         <div className={styles["status-row"]}>
           <span>玩家：{roomState.players.length}</span>
-          <span aria-live="polite">剩余：{timeLeft}秒</span>
+          <GameTimer roundEndsAt={roomState.game.roundEndsAt} />
         </div>
 
         {roomState.game.started && (
@@ -620,28 +628,13 @@ export default function GameRoom() {
           </div>
         </div>
 
-        <ul
-          id="players-list"
-          className={cx(styles.players, !showMobilePlayers && styles["is-collapsed"])}
-        >
-          {[...roomState.players]
-            .sort((a, b) => {
-              if (a.id === roomState.game.drawerId) return -1;
-              if (b.id === roomState.game.drawerId) return 1;
-              return 0;
-            })
-            .map((p) => (
-            <li key={p.id} id={`player-${p.id}`}>
-              <span>
-                <span style={{ color: getPlayerColor(p.id), fontWeight: 600 }}>{p.name}</span>
-                {p.id === roomState.game.drawerId ? " (画家)" : ""}
-                {p.id === roomState.hostId ? " (房主)" : ""}
-                {roomState.game.guessedIds.includes(p.id) ? " (已猜中)" : ""}
-              </span>
-              <strong>{p.score}</strong>
-            </li>
-          ))}
-        </ul>
+        <PlayerList 
+          players={roomState.players}
+          drawerId={roomState.game.drawerId}
+          hostId={roomState.hostId}
+          guessedIds={roomState.game.guessedIds}
+          showMobilePlayers={showMobilePlayers}
+        />
 
         <p className={styles.me}>
           你：
@@ -653,128 +646,22 @@ export default function GameRoom() {
 
       <main className={styles["board-panel"]} id="game-main">
         <div className={styles["canvas-wrap"]}>
-          <button 
-            className={cx(styles["toolbar-trigger"], showToolbar && styles.active)}
-            onClick={() => setShowToolbar(!showToolbar)}
-            title="工具栏"
-          >
-            <Settings size={20} />
-          </button>
-
-          {canShowReference && (
-            <button
-              className={cx(styles["toolbar-trigger"], styles["toolbar-trigger-ai"])}
-              onClick={() => setShowReferenceModal(true)}
-              disabled={!canDraw}
-              title="AI 参考图"
-              aria-label="AI 参考图"
-            >
-              <ImageIcon size={20} />
-            </button>
-          )}
-
-          {showToolbar && (
-            <div className={cx(styles["floating-toolbar"])}>
-              <div className={styles["tool-group"]}>
-                <button
-                  className={cx(styles["tool-btn"], activeTool === "color" && styles.active)}
-                  onClick={() => setActiveTool(activeTool === "color" ? null : "color")}
-                  disabled={!canDraw}
-                  title="颜色"
-                  aria-label="选择颜色"
-                  aria-expanded={activeTool === "color"}
-                >
-                  <Palette size={20} />
-                  <span className={styles["color-indicator"]} style={{ backgroundColor: penColor }} />
-                </button>
-                {activeTool === "color" && (
-                  <div className={styles["tool-popup"]}>
-                    <div className={styles["popup-header"]}>
-                      <span>选择颜色</span>
-                      <button className={styles["popup-close"]} onClick={() => setActiveTool(null)}>
-                        <X size={14} />
-                      </button>
-                    </div>
-                    <div className={styles["popup-content"]}>
-                      <input
-                        type="color"
-                        className={styles["color-picker-input"]}
-                        value={penColor}
-                        onChange={(e) => setPenColor(e.target.value)}
-                      />
-                      <div className={styles["color-presets"]}>
-                        {["#111111", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#ffffff"].map(c => (
-                          <button
-                            key={c}
-                            className={styles["color-preset-btn"]}
-                            style={{ backgroundColor: c }}
-                            onClick={() => setPenColor(c)}
-                            aria-label={`选择颜色 ${c}`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className={styles["tool-group"]}>
-                <button
-                  className={cx(styles["tool-btn"], activeTool === "width" && styles.active)}
-                  onClick={() => setActiveTool(activeTool === "width" ? null : "width")}
-                  disabled={!canDraw}
-                  title="笔刷大小"
-                  aria-label="调整笔刷大小"
-                  aria-expanded={activeTool === "width"}
-                >
-                  <Brush size={20} />
-                  <span className={styles["width-indicator"]}>{penWidth}</span>
-                </button>
-                {activeTool === "width" && (
-                  <div className={styles["tool-popup"]}>
-                    <div className={styles["popup-header"]}>
-                      <span>笔刷大小</span>
-                      <button className={styles["popup-close"]} onClick={() => setActiveTool(null)}>
-                        <X size={14} />
-                      </button>
-                    </div>
-                    <div className={styles["popup-content"]}>
-                      <input
-                        type="range"
-                        min="1"
-                        max="24"
-                        value={penWidth}
-                        onChange={(e) => setPenWidth(Number(e.target.value))}
-                        className={styles["width-slider"]}
-                      />
-                      <div className={styles["width-preview-box"]}>
-                        <div
-                          className={styles["width-preview-dot"]}
-                          style={{
-                            width: penWidth,
-                            height: penWidth,
-                            backgroundColor: penColor
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className={styles["tool-divider"]} />
-
-              <button
-                className={cx(styles["tool-btn"], styles.danger)}
-                onClick={clearByDrawer}
-                disabled={!canDraw}
-                title="清空画布"
-                aria-label="清空画布"
-              >
-                <Trash2 size={20} />
-              </button>
-            </div>
-          )}
+          <CanvasControls
+            showToolbar={showToolbar}
+            setShowToolbar={setShowToolbar}
+            activeTool={activeTool}
+            setActiveTool={setActiveTool}
+            penColor={penColor}
+            setPenColor={setPenColor}
+            penWidth={penWidth}
+            setPenWidth={setPenWidth}
+            canDraw={canDraw}
+            clearByDrawer={clearByDrawer}
+            isFullscreen={isFullscreen}
+            toggleFullScreen={toggleFullScreen}
+            canShowReference={canShowReference}
+            setShowReferenceModal={setShowReferenceModal}
+          />
 
           <canvas
             ref={canvasRef}
@@ -786,50 +673,18 @@ export default function GameRoom() {
             onContextMenu={(e) => e.preventDefault()}
             aria-label="绘图画布"
           />
-
-          <button
-            className={styles["fullscreen-trigger"]}
-            onClick={toggleFullScreen}
-            title={isFullscreen ? "退出全屏" : "全屏模式"}
-            aria-label={isFullscreen ? "退出全屏" : "全屏模式"}
-          >
-            {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
-          </button>
         </div>
 
-        <section className={styles["chat-box"]}>
-          <ul className={styles.messages} role="log" aria-live="polite" aria-label="聊天消息">
-            {messages.map((m, idx) => (
-              <li key={idx} className={m.type === "system" ? styles["msg-system"] : styles["msg-chat"]}>
-                {m.type === "system" ? (
-                  renderSystemMessage(m)
-                ) : (
-                  <>
-                    <span style={{ color: getPlayerColor(m.senderId), fontWeight: 600 }}>{m.sender}</span>: {m.text}
-                  </>
-                )}
-              </li>
-            ))}
-            <div ref={messagesEndRef} />
-          </ul>
-          <EffectToolbar 
-            onThrow={handleThrowEffect} 
-            usage={effectUsage} 
-            disabled={!roomState.game.started || isDrawer} 
-          />
-          <form onSubmit={sendChat} className={styles["chat-form"]}>
-            <input
-              name="chat_message"
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              placeholder="输入猜测或聊天内容…"
-              autoComplete="off"
-              maxLength={100}
-            />
-            <button type="submit">发送</button>
-          </form>
-        </section>
+        <ChatBox 
+          messages={messages}
+          onSendMessage={onSendMessage}
+          effectUsage={effectUsage}
+          onThrowEffect={handleThrowEffect}
+          gameStarted={roomState.game.started}
+          isDrawer={isDrawer}
+        />
       </main>
+      
       {showRules && <RulesModal onClose={() => setShowRules(false)} />}
       {showReferenceModal && (
         <div className={styles["modal-overlay"]}>

@@ -39,7 +39,7 @@ ROOM_STATE: {
   strokes: Array 
 }
 START_GAME: null
-DRAW: { x0, y0, x1, y1, color, width }
+DRAW: { x0, y0, x1, y1, color, width } | Array<{ x0, y0, x1, y1, color, width }>
 CLEAR_CANVAS: null
 CHAT_MESSAGE: string (client->server) | { sender, senderId, text } (server->client)
 THROW_EFFECT: { type: string }
