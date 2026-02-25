@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { decryptRoomId } from "../utils/crypto";
+import styles from "../styles.module.scss";
 
 export default function ShareRedirect() {
   const { hash } = useParams();
@@ -21,8 +22,8 @@ export default function ShareRedirect() {
   }, [hash, navigate]);
 
   return (
-    <div className="join-page">
-      <div className="join-card" style={{ justifyContent: "center", alignItems: "center", minHeight: "200px" }}>
+    <div className={styles["join-page"]}>
+      <div className={`${styles["join-card"]} ${styles["join-card-centered"]}`}>
         <p>正在解析分享链接...</p>
       </div>
     </div>

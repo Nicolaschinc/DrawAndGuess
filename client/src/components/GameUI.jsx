@@ -1,4 +1,7 @@
 import { useState } from "react";
+import styles from "../styles.module.scss";
+
+const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 
 export const EFFECT_TYPES = [
   { type: "🌸", label: "鲜花" },
@@ -12,9 +15,9 @@ export function EffectToolbar({ onThrow, usage, disabled }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="effect-toolbar">
+    <div className={styles["effect-toolbar"]}>
       <button
-        className={`effect-toggle-btn ${expanded ? "active" : ""}`}
+        className={cx(styles["effect-toggle-btn"], expanded && styles.active)}
         onClick={() => setExpanded(!expanded)}
         title="互动道具"
         disabled={disabled}
@@ -22,14 +25,14 @@ export function EffectToolbar({ onThrow, usage, disabled }) {
         🎁
       </button>
       {expanded && (
-        <div className="effect-list">
+        <div className={styles["effect-list"]}>
           {EFFECT_TYPES.map(({ type, label }) => {
             const count = usage[type] || 0;
             const isLimit = count >= 5;
             return (
               <button
                 key={type}
-                className="effect-btn"
+                className={styles["effect-btn"]}
                 onClick={() => onThrow(type)}
                 disabled={disabled || isLimit}
                 title={`${label} (剩余 ${5 - count})`}
@@ -46,11 +49,11 @@ export function EffectToolbar({ onThrow, usage, disabled }) {
 
 export function EffectOverlay({ effects, onAnimationEnd }) {
   return (
-    <div className="effect-overlay">
+    <div className={styles["effect-overlay"]}>
       {effects.map((effect) => (
         <div
           key={effect.id}
-          className="flying-effect"
+          className={styles["flying-effect"]}
           style={{
             "--start-x": `${effect.startX}px`,
             "--start-y": `${effect.startY}px`,
@@ -68,21 +71,20 @@ export function EffectOverlay({ effects, onAnimationEnd }) {
 
 export function ToastModal({ title, message, onClose }) {
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content join-modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+    <div className={styles["modal-overlay"]} onClick={onClose}>
+      <div className={cx(styles["modal-content"], styles["join-modal-content"])} onClick={(e) => e.stopPropagation()}>
+        <div className={styles["modal-header"]}>
           <h2>{title}</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button className={styles["close-btn"]} onClick={onClose}>×</button>
         </div>
-        <div className="join-modal-body" style={{ paddingBottom: "24px" }}>
-          <p style={{ margin: "10px 0 20px", fontSize: "16px", color: "var(--ink-600)" }}>
+        <div className={cx(styles["join-modal-body"], styles["join-modal-body-spaced"])}>
+          <p className={styles["toast-message"]}>
             {message}
           </p>
-          <div className="modal-actions" style={{ justifyContent: "stretch", display: "flex" }}>
+          <div className={cx(styles["modal-actions"], styles["modal-actions-stretch"])}>
             <button 
               onClick={onClose} 
-              className="start-btn"
-              style={{ flex: 1 }}
+              className={cx(styles["start-btn"], styles["modal-action-full"])}
             >
               确定
             </button>
@@ -93,15 +95,53 @@ export function ToastModal({ title, message, onClose }) {
   );
 }
 
+export function ConfirmModal({
+  title,
+  message,
+  confirmText = "确定",
+  cancelText = "取消",
+  danger = false,
+  onConfirm,
+  onCancel,
+}) {
+  return (
+    <div className={styles["modal-overlay"]} onClick={onCancel}>
+      <div className={cx(styles["modal-content"], styles["join-modal-content"])} onClick={(e) => e.stopPropagation()}>
+        <div className={styles["modal-header"]}>
+          <h2>{title}</h2>
+          <button className={styles["close-btn"]} onClick={onCancel}>×</button>
+        </div>
+        <div className={cx(styles["join-modal-body"], styles["join-modal-body-spaced"])}>
+          <p className={styles["toast-message"]}>{message}</p>
+          <div className={cx(styles["modal-actions"], styles["modal-actions-stretch"])}>
+            <button
+              onClick={onCancel}
+              className={cx(styles["cancel-btn"], styles["modal-action-full"])}
+            >
+              {cancelText}
+            </button>
+            <button
+              onClick={onConfirm}
+              className={cx(danger ? styles["danger-btn"] : styles["start-btn"], styles["modal-action-full"])}
+            >
+              {confirmText}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function RulesModal({ onClose }) {
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+    <div className={styles["modal-overlay"]} onClick={onClose}>
+      <div className={styles["modal-content"]} onClick={(e) => e.stopPropagation()}>
+        <div className={styles["modal-header"]}>
           <h2>游戏规则</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button className={styles["close-btn"]} onClick={onClose}>×</button>
         </div>
-        <div className="rules-content">
+        <div className={styles["rules-content"]}>
           <section>
             <h3>🎨 游戏流程</h3>
             <p>1. 玩家轮流当画家，其他人猜词</p>
@@ -129,7 +169,7 @@ export function RulesButton({ onClick, className = "", iconOnly = false }) {
   return (
     <button
       onClick={onClick}
-      className={`rules-btn ${iconOnly ? "icon-only" : ""} ${className}`}
+      className={cx(styles["rules-btn"], iconOnly && styles["icon-only"], className)}
       title="游戏规则"
       aria-label="查看游戏规则"
     >
@@ -147,17 +187,17 @@ export function JoinRoomModal({ roomId, defaultName, onJoin, onCancel }) {
   const [name, setName] = useState(defaultName);
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content join-modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+    <div className={styles["modal-overlay"]}>
+      <div className={cx(styles["modal-content"], styles["join-modal-content"])} onClick={(e) => e.stopPropagation()}>
+        <div className={styles["modal-header"]}>
           <h2>加入房间</h2>
-          <button className="close-btn" onClick={onCancel}>×</button>
+          <button className={styles["close-btn"]} onClick={onCancel}>×</button>
         </div>
-        <div className="join-modal-body">
-          <p className="hint">
+        <div className={styles["join-modal-body"]}>
+          <p className={styles.hint}>
             正在加入房间: <strong>{roomId}</strong>
           </p>
-          <label className="field">
+          <label className={styles.field}>
             <span>你的名称</span>
             <input
               value={name}
@@ -168,12 +208,12 @@ export function JoinRoomModal({ roomId, defaultName, onJoin, onCancel }) {
               autoFocus
             />
           </label>
-          <div className="modal-actions">
-            <button onClick={onCancel} className="cancel-btn">取消</button>
+          <div className={styles["modal-actions"]}>
+            <button onClick={onCancel} className={styles["cancel-btn"]}>取消</button>
             <button 
               onClick={() => onJoin(name)} 
               disabled={!name.trim()} 
-              className="start-btn"
+              className={styles["start-btn"]}
             >
               加入
             </button>

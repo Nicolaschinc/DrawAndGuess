@@ -1,16 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
-import { Palette, Brush, Trash2, X, Settings, Share2 } from "lucide-react";
+import { Palette, Brush, Trash2, X, Settings, Share2, LogOut, Ellipsis, CircleHelp } from "lucide-react";
 import { encryptRoomId } from "../utils/crypto";
 import {
   EffectToolbar,
   EffectOverlay,
   RulesModal,
-  RulesButton,
   JoinRoomModal,
   ToastModal,
+  ConfirmModal,
 } from "../components/GameUI";
+import styles from "../styles.module.scss";
+
+const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 
 const SERVER_URL =
   import.meta.env.VITE_SERVER_URL ??
@@ -64,11 +67,14 @@ export default function GameRoom() {
 
   const [showRules, setShowRules] = useState(false);
   const [showToolbar, setShowToolbar] = useState(false);
+  const [showHeaderMenu, setShowHeaderMenu] = useState(false);
   const [showMobilePlayers, setShowMobilePlayers] = useState(false);
   const [toast, setToast] = useState(null); // { title, message }
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
 
   const [effectUsage, setEffectUsage] = useState({});
   const [flyingEffects, setFlyingEffects] = useState([]);
+  const headerMenuRef = useRef(null);
 
   // Handle joining when name is available
   useEffect(() => {
@@ -312,11 +318,64 @@ export default function GameRoom() {
     socketRef.current?.emit("clear_canvas");
   }
 
+  function handleShareLink() {
+    const hash = encryptRoomId(roomId);
+    const url = `${window.location.origin}${import.meta.env.BASE_URL}share/${hash}`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        setToast({ title: "链接已复制", message: "快去邀请好友加入游戏吧！" });
+      }).catch((err) => {
+        console.error("Clipboard write failed", err);
+        alert("复制失败，请手动复制链接: " + url);
+      });
+      return;
+    }
+
+    const textArea = document.createElement("textarea");
+    textArea.value = url;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand("copy");
+      if (successful) {
+        setToast({ title: "链接已复制", message: "快去邀请好友加入游戏吧！" });
+      } else {
+        alert("复制失败，请手动复制链接: " + url);
+      }
+    } catch (err) {
+      console.error("Fallback copy failed", err);
+      alert("复制失败，请手动复制链接: " + url);
+    }
+
+    document.body.removeChild(textArea);
+  }
+
+  function leaveRoom() {
+    socketRef.current?.disconnect();
+    navigate("/");
+  }
+
+  useEffect(() => {
+    function handleOutsideClick(event) {
+      if (!headerMenuRef.current) return;
+      if (!headerMenuRef.current.contains(event.target)) {
+        setShowHeaderMenu(false);
+      }
+    }
+    document.addEventListener("pointerdown", handleOutsideClick);
+    return () => document.removeEventListener("pointerdown", handleOutsideClick);
+  }, []);
+
   // If not joined and no name, show Join Modal
   if (showJoinModal) {
     const randomName = "玩家" + Math.floor(1000 + Math.random() * 9000);
     return (
-      <div className="join-page">
+      <div className={styles["join-page"]}>
          <JoinRoomModal 
             roomId={roomId}
             defaultName={randomName}
@@ -324,9 +383,9 @@ export default function GameRoom() {
             onCancel={() => navigate("/")}
           />
          {/* Background can be anything, but using join-page style for consistency */}
-         <div className="join-card" style={{ opacity: 0.5, pointerEvents: "none" }}>
+         <div className={cx(styles["join-card"], styles["join-card-muted"])}>
             <h1>你画我猜</h1>
-            <p className="hint">正在连接...</p>
+            <p className={styles.hint}>正在连接...</p>
          </div>
       </div>
     );
@@ -334,91 +393,90 @@ export default function GameRoom() {
 
   if (!joined) {
      return (
-        <div className="join-page">
-           <div className="join-card" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "200px" }}>
-              <p style={{ margin: 0, color: "var(--ink-600)" }}>正在加入房间...</p>
+        <div className={styles["join-page"]}>
+           <div className={cx(styles["join-card"], styles["join-card-centered"])}>
+              <p className={styles["join-status-text"]}>正在加入房间...</p>
            </div>
         </div>
      );
   }
 
   return (
-    <div className="layout">
-      <a className="skip-link" href="#game-main">
+    <div className={styles.layout}>
+      <a className={styles["skip-link"]} href="#game-main">
         跳到游戏内容
       </a>
-      <aside className="left-panel">
-        <div className="room-header">
+      <aside className={styles["left-panel"]}>
+        <div className={styles["room-header"]}>
           <h2>房间：{roomId}</h2>
-          <div className="header-actions">
-            <button 
-              className="rules-btn icon-only"
-              onClick={() => {
-                const hash = encryptRoomId(roomId);
-                const url = `${window.location.origin}${import.meta.env.BASE_URL}share/${hash}`;
-                
-                // Fallback for non-secure contexts (http) or older browsers
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                  navigator.clipboard.writeText(url).then(() => {
-                    setToast({ title: "链接已复制", message: "快去邀请好友加入游戏吧！" });
-                  }).catch(err => {
-                    console.error("Clipboard write failed", err);
-                    alert("复制失败，请手动复制链接: " + url);
-                  });
-                } else {
-                  // Fallback method using textarea
-                  const textArea = document.createElement("textarea");
-                  textArea.value = url;
-                  textArea.style.position = "fixed";
-                  textArea.style.left = "-9999px";
-                  document.body.appendChild(textArea);
-                  textArea.focus();
-                  textArea.select();
-                  
-                  try {
-                    const successful = document.execCommand('copy');
-                    if (successful) {
-                      setToast({ title: "链接已复制", message: "快去邀请好友加入游戏吧！" });
-                    } else {
-                      alert("复制失败，请手动复制链接: " + url);
-                    }
-                  } catch (err) {
-                    console.error('Fallback copy failed', err);
-                    alert("复制失败，请手动复制链接: " + url);
-                  }
-                  
-                  document.body.removeChild(textArea);
-                }
-              }}
-              title="分享房间链接"
+          <div className={styles["header-actions"]} ref={headerMenuRef}>
+            <button
+              className={cx(styles["header-menu-trigger"], showHeaderMenu && styles.active)}
+              onClick={() => setShowHeaderMenu((prev) => !prev)}
+              title="房间功能"
+              aria-label="房间功能"
+              aria-expanded={showHeaderMenu}
             >
-              <Share2 size={20} />
+              <Ellipsis size={18} />
             </button>
-            <RulesButton onClick={() => setShowRules(true)} />
+            {showHeaderMenu && (
+              <div className={styles["header-menu-panel"]}>
+                <button
+                  className={styles["header-menu-item"]}
+                  onClick={() => {
+                    handleShareLink();
+                    setShowHeaderMenu(false);
+                  }}
+                >
+                  <Share2 size={16} />
+                  <span>分享房间</span>
+                </button>
+                <button
+                  className={styles["header-menu-item"]}
+                  onClick={() => {
+                    setShowRules(true);
+                    setShowHeaderMenu(false);
+                  }}
+                >
+                  <CircleHelp size={16} />
+                  <span>游戏规则</span>
+                </button>
+                <button
+                  className={cx(styles["header-menu-item"], styles["header-menu-item-danger"])}
+                  onClick={() => {
+                    setShowHeaderMenu(false);
+                    setShowLeaveConfirm(true);
+                  }}
+                >
+                  <LogOut size={16} />
+                  <span>退出房间</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
-        <div className="status-row">
+        <div className={styles["status-row"]}>
           <span>玩家：{roomState.players.length}</span>
           <span aria-live="polite">剩余：{timeLeft}秒</span>
         </div>
 
-        <div className="word-box" aria-live="polite">
+        <div className={styles["word-box"]} aria-live="polite">
           {isDrawer
             ? `你的词：${roomState.game.word || "等待回合"}`
             : roomState.game.maskedWord || "等待游戏开始"}
         </div>
 
-        <div className={`mobile-actions-row ${isHost ? "" : "single"}`}>
+        <div className={cx(styles["mobile-actions-row"], !isHost && styles.single)}>
           {isHost && (
-            <button onClick={startGame} className="start-btn">
+            <button onClick={startGame} className={styles["start-btn"]}>
               开始游戏
             </button>
           )}
 
-          <div className="mobile-players-toggle-wrap">
+          <div className={styles["mobile-players-toggle-wrap"]}>
             <button
               type="button"
-              className={`mobile-players-toggle ${showMobilePlayers ? "active" : ""}`}
+              className={cx(styles["mobile-players-toggle"], showMobilePlayers && styles.active)}
               onClick={() => setShowMobilePlayers((prev) => !prev)}
               aria-expanded={showMobilePlayers}
               aria-controls="players-list"
@@ -430,7 +488,7 @@ export default function GameRoom() {
 
         <ul
           id="players-list"
-          className={`players ${showMobilePlayers ? "is-open" : "is-collapsed"}`}
+          className={cx(styles.players, !showMobilePlayers && styles["is-collapsed"])}
         >
           {[...roomState.players]
             .sort((a, b) => {
@@ -451,13 +509,13 @@ export default function GameRoom() {
           ))}
         </ul>
 
-        <p className="me">你：{me?.name || "-"}</p>
+        <p className={styles.me}>你：{me?.name || "-"}</p>
       </aside>
 
-      <main className="board-panel" id="game-main">
-        <div className="canvas-wrap">
+      <main className={styles["board-panel"]} id="game-main">
+        <div className={styles["canvas-wrap"]}>
           <button 
-            className={`toolbar-trigger ${showToolbar ? 'active' : ''}`}
+            className={cx(styles["toolbar-trigger"], showToolbar && styles.active)}
             onClick={() => setShowToolbar(!showToolbar)}
             title="工具栏"
           >
@@ -465,10 +523,10 @@ export default function GameRoom() {
           </button>
 
           {showToolbar && (
-            <div className="floating-toolbar">
-              <div className="tool-group">
+            <div className={styles["floating-toolbar"]}>
+              <div className={styles["tool-group"]}>
                 <button
-                  className={`tool-btn ${activeTool === "color" ? "active" : ""}`}
+                  className={cx(styles["tool-btn"], activeTool === "color" && styles.active)}
                   onClick={() => setActiveTool(activeTool === "color" ? null : "color")}
                   disabled={!canDraw}
                   title="颜色"
@@ -476,28 +534,28 @@ export default function GameRoom() {
                   aria-expanded={activeTool === "color"}
                 >
                   <Palette size={20} />
-                  <span className="color-indicator" style={{ backgroundColor: penColor }} />
+                  <span className={styles["color-indicator"]} style={{ backgroundColor: penColor }} />
                 </button>
                 {activeTool === "color" && (
-                  <div className="tool-popup color-popup">
-                    <div className="popup-header">
+                  <div className={styles["tool-popup"]}>
+                    <div className={styles["popup-header"]}>
                       <span>选择颜色</span>
-                      <button className="popup-close" onClick={() => setActiveTool(null)}>
+                      <button className={styles["popup-close"]} onClick={() => setActiveTool(null)}>
                         <X size={14} />
                       </button>
                     </div>
-                    <div className="popup-content">
+                    <div className={styles["popup-content"]}>
                       <input
                         type="color"
-                        className="color-picker-input"
+                        className={styles["color-picker-input"]}
                         value={penColor}
                         onChange={(e) => setPenColor(e.target.value)}
                       />
-                      <div className="color-presets">
+                      <div className={styles["color-presets"]}>
                         {["#111111", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#ffffff"].map(c => (
                           <button
                             key={c}
-                            className="color-preset-btn"
+                            className={styles["color-preset-btn"]}
                             style={{ backgroundColor: c }}
                             onClick={() => setPenColor(c)}
                             aria-label={`选择颜色 ${c}`}
@@ -509,9 +567,9 @@ export default function GameRoom() {
                 )}
               </div>
 
-              <div className="tool-group">
+              <div className={styles["tool-group"]}>
                 <button
-                  className={`tool-btn ${activeTool === "width" ? "active" : ""}`}
+                  className={cx(styles["tool-btn"], activeTool === "width" && styles.active)}
                   onClick={() => setActiveTool(activeTool === "width" ? null : "width")}
                   disabled={!canDraw}
                   title="笔刷大小"
@@ -519,28 +577,28 @@ export default function GameRoom() {
                   aria-expanded={activeTool === "width"}
                 >
                   <Brush size={20} />
-                  <span className="width-indicator">{penWidth}</span>
+                  <span className={styles["width-indicator"]}>{penWidth}</span>
                 </button>
                 {activeTool === "width" && (
-                  <div className="tool-popup width-popup">
-                    <div className="popup-header">
+                  <div className={styles["tool-popup"]}>
+                    <div className={styles["popup-header"]}>
                       <span>笔刷大小</span>
-                      <button className="popup-close" onClick={() => setActiveTool(null)}>
+                      <button className={styles["popup-close"]} onClick={() => setActiveTool(null)}>
                         <X size={14} />
                       </button>
                     </div>
-                    <div className="popup-content">
+                    <div className={styles["popup-content"]}>
                       <input
                         type="range"
                         min="1"
                         max="24"
                         value={penWidth}
                         onChange={(e) => setPenWidth(Number(e.target.value))}
-                        className="width-slider"
+                        className={styles["width-slider"]}
                       />
-                      <div className="width-preview-box">
+                      <div className={styles["width-preview-box"]}>
                         <div
-                          className="width-preview-dot"
+                          className={styles["width-preview-dot"]}
                           style={{
                             width: penWidth,
                             height: penWidth,
@@ -553,10 +611,10 @@ export default function GameRoom() {
                 )}
               </div>
 
-              <div className="tool-divider" />
+              <div className={styles["tool-divider"]} />
 
               <button
-                className="tool-btn danger"
+                className={cx(styles["tool-btn"], styles.danger)}
                 onClick={clearByDrawer}
                 disabled={!canDraw}
                 title="清空画布"
@@ -569,7 +627,7 @@ export default function GameRoom() {
 
           <canvas
             ref={canvasRef}
-            className="canvas"
+            className={styles.canvas}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
@@ -579,10 +637,10 @@ export default function GameRoom() {
           />
         </div>
 
-        <section className="chat-box">
-          <ul className="messages" role="log" aria-live="polite" aria-label="聊天消息">
+        <section className={styles["chat-box"]}>
+          <ul className={styles.messages} role="log" aria-live="polite" aria-label="聊天消息">
             {messages.map((m, idx) => (
-              <li key={idx} className={m.type === "system" ? "msg-system" : "msg-chat"}>
+              <li key={idx} className={m.type === "system" ? styles["msg-system"] : styles["msg-chat"]}>
                 {m.type === "system" ? m.text : `${m.sender}: ${m.text}`}
               </li>
             ))}
@@ -592,7 +650,7 @@ export default function GameRoom() {
             usage={effectUsage} 
             disabled={!roomState.game.started || isDrawer} 
           />
-          <form onSubmit={sendChat} className="chat-form">
+          <form onSubmit={sendChat} className={styles["chat-form"]}>
             <input
               name="chat_message"
               value={chatInput}
@@ -606,6 +664,17 @@ export default function GameRoom() {
         </section>
       </main>
       {showRules && <RulesModal onClose={() => setShowRules(false)} />}
+      {showLeaveConfirm && (
+        <ConfirmModal
+          title="退出房间"
+          message="退出后将返回首页，当前对局状态不会为你保留。"
+          confirmText="确认退出"
+          cancelText="留在房间"
+          danger
+          onCancel={() => setShowLeaveConfirm(false)}
+          onConfirm={leaveRoom}
+        />
+      )}
       {toast && (
         <ToastModal 
           title={toast.title} 

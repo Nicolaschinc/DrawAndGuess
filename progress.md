@@ -17,3 +17,40 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
   2) 移动端道具特效改为前半段动效：在起点位置放大后淡出，不再飞向画家目标。
 - 再次验证:
   - `npm run build` 通过。
+
+- 2026-02-25（CSS Modules + Sass 重构）:
+  1) 将 `client/src/styles.css` 迁移为 `client/src/styles.module.scss`，并将页面/组件全部改为模块化 class 引用。
+  2) `main.jsx` 改为引入 `styles.module.scss`；`Home.jsx`、`GameRoom.jsx`、`ShareRedirect.jsx`、`GameUI.jsx` 完成 `className` 迁移到 `styles[...]`。
+  3) 清理非必要行内样式：加载态卡片、Toast 弹窗布局等静态样式改为 CSS 类；保留颜色/尺寸/动画坐标等必要动态内联样式。
+  4) `client/package.json` devDependencies 新增 `sass`，并同步更新 `client/package-lock.json`。
+- 验证:
+  - `npm --prefix client run build` 通过（Sass 编译正常）。
+
+- 2026-02-25（房间退出功能）:
+  1) 在 `GameRoom` 顶部操作区新增“退出房间”按钮（桌面文字+图标，移动端图标化）。
+  2) 新增 `leaveRoom()`：二次确认后主动 `socket.disconnect()` 并 `navigate("/")` 返回首页。
+  3) 在 `styles.module.scss` 增加 `leave-btn` 样式，包含移动端适配。
+- 验证:
+  - `npm --prefix client run build` 通过。
+
+- 2026-02-25（头部操作按钮样式整理）:
+  1) 将“分享 / 游戏规则 / 退出”统一为 `room-action-btn` 风格，统一尺寸、间距、描边和悬停反馈。
+  2) 桌面端统一为图标+文字；移动端统一收敛为 34x34 图标按钮，减少拥挤。
+  3) `退出` 按钮使用 `room-action-danger`，与普通操作按钮区分风险语义但保持版式一致。
+- 验证:
+  - `npm --prefix client run build` 通过。
+
+- 2026-02-25（头部功能统一入口）:
+  1) 将“分享 / 游戏规则 / 退出”改为一个统一入口按钮（`...`），点击后弹出功能面板。
+  2) 面板内包含三项操作：分享房间、游戏规则、退出房间；保留退出危险态。
+  3) 增加点击外部自动关闭，菜单行为与画布左上角工具栏一致（触发器 + 浮层）。
+  4) 移动端收敛弹层尺寸与按钮高度，避免遮挡和拥挤。
+- 验证:
+  - `npm --prefix client run build` 通过。
+
+- 2026-02-25（退出确认弹窗组件化）:
+  1) 在 `GameUI.jsx` 抽象通用 `ConfirmModal`（复用项目现有 modal 样式体系）。
+  2) 房间退出从 `window.confirm` 改为 `ConfirmModal`：支持自定义标题/文案/确认与取消按钮文本。
+  3) 新增 `danger-btn` 样式用于危险确认动作（退出房间）。
+- 验证:
+  - `npm --prefix client run build` 通过。

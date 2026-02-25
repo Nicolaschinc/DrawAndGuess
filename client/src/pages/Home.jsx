@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import bannerImg from "../assets/img/banner.png";
+import styles from "../styles.module.scss";
+
+const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 
 export default function Home() {
   const [name, setName] = useState("");
   const [roomId, setRoomId] = useState("");
-  const [mode, setMode] = useState("join"); // "join" or "create"
+  const [mode, setMode] = useState("create"); // "join" or "create"
   const navigate = useNavigate();
 
   const handleJoin = () => {
@@ -21,34 +24,34 @@ export default function Home() {
   };
 
   return (
-    <div className="join-page">
-      <div className="join-card">
-        <div className="join-card-left">
-          <img src={bannerImg} alt="Draw and Guess Banner" className="banner-img" />
+    <div className={styles["join-page"]}>
+      <div className={styles["join-card"]}>
+        <div className={styles["join-card-left"]}>
+          <img src={bannerImg} alt="Draw and Guess Banner" className={styles["banner-img"]} />
         </div>
-        <div className="join-card-right">
+        <div className={styles["join-card-right"]}>
           <h1>你画我猜</h1>
 
-          <div className="mode-switch">
+          <div className={styles["mode-switch"]}>
             <button
-              className={`mode-btn ${mode === "create" ? "active" : ""}`}
+              className={cx(styles["mode-btn"], mode === "create" && styles.active)}
               onClick={() => setMode("create")}
             >
               创建房间
             </button>
             <button
-              className={`mode-btn ${mode === "join" ? "active" : ""}`}
+              className={cx(styles["mode-btn"], mode === "join" && styles.active)}
               onClick={() => setMode("join")}
             >
               加入房间
             </button>
           </div>
 
-          <p className="hint" aria-live="polite">
+          <p className={styles.hint} aria-live="polite">
             {mode === "join" ? "请输入房间号加入游戏" : "创建新房间并邀请好友"}
           </p>
 
-          <label className="field">
+          <label className={styles.field}>
             <span>你的名称</span>
             <input
               name="player_name"
@@ -62,7 +65,7 @@ export default function Home() {
           </label>
 
           {mode === "join" && (
-            <label className="field">
+            <label className={styles.field}>
               <span>房间 ID</span>
               <input
                 name="room_id"
@@ -81,7 +84,6 @@ export default function Home() {
           <button
             onClick={mode === "join" ? handleJoin : handleCreate}
             disabled={!name.trim() || (mode === "join" && !roomId.trim())}
-            className="action-btn"
           >
             {mode === "join" ? "进入房间" : "创建并进入"}
           </button>
