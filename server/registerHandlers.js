@@ -6,6 +6,11 @@ import {
   startRound, 
   endRound 
 } from "./engine.js";
+import { 
+  calculateGuesserScore, 
+  calculateDrawerScore, 
+  shouldEndRound 
+} from "./gameLogic.js";
 
 export default function registerSocketHandlers(io) {
   io.on("connection", (socket) => {
@@ -120,8 +125,8 @@ export default function registerSocketHandlers(io) {
 
         const now = Date.now();
         const remaining = Math.max(0, Math.floor((room.game.roundEndsAt - now) / 1000));
-        const guesserScore = 10 + Math.floor(remaining / 5);
-        const drawerScore = 5;
+        const guesserScore = calculateGuesserScore(remaining);
+        const drawerScore = calculateDrawerScore();
 
         player.score += guesserScore;
         const drawer = room.players.get(room.game.drawerId);
@@ -134,11 +139,17 @@ export default function registerSocketHandlers(io) {
 
         broadcastRoom(io, roomId);
 
-        const activeGuessers = room.playerOrder.filter(
-          (id) => id !== room.game.drawerId && room.players.has(id)
-        ).length;
+        // activeGuessers logic logic is implicitly handled by shouldEndRound if we pass total players
+        // However, to be safe and match logic, let's look at what we pass.
+        // shouldEndRound takes (guessedCount, totalPlayers). 
+        // It assumes totalPlayers includes drawer.
+        // room.playerOrder contains all players.
+        
+        // We need to ensure room.playerOrder only has present players, which engine usually does.
+        // But here we are in handler.
+        const currentTotalPlayers = room.playerOrder.filter(id => room.players.has(id)).length;
 
-        if (room.game.guessed.size >= activeGuessers && activeGuessers > 0) {
+        if (shouldEndRound(room.game.guessed.size, currentTotalPlayers)) {
           endRound(io, roomId, "all_guessed");
         }
 

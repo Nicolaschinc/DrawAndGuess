@@ -1,7 +1,12 @@
 import { rooms } from "./roomStore.js";
 import { getRandomWord } from "./wordManager.js";
-
-const ROUND_SECONDS = 75;
+import { 
+  startRoundState, 
+  endRoundState, 
+  shouldEndGame, 
+  calculateNextDrawer,
+  ROUND_SECONDS 
+} from "./gameLogic.js";
 
 const CATEGORY_MAP = {
   "Animals": "动物",
@@ -68,15 +73,7 @@ export function broadcastRoom(io, roomId) {
 
 export function nextDrawer(room) {
   room.playerOrder = room.playerOrder.filter((id) => room.players.has(id));
-  if (!room.playerOrder.length) return null;
-
-  const current = room.game.drawerId;
-  if (!current || !room.playerOrder.includes(current)) {
-    return room.playerOrder[0];
-  }
-
-  const idx = room.playerOrder.indexOf(current);
-  return room.playerOrder[(idx + 1) % room.playerOrder.length];
+  return calculateNextDrawer(room.playerOrder, room.game.drawerId);
 }
 
 export function stopRound(room) {
@@ -108,7 +105,7 @@ export function endRound(io, roomId, reason = "timeout") {
   }
 
   // Check if all players have been the drawer
-  const allDrawn = room.playerOrder.every(id => room.game.drawnPlayers.has(id));
+  const allDrawn = shouldEndGame(room.playerOrder, room.game.drawnPlayers);
 
   if (allDrawn) {
     room.game.started = false;
@@ -126,10 +123,7 @@ export function endRound(io, roomId, reason = "timeout") {
     room.game.drawnPlayers.add(nextId);
   }
   
-  room.game.currentWord = null;
-  room.game.currentCategory = null;
-  room.game.roundEndsAt = null;
-  room.game.guessed = new Set();
+  Object.assign(room.game, endRoundState());
   room.strokes = [];
 
   if (!room.game.drawerId) {
@@ -163,12 +157,14 @@ export function startRound(io, roomId) {
     }
   }
 
-  room.game.started = true;
   const picked = pickWord();
-  room.game.currentWord = picked.word;
-  room.game.currentCategory = picked.category;
-  room.game.allHints = picked.hints || [];
-  room.game.currentHint = null;
+  const newState = startRoundState({
+    word: picked.word,
+    category: picked.category,
+    hints: picked.hints || []
+  }, Date.now());
+
+  Object.assign(room.game, newState);
   
   // Setup hint timers if hints are available
   if (room.game.allHints.length > 0) {
@@ -194,9 +190,6 @@ export function startRound(io, roomId) {
     room.game.hintTimers.push(t2);
   }
   
-  room.game.roundEndsAt = Date.now() + ROUND_SECONDS * 1000;
-  room.game.guessed = new Set();
-  room.game.effectUsage = new Map();
   room.strokes = [];
 
   room.game.timer = setTimeout(() => endRound(io, roomId, "timeout"), ROUND_SECONDS * 1000);
