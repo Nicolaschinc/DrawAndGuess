@@ -719,6 +719,8 @@ input[type="range"] {
   padding: 14px 16px;
   padding-top: max(14px, var(--safe-top));
   backdrop-filter: blur(6px);
+  position: relative;
+  z-index: 50;
 }
 
 .left-panel h2 {
