@@ -54,3 +54,11 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
   3) 新增 `danger-btn` 样式用于危险确认动作（退出房间）。
 - 验证:
   - `npm --prefix client run build` 通过。
+
+- 2026-02-26（移动端全屏黑边 + AI 按钮显示时机）:
+  1) 修复原生全屏时画布容器圆角/边框导致的四角黑色缝隙：为 `.canvas-wrap:fullscreen` 与 `-webkit-full-screen` 增加去圆角、去边框、去阴影与白底样式，并让全屏态 `.canvas` 去圆角。
+  2) AI 参考图按钮去除“前 10 秒后才显示”限制，改为“当前玩家正在作画时立即显示”（`canDraw && word`）。
+  3) 清理 `CanvasPanel` 中不再使用的 `roundEndsAt/roundDuration` 传参。
+- 验证:
+  - `npm --prefix client run build` 通过。
+  - 按技能流程尝试 Playwright 客户端验证失败：缺少 `playwright` 依赖（`ERR_MODULE_NOT_FOUND`）。

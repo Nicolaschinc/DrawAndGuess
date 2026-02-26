@@ -168,8 +168,6 @@ export default function GameRoom() {
           canDraw={canDraw}
           isDrawer={isDrawer}
           word={roomState.game.word}
-          roundEndsAt={roomState.game.roundEndsAt}
-          roundDuration={roomState.game.roundDuration}
         />
 
         <ChatPanel 

@@ -264,6 +264,22 @@
   }
 }
 
+/* Native fullscreen should not keep rounded corners or outer borders, otherwise
+   mobile devices can show dark corner gaps from the browser background. */
+:global(.canvas-wrap:fullscreen),
+:global(.canvas-wrap:-webkit-full-screen) {
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: #fff;
+}
+
+:global(.canvas-wrap:fullscreen .canvas),
+:global(.canvas-wrap:-webkit-full-screen .canvas) {
+  border-radius: 0 !important;
+  min-height: 100dvh;
+}
+
 .canvas {
   width: 100%;
   height: 100%;

@@ -45,22 +45,15 @@ export default function CanvasPanel({
   toggleFullScreen,
   canDraw,
   isDrawer,
-  word,
-  roundEndsAt,
-  roundDuration = 75
+  word
 }) {
   const [showToolbar, setShowToolbar] = useState(false);
   const [showReferenceModal, setShowReferenceModal] = useState(false);
   const [referenceImages, setReferenceImages] = useState([]);
   const [loadingImages, setLoadingImages] = useState(false);
 
-  // Calculate canShowReference
-  let canShowReference = false;
-  if (canDraw && roundEndsAt) {
-    const remainingMs = roundEndsAt - Date.now();
-    const elapsedSeconds = (roundDuration * 1000 - remainingMs) / 1000;
-    canShowReference = elapsedSeconds >= 10;
-  }
+  // Show AI reference as soon as the current player is drawing.
+  const canShowReference = canDraw && Boolean(word);
 
   // Fetch reference images
   useEffect(() => {
