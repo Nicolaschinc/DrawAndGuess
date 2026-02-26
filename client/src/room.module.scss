@@ -257,10 +257,11 @@
     height: 100vh;
     height: 100dvh;
     z-index: 9999;
-    border-radius: 0;
-    border: none;
+    border-radius: 0 !important;
+    border: none !important;
     margin: 0;
     background: #fff;
+    box-shadow: none !important;
   }
 }
 
@@ -274,6 +275,7 @@
   background: #fff;
 }
 
+.canvas-wrap.fullscreen-pseudo .canvas,
 :global(.canvas-wrap:fullscreen .canvas),
 :global(.canvas-wrap:-webkit-full-screen .canvas) {
   border-radius: 0 !important;
