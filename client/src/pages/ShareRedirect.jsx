@@ -1,11 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { ToastModal } from "../components/GameUI";
 import { decryptRoomId } from "../utils/crypto";
 import styles from "../styles.module.scss";
 
 export default function ShareRedirect() {
   const { hash } = useParams();
   const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (hash) {
@@ -14,9 +16,8 @@ export default function ShareRedirect() {
         // Redirect to the actual room page
         navigate(`/room/${roomId}`, { replace: true });
       } else {
-        // Handle invalid hash (e.g., go home with an error)
-        alert("无效的分享链接");
-        navigate("/", { replace: true });
+        // Handle invalid hash
+        setError("无效的分享链接");
       }
     }
   }, [hash, navigate]);
@@ -26,6 +27,16 @@ export default function ShareRedirect() {
       <div className={`${styles["join-card"]} ${styles["join-card-centered"]}`}>
         <p>正在解析分享链接...</p>
       </div>
+      {error && (
+        <ToastModal
+          title="提示"
+          message={error}
+          onClose={() => {
+            setError(null);
+            navigate("/", { replace: true });
+          }}
+        />
+      )}
     </div>
   );
 }

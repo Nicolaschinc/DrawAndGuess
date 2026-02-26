@@ -6,7 +6,7 @@ const SERVER_URL =
   import.meta.env.VITE_SERVER_URL ??
   (import.meta.env.DEV ? `http://${window.location.hostname}:3001` : window.location.origin);
 
-export function useRoomSocket(roomId, name, navigate) {
+export function useRoomSocket(roomId, name, navigate, onError) {
   const socketRef = useRef(null);
   const [joined, setJoined] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -43,7 +43,11 @@ export function useRoomSocket(roomId, name, navigate) {
     socket.on(EVENTS.CONNECT, () => {
       socket.emit(EVENTS.JOIN_ROOM, { roomId, name }, (res) => {
         if (!res?.ok) {
-          alert(res?.error || "加入失败");
+          if (onError) {
+            onError(res?.error || "加入失败");
+          } else {
+            console.error(res?.error || "加入失败");
+          }
           navigate("/");
           return;
         }
@@ -97,7 +101,7 @@ export function useRoomSocket(roomId, name, navigate) {
     return () => {
       socket.disconnect();
     };
-  }, [roomId, name, navigate]);
+  }, [roomId, name, navigate, onError]);
 
   const me = useMemo(() => {
     const socket = socketRef.current;

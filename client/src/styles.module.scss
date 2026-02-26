@@ -536,10 +536,13 @@ input[type="range"] {
 }
 
 .join-modal-content .modal-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 12px;
   margin-top: 12px;
+}
+
+.join-modal-content .modal-actions > button {
+  flex: 1;
 }
 
 .cancel-btn {

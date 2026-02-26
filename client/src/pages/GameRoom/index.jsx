@@ -32,6 +32,10 @@ export default function GameRoom() {
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [toast, setToast] = useState(null);
 
+  const handleJoinError = useCallback((msg) => {
+    setToast({ title: "加入失败", message: msg });
+  }, []);
+
   // Custom Hooks
   const {
     socketRef,
@@ -48,7 +52,7 @@ export default function GameRoom() {
     sendMessage,
     throwEffect,
     leaveRoom
-  } = useRoomSocket(roomId, name, navigate);
+  } = useRoomSocket(roomId, name, navigate, handleJoinError);
 
   const {
     canvasRef,

@@ -38,7 +38,7 @@ export default function RoomHeader({
         setToast({ title: "链接已复制", message: "快去邀请好友加入游戏吧！" });
       }).catch((err) => {
         console.error("Clipboard write failed", err);
-        alert("复制失败，请手动复制链接: " + url);
+        setToast({ title: "复制失败", message: "请手动复制链接: " + url });
       });
       return;
     }
@@ -56,11 +56,11 @@ export default function RoomHeader({
       if (successful) {
         setToast({ title: "链接已复制", message: "快去邀请好友加入游戏吧！" });
       } else {
-        alert("复制失败，请手动复制链接: " + url);
+        setToast({ title: "复制失败", message: "请手动复制链接: " + url });
       }
     } catch (err) {
       console.error("Fallback copy failed", err);
-      alert("复制失败，请手动复制链接: " + url);
+      setToast({ title: "复制失败", message: "请手动复制链接: " + url });
     }
 
     document.body.removeChild(textArea);

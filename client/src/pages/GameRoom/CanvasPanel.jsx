@@ -9,6 +9,24 @@ const SERVER_URL =
   import.meta.env.VITE_SERVER_URL ??
   (import.meta.env.DEV ? `http://${window.location.hostname}:3001` : window.location.origin);
 
+function ReferenceImage({ url, index }) {
+  const [error, setError] = useState(false);
+
+  if (error) {
+    return <div className={styles["ref-error-placeholder"]}>图片加载失败</div>;
+  }
+
+  return (
+    <img
+      src={url}
+      alt={`参考图 ${index + 1}`}
+      className={styles["ref-img"]}
+      onClick={() => window.open(url, "_blank")}
+      onError={() => setError(true)}
+    />
+  );
+}
+
 export default function CanvasPanel({
   canvasRef,
   onPointerDown,
@@ -114,16 +132,7 @@ export default function CanvasPanel({
                 <div className={styles["ref-grid"]}>
                   {referenceImages.map((url, idx) => (
                     <div key={idx} className={styles["ref-item"]}>
-                      <img 
-                        src={url} 
-                        alt={`参考图 ${idx + 1}`} 
-                        className={styles["ref-img"]}
-                        onClick={() => window.open(url, '_blank')}
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.parentElement.innerHTML = `<div class="${styles["ref-error-placeholder"]}">图片加载失败</div>`;
-                        }}
-                      />
+                      <ReferenceImage url={url} index={idx} />
                     </div>
                   ))}
                 </div>
