@@ -13,22 +13,59 @@ if (!apiKey) {
 const openai = new OpenAI({
   apiKey: apiKey || 'dummy', // Prevent crash on init if key is missing
   baseURL: 'https://api.deepseek.com',
+  timeout: 15000, // 15s timeout
 });
 
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 1000;
+const IS_PROD = process.env.NODE_ENV === 'production';
+
 /**
- * Fetches trending words from DeepSeek AI.
+ * Logs message with sensitive data handling.
+ * In production, raw data is redacted.
+ */
+function safeLog(message, data = null) {
+  if (IS_PROD) {
+    if (data) {
+      console.log(`[AI-Service] ${message} [Data Redacted]`);
+    } else {
+      console.log(`[AI-Service] ${message}`);
+    }
+  } else {
+    console.log(`[AI-Service] ${message}`, data !== null ? data : '');
+  }
+}
+
+/**
+ * Validates the AI response schema.
+ * Expected: Array<{word: string, hints: string[]}>
+ */
+function validateSchema(data) {
+  if (!Array.isArray(data)) return false;
+  return data.every(item => 
+    item &&
+    typeof item.word === 'string' && 
+    item.word.length > 0 &&
+    Array.isArray(item.hints) && 
+    item.hints.length === 3 &&
+    item.hints.every(h => typeof h === 'string' && h.length > 0)
+  );
+}
+
+/**
+ * Delays execution for a specified time.
+ */
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * Fetches trending words from DeepSeek AI with retry, timeout, and schema validation.
  * @param {number} count Number of words to fetch
  * @param {string[]} excludeWords List of words to exclude from generation
  * @returns {Promise<Array<{word: string, hints: string[]}>>} Array of trending words with hints
  */
 export async function fetchTrendingWords(count = 10, excludeWords = []) {
-  if (!apiKey) {
-    console.warn('⚠️  AI Service Warning: API Key is missing in .env file. Skipping AI fetch.');
-    return [];
-  }
-  
-  if (apiKey === 'dummy' || apiKey.includes('NEW-ROTATED-KEY')) {
-    console.warn('⚠️  AI Service Warning: API Key is a placeholder (invalid). Please update .env with a real key. Skipping AI fetch.');
+  if (!apiKey || apiKey === 'dummy' || apiKey.includes('NEW-ROTATED-KEY')) {
+    safeLog('⚠️ API Key is missing or invalid. Skipping AI fetch.');
     return [];
   }
 
@@ -36,13 +73,10 @@ export async function fetchTrendingWords(count = 10, excludeWords = []) {
   const excludeSample = excludeWords.slice(-50).join(", ");
   const excludePrompt = excludeSample ? `\n6. EXCLUDE these words (do NOT generate them): ${excludeSample}.` : "";
 
-  try {
-    const response = await openai.chat.completions.create({
-      model: 'deepseek-chat',
-      messages: [
-        {
-          role: 'system',
-          content: `You are a creative assistant for a "Draw and Guess" (Pictionary) game.
+  const messages = [
+    {
+      role: 'system',
+      content: `You are a creative assistant for a "Draw and Guess" (Pictionary) game.
 Your task is to generate a list of ${count} currently trending, popular, or culturally relevant words in China.
 
 Requirements:
@@ -61,38 +95,68 @@ Requirements:
 4. **Language**: Simplified Chinese.
 5. Do NOT include any markdown formatting (like \`\`\`json), just the raw JSON string.${excludePrompt}
 7. **Randomness**: Please try to be diverse and pick words from different domains (Food, Internet Memes, Daily Objects, Famous People).`
-        },
-        {
-          role: 'user',
-          content: `Generate ${count} unique, easy-to-draw trending words with 3 progressive hints.`
-        }
-      ],
-      temperature: 1.3, // Increased temperature for more randomness
-    });
-
-    const content = response.choices[0].message.content.trim();
-    console.log("----- AI Raw Response Start -----");
-    console.log(content);
-    console.log("----- AI Raw Response End -----");
-
-    // Clean up potential markdown code blocks
-    const cleanContent = content.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-    
-    const words = JSON.parse(cleanContent);
-    console.log("Parsed words count:", words.length);
-    console.log("First word sample:", words[0]);
-    
-    if (Array.isArray(words)) {
-      // Validate structure
-      return words.filter(w => w.word && Array.isArray(w.hints) && w.hints.length === 3);
-    } else {
-      console.error('AI response was not an array:', words);
-      return [];
+    },
+    {
+      role: 'user',
+      content: `Generate ${count} unique, easy-to-draw trending words with 3 progressive hints.`
     }
-  } catch (error) {
-    console.error('Error fetching trending words from AI:', error);
-    return [];
+  ];
+
+  let attempts = 0;
+  
+  while (attempts < MAX_RETRIES) {
+    attempts++;
+    try {
+      safeLog(`Attempt ${attempts}/${MAX_RETRIES}: Fetching trending words...`);
+      
+      const response = await openai.chat.completions.create({
+        model: 'deepseek-chat',
+        messages: messages,
+        temperature: 1.3,
+      });
+
+      const content = response.choices[0].message.content.trim();
+      
+      // In non-prod, log raw response for debugging
+      if (!IS_PROD) {
+        console.log("----- AI Raw Response Start -----");
+        console.log(content);
+        console.log("----- AI Raw Response End -----");
+      }
+
+      // Clean up potential markdown code blocks
+      const cleanContent = content.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      
+      let words;
+      try {
+        words = JSON.parse(cleanContent);
+      } catch (e) {
+        throw new Error('AI_JSON_PARSE_ERROR');
+      }
+
+      if (validateSchema(words)) {
+        safeLog(`Successfully parsed ${words.length} words.`);
+        return words;
+      } else {
+        throw new Error('AI_SCHEMA_INVALID');
+      }
+      
+    } catch (error) {
+      const isLastAttempt = attempts === MAX_RETRIES;
+      const errorCode = error.code || error.message || 'AI_UNKNOWN_ERROR';
+      
+      safeLog(`Error in attempt ${attempts}: ${errorCode}`);
+      
+      if (isLastAttempt) {
+        console.error(`[AI-Service] Final failure after ${MAX_RETRIES} attempts. Code: ${errorCode}`, error);
+        return []; // Fail gracefully
+      }
+      
+      await delay(RETRY_DELAY_MS * attempts); // Exponential backoff
+    }
   }
+  
+  return [];
 }
 
 /**
