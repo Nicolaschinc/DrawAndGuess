@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Share2, LogOut, Ellipsis, CircleHelp } from "lucide-react";
 import { encryptRoomId } from "../../utils/crypto";
 import GameTimer from "../../components/GameTimer";
@@ -15,6 +16,7 @@ export default function RoomHeader({
   onLeaveRoom,
   setToast
 }) {
+  const { t } = useTranslation();
   const [showHeaderMenu, setShowHeaderMenu] = useState(false);
   const headerMenuRef = useRef(null);
 
@@ -35,10 +37,10 @@ export default function RoomHeader({
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(() => {
-        setToast({ title: "链接已复制", message: "快去邀请好友加入游戏吧！" });
+        setToast({ title: t('header.copied'), message: t('header.shareMsg') });
       }).catch((err) => {
         console.error("Clipboard write failed", err);
-        setToast({ title: "复制失败", message: "请手动复制链接: " + url });
+        setToast({ title: t('header.copyFailed'), message: t('header.manualCopy') + url });
       });
       return;
     }
@@ -54,31 +56,31 @@ export default function RoomHeader({
     try {
       const successful = document.execCommand("copy");
       if (successful) {
-        setToast({ title: "链接已复制", message: "快去邀请好友加入游戏吧！" });
+        setToast({ title: t('header.copied'), message: t('header.shareMsg') });
       } else {
-        setToast({ title: "复制失败", message: "请手动复制链接: " + url });
+        setToast({ title: t('header.copyFailed'), message: t('header.manualCopy') + url });
       }
     } catch (err) {
       console.error("Fallback copy failed", err);
-      setToast({ title: "复制失败", message: "请手动复制链接: " + url });
+      setToast({ title: t('header.copyFailed'), message: t('header.manualCopy') + url });
     }
 
     document.body.removeChild(textArea);
-  }, [roomId, setToast]);
+  }, [roomId, setToast, t]);
 
   return (
     <>
       <div className={styles["room-header"]}>
         <h2>
-          房间：{roomId}
-          {!gameStarted && <span className={styles["room-status"]}>等待开始</span>}
+          {t('header.room')}：{roomId}
+          {!gameStarted && <span className={styles["room-status"]}>{t('header.waiting')}</span>}
         </h2>
         <div className={styles["header-actions"]} ref={headerMenuRef}>
           <button
             className={cx(styles["header-menu-trigger"], showHeaderMenu && styles.active)}
             onClick={() => setShowHeaderMenu((prev) => !prev)}
-            title="房间功能"
-            aria-label="房间功能"
+            title={t('header.menu')}
+            aria-label={t('header.menu')}
             aria-expanded={showHeaderMenu}
           >
             <Ellipsis size={18} />
@@ -93,7 +95,7 @@ export default function RoomHeader({
                 }}
               >
                 <Share2 size={16} />
-                <span>分享房间</span>
+                <span>{t('header.share')}</span>
               </button>
               <button
                 className={styles["header-menu-item"]}
@@ -103,7 +105,7 @@ export default function RoomHeader({
                 }}
               >
                 <CircleHelp size={16} />
-                <span>游戏规则</span>
+                <span>{t('header.rules')}</span>
               </button>
               <button
                 className={cx(styles["header-menu-item"], styles["header-menu-item-danger"])}
@@ -113,14 +115,14 @@ export default function RoomHeader({
                 }}
               >
                 <LogOut size={16} />
-                <span>退出房间</span>
+                <span>{t('header.leave')}</span>
               </button>
             </div>
           )}
         </div>
       </div>
       <div className={styles["status-row"]}>
-        <span>玩家：{playersCount}</span>
+        <span>{t('header.players')}：{playersCount}</span>
         <GameTimer roundEndsAt={roundEndsAt} />
       </div>
     </>

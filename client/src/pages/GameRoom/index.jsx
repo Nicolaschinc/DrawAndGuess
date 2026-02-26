@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   EffectOverlay,
   RulesModal,
@@ -20,6 +21,7 @@ import CanvasPanel from "./CanvasPanel";
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 
 export default function GameRoom() {
+  const { t } = useTranslation();
   const { roomId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -34,8 +36,8 @@ export default function GameRoom() {
   const [toast, setToast] = useState(null);
 
   const handleJoinError = useCallback((msg) => {
-    setToast({ title: "加入失败", message: msg });
-  }, []);
+    setToast({ title: t('game.joinFailed'), message: msg });
+  }, [t]);
 
   // Custom Hooks
   const {
@@ -89,7 +91,7 @@ export default function GameRoom() {
 
   // Render
   if (showJoinModal) {
-    const randomName = "玩家" + Math.floor(1000 + Math.random() * 9000);
+    const randomName = t('ui.player') + Math.floor(1000 + Math.random() * 9000);
     return (
       <div className={homeStyles["join-page"]}>
          <JoinRoomModal 
@@ -99,8 +101,8 @@ export default function GameRoom() {
             onCancel={() => navigate("/")}
           />
          <div className={cx(homeStyles["join-card"], homeStyles["join-card-muted"])}>
-            <h1>你画我猜</h1>
-            <p className={homeStyles.hint}>正在连接...</p>
+            <h1>{t('home.title')}</h1>
+            <p className={homeStyles.hint}>{t('game.joining')}</p>
          </div>
       </div>
     );
@@ -110,7 +112,7 @@ export default function GameRoom() {
      return (
         <div className={homeStyles["join-page"]}>
            <div className={cx(homeStyles["join-card"], homeStyles["join-card-centered"])}>
-              <p className={homeStyles["join-status-text"]}>正在加入房间...</p>
+              <p className={homeStyles["join-status-text"]}>{t('game.joiningRoom')}</p>
            </div>
         </div>
      );
@@ -121,7 +123,7 @@ export default function GameRoom() {
   return (
     <div className={styles.layout}>
       <a className={styles["skip-link"]} href="#game-main">
-        跳到游戏内容
+        {t('game.skipToContent')}
       </a>
       <aside className={styles["left-panel"]}>
         <RoomHeader 
@@ -184,10 +186,10 @@ export default function GameRoom() {
       
       {showLeaveConfirm && (
         <ConfirmModal
-          title="退出房间"
-          message="退出后将返回首页，当前对局状态不会为你保留。"
-          confirmText="确认退出"
-          cancelText="留在房间"
+          title={t('game.quitRoom')}
+          message={t('game.quitConfirm')}
+          confirmText={t('game.confirmQuit')}
+          cancelText={t('game.stayInRoom')}
           danger
           onCancel={() => setShowLeaveConfirm(false)}
           onConfirm={leaveRoom}

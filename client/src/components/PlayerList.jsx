@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "../room.module.scss";
 import { getPlayerColor } from "../utils/playerColor";
 
@@ -11,6 +12,7 @@ const PlayerList = memo(function PlayerList({
   guessedIds, 
   showMobilePlayers 
 }) {
+  const { t } = useTranslation();
   const sortedPlayers = [...players].sort((a, b) => {
     if (a.id === drawerId) return -1;
     if (b.id === drawerId) return 1;
@@ -26,9 +28,9 @@ const PlayerList = memo(function PlayerList({
         <li key={p.id} id={`player-${p.id}`}>
           <span>
             <span style={{ color: getPlayerColor(p.id), fontWeight: 600 }}>{p.name}</span>
-            {p.id === drawerId ? " (画家)" : ""}
-            {p.id === hostId ? " (房主)" : ""}
-            {guessedIds.includes(p.id) ? " (已猜中)" : ""}
+            {p.id === drawerId ? t('ui.roleDrawer') : ""}
+            {p.id === hostId ? t('ui.roleHost') : ""}
+            {guessedIds.includes(p.id) ? t('ui.statusGuessed') : ""}
           </span>
           <strong>{p.score}</strong>
         </li>

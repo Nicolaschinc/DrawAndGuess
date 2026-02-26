@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "../toolbar.module.scss";
 import { Palette, Brush, Trash2, X, Settings, Image as ImageIcon, Maximize, Minimize } from "lucide-react";
 
@@ -20,12 +21,13 @@ const CanvasControls = memo(function CanvasControls({
   canShowReference,
   setShowReferenceModal
 }) {
+  const { t } = useTranslation();
   return (
     <>
       <button 
         className={cx(styles["toolbar-trigger"], showToolbar && styles.active)}
         onClick={() => setShowToolbar(!showToolbar)}
-        title="工具栏"
+        title={t('ui.toolbar')}
       >
         <Settings size={20} />
       </button>
@@ -35,8 +37,8 @@ const CanvasControls = memo(function CanvasControls({
           className={cx(styles["toolbar-trigger"], styles["toolbar-trigger-ai"])}
           onClick={() => setShowReferenceModal(true)}
           disabled={!canDraw}
-          title="AI 参考图"
-          aria-label="AI 参考图"
+          title={t('ui.aiReference')}
+          aria-label={t('ui.aiReference')}
         >
           <ImageIcon size={20} />
         </button>
@@ -49,8 +51,8 @@ const CanvasControls = memo(function CanvasControls({
               className={cx(styles["tool-btn"], activeTool === "color" && styles.active)}
               onClick={() => setActiveTool(activeTool === "color" ? null : "color")}
               disabled={!canDraw}
-              title="颜色"
-              aria-label="选择颜色"
+              title={t('ui.color')}
+              aria-label={t('ui.chooseColor')}
               aria-expanded={activeTool === "color"}
             >
               <Palette size={20} />
@@ -59,7 +61,7 @@ const CanvasControls = memo(function CanvasControls({
             {activeTool === "color" && (
               <div className={styles["tool-popup"]}>
                 <div className={styles["popup-header"]}>
-                  <span>选择颜色</span>
+                  <span>{t('ui.chooseColor')}</span>
                   <button className={styles["popup-close"]} onClick={() => setActiveTool(null)}>
                     <X size={14} />
                   </button>
@@ -78,7 +80,7 @@ const CanvasControls = memo(function CanvasControls({
                         className={styles["color-preset-btn"]}
                         style={{ backgroundColor: c }}
                         onClick={() => setPenColor(c)}
-                        aria-label={`选择颜色 ${c}`}
+                        aria-label={`${t('ui.chooseColor')} ${c}`}
                       />
                     ))}
                   </div>
@@ -92,8 +94,8 @@ const CanvasControls = memo(function CanvasControls({
               className={cx(styles["tool-btn"], activeTool === "width" && styles.active)}
               onClick={() => setActiveTool(activeTool === "width" ? null : "width")}
               disabled={!canDraw}
-              title="笔刷大小"
-              aria-label="调整笔刷大小"
+              title={t('ui.brushSize')}
+              aria-label={t('ui.adjustBrushSize')}
               aria-expanded={activeTool === "width"}
             >
               <Brush size={20} />
@@ -102,7 +104,7 @@ const CanvasControls = memo(function CanvasControls({
             {activeTool === "width" && (
               <div className={styles["tool-popup"]}>
                 <div className={styles["popup-header"]}>
-                  <span>笔刷大小</span>
+                  <span>{t('ui.brushSize')}</span>
                   <button className={styles["popup-close"]} onClick={() => setActiveTool(null)}>
                     <X size={14} />
                   </button>
@@ -137,8 +139,8 @@ const CanvasControls = memo(function CanvasControls({
             className={cx(styles["tool-btn"], styles.danger)}
             onClick={clearByDrawer}
             disabled={!canDraw}
-            title="清空画布"
-            aria-label="清空画布"
+            title={t('ui.clearCanvas')}
+            aria-label={t('ui.clearCanvas')}
           >
             <Trash2 size={20} />
           </button>
@@ -148,8 +150,8 @@ const CanvasControls = memo(function CanvasControls({
       <button
         className={styles["fullscreen-trigger"]}
         onClick={toggleFullScreen}
-        title={isFullscreen ? "退出全屏" : "全屏模式"}
-        aria-label={isFullscreen ? "退出全屏" : "全屏模式"}
+        title={isFullscreen ? t('ui.exitFullscreen') : t('ui.enterFullscreen')}
+        aria-label={isFullscreen ? t('ui.exitFullscreen') : t('ui.enterFullscreen')}
       >
         {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
       </button>

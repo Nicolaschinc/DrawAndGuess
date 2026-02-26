@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import PlayerListComponent from "../../components/PlayerList";
 import { getPlayerColor } from "../../utils/playerColor";
 import styles from "../../room.module.scss";
@@ -18,6 +19,7 @@ export default function PlayerList({
   isDrawer,
   onStartGame
 }) {
+  const { t } = useTranslation();
   const [showMobilePlayers, setShowMobilePlayers] = useState(false);
 
   return (
@@ -25,7 +27,7 @@ export default function PlayerList({
       {gameStarted && (
         <div className={styles["word-box"]} aria-live="polite">
           {isDrawer
-            ? `你的词：${word || "等待回合"}`
+            ? `${t('ui.yourWord')}：${word || t('ui.waiting')}`
             : maskedWord}
         </div>
       )}
@@ -33,7 +35,7 @@ export default function PlayerList({
       <div className={cx(styles["mobile-actions-row"], !(isHost && !gameStarted) && styles.single)}>
         {isHost && !gameStarted && (
           <button onClick={onStartGame} className={styles["start-btn"]}>
-            开始游戏
+            {t('ui.start')}
           </button>
         )}
 
@@ -45,7 +47,7 @@ export default function PlayerList({
             aria-expanded={showMobilePlayers}
             aria-controls="players-list"
           >
-            玩家榜 ({players.length})
+            {t('ui.players')} ({players.length})
           </button>
         </div>
       </div>
@@ -59,7 +61,7 @@ export default function PlayerList({
       />
 
       <p className={styles.me}>
-        你：
+        {t('ui.me')}：
         <span style={{ color: me ? getPlayerColor(me.id) : 'inherit', fontWeight: 600 }}>
           {me?.name || "-"}
         </span>

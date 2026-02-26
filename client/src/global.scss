@@ -2,6 +2,13 @@
   --font-sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", sans-serif;
   --font-display: "ZCOOL KuaiLe", "Noto Sans SC", sans-serif;
 
+  /* English Fonts override */
+  &[lang="en"],
+  :global(html[lang="en"]) & {
+    --font-sans: "Nunito", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-display: "Fredoka One", "Nunito", sans-serif;
+  }
+
   --ink-950: #0f1c26;
   --ink-800: #193548;
   --ink-600: #3a5970;

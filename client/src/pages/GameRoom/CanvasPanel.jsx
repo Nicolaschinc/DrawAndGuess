@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import CanvasControls from "../../components/CanvasControls";
 import styles from "../../room.module.scss";
@@ -11,16 +12,17 @@ const SERVER_URL =
   (import.meta.env.DEV ? `http://${window.location.hostname}:3001` : window.location.origin);
 
 function ReferenceImage({ url, index }) {
+  const { t } = useTranslation();
   const [error, setError] = useState(false);
 
   if (error) {
-    return <div className={modalStyles["ref-error-placeholder"]}>图片加载失败</div>;
+    return <div className={modalStyles["ref-error-placeholder"]}>{t('ui.imageLoadFailed')}</div>;
   }
 
   return (
     <img
       src={url}
-      alt={`参考图 ${index + 1}`}
+      alt={`${t('ui.reference')} ${index + 1}`}
       className={modalStyles["ref-img"]}
       onClick={() => window.open(url, "_blank")}
       onError={() => setError(true)}
@@ -47,6 +49,7 @@ export default function CanvasPanel({
   isDrawer,
   word
 }) {
+  const { t } = useTranslation();
   const [showToolbar, setShowToolbar] = useState(false);
   const [showReferenceModal, setShowReferenceModal] = useState(false);
   const [referenceImages, setReferenceImages] = useState([]);
@@ -107,7 +110,7 @@ export default function CanvasPanel({
           onPointerUp={onPointerUp}
           onPointerLeave={onPointerUp}
           onContextMenu={(e) => e.preventDefault()}
-          aria-label="绘图画布"
+          aria-label={t('ui.canvas')}
         />
       </div>
 
@@ -115,14 +118,14 @@ export default function CanvasPanel({
         <div className={modalStyles["modal-overlay"]}>
           <div className={cx(modalStyles["modal-content"], modalStyles["modal-content-ref"])}>
             <div className={modalStyles["modal-header"]}>
-              <h2>参考图 - {word}</h2>
+              <h2>{t('ui.reference')} - {word}</h2>
               <button className={modalStyles["close-btn"]} onClick={() => setShowReferenceModal(false)}>
                 <X size={24} />
               </button>
             </div>
             <div className={modalStyles["ref-popup-content"]}>
               {loadingImages ? (
-                <div className={modalStyles["ref-loading"]}>正在生成参考图...</div>
+                <div className={modalStyles["ref-loading"]}>{t('ui.generatingReference')}</div>
               ) : referenceImages.length > 0 ? (
                 <div className={modalStyles["ref-grid"]}>
                   {referenceImages.map((url, idx) => (
@@ -132,10 +135,10 @@ export default function CanvasPanel({
                   ))}
                 </div>
               ) : (
-                <div className={modalStyles["ref-empty"]}>未找到相关参考图</div>
+                <div className={modalStyles["ref-empty"]}>{t('ui.noReference')}</div>
               )}
               <p className={modalStyles["ref-hint"]}>
-                *图片由 AI 实时生成，仅供参考，请勿直接照抄哦~
+                {t('ui.referenceHint')}
               </p>
             </div>
           </div>

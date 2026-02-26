@@ -1,4 +1,5 @@
 import { memo, useRef, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "../room.module.scss";
 import { getPlayerColor } from "../utils/playerColor";
 import { EffectToolbar } from "./GameUI";
@@ -11,6 +12,7 @@ const ChatBox = memo(function ChatBox({
   gameStarted,
   isDrawer
 }) {
+  const { t } = useTranslation();
   const [chatInput, setChatInput] = useState("");
   const messagesEndRef = useRef(null);
 
@@ -48,7 +50,7 @@ const ChatBox = memo(function ChatBox({
 
   return (
     <section className={styles["chat-box"]}>
-      <ul className={styles.messages} role="log" aria-live="polite" aria-label="聊天消息">
+      <ul className={styles.messages} role="log" aria-live="polite" aria-label={t('ui.chat')}>
         {messages.map((m, idx) => (
           <li key={idx} className={m.type === "system" ? styles["msg-system"] : styles["msg-chat"]}>
             {m.type === "system" ? (
@@ -72,11 +74,11 @@ const ChatBox = memo(function ChatBox({
           name="chat_message"
           value={chatInput}
           onChange={(e) => setChatInput(e.target.value)}
-          placeholder="输入猜测或聊天内容…"
+          placeholder={t('ui.chatPlaceholder')}
           autoComplete="off"
           maxLength={100}
         />
-        <button type="submit">发送</button>
+        <button type="submit">{t('ui.send')}</button>
       </form>
     </section>
   );

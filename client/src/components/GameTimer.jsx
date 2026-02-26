@@ -1,6 +1,8 @@
 import { useState, useEffect, memo } from "react";
+import { useTranslation } from "react-i18next";
 
 const GameTimer = memo(function GameTimer({ roundEndsAt, className }) {
+  const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
@@ -26,7 +28,7 @@ const GameTimer = memo(function GameTimer({ roundEndsAt, className }) {
 
   return (
     <span className={className} aria-live="polite">
-      剩余：{timeLeft}秒
+      {t('ui.remainingTime')}：{timeLeft}s
     </span>
   );
 });
