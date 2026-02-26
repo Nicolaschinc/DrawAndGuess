@@ -1,7 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
-import "./styles.module.scss";
+import "./global.scss";
 
 // Expose app version to global window object
 window.__APP_VERSION__ = __APP_VERSION__;

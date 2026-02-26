@@ -1,5 +1,5 @@
 import { memo } from "react";
-import styles from "../styles.module.scss";
+import styles from "../toolbar.module.scss";
 import { Palette, Brush, Trash2, X, Settings, Image as ImageIcon, Maximize, Minimize } from "lucide-react";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");

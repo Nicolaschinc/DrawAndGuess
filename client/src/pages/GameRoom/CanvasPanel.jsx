@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import CanvasControls from "../../components/CanvasControls";
-import styles from "../../styles.module.scss";
+import styles from "../../room.module.scss";
+import modalStyles from "../../modal.module.scss";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 
@@ -13,14 +14,14 @@ function ReferenceImage({ url, index }) {
   const [error, setError] = useState(false);
 
   if (error) {
-    return <div className={styles["ref-error-placeholder"]}>图片加载失败</div>;
+    return <div className={modalStyles["ref-error-placeholder"]}>图片加载失败</div>;
   }
 
   return (
     <img
       src={url}
       alt={`参考图 ${index + 1}`}
-      className={styles["ref-img"]}
+      className={modalStyles["ref-img"]}
       onClick={() => window.open(url, "_blank")}
       onError={() => setError(true)}
     />
@@ -117,29 +118,29 @@ export default function CanvasPanel({
       </div>
 
       {showReferenceModal && (
-        <div className={styles["modal-overlay"]}>
-          <div className={cx(styles["modal-content"], styles["modal-content-ref"])}>
-            <div className={styles["modal-header"]}>
+        <div className={modalStyles["modal-overlay"]}>
+          <div className={cx(modalStyles["modal-content"], modalStyles["modal-content-ref"])}>
+            <div className={modalStyles["modal-header"]}>
               <h2>参考图 - {word}</h2>
-              <button className={styles["close-btn"]} onClick={() => setShowReferenceModal(false)}>
+              <button className={modalStyles["close-btn"]} onClick={() => setShowReferenceModal(false)}>
                 <X size={24} />
               </button>
             </div>
-            <div className={cx(styles["popup-content"], styles["ref-popup-content"])}>
+            <div className={modalStyles["ref-popup-content"]}>
               {loadingImages ? (
-                <div className={styles["ref-loading"]}>正在生成参考图...</div>
+                <div className={modalStyles["ref-loading"]}>正在生成参考图...</div>
               ) : referenceImages.length > 0 ? (
-                <div className={styles["ref-grid"]}>
+                <div className={modalStyles["ref-grid"]}>
                   {referenceImages.map((url, idx) => (
-                    <div key={idx} className={styles["ref-item"]}>
+                    <div key={idx} className={modalStyles["ref-item"]}>
                       <ReferenceImage url={url} index={idx} />
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className={styles["ref-empty"]}>未找到相关参考图</div>
+                <div className={modalStyles["ref-empty"]}>未找到相关参考图</div>
               )}
-              <p className={styles["ref-hint"]}>
+              <p className={modalStyles["ref-hint"]}>
                 *图片由 AI 实时生成，仅供参考，请勿直接照抄哦~
               </p>
             </div>

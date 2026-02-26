@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { Share2, LogOut, Ellipsis, CircleHelp } from "lucide-react";
 import { encryptRoomId } from "../../utils/crypto";
 import GameTimer from "../../components/GameTimer";
-import styles from "../../styles.module.scss";
+import styles from "../../room.module.scss";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 

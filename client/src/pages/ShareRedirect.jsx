@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastModal } from "../components/GameUI";
 import { decryptRoomId } from "../utils/crypto";
-import styles from "../styles.module.scss";
+import styles from "../home.module.scss";
 
 export default function ShareRedirect() {
   const { hash } = useParams();

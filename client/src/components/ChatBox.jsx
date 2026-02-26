@@ -1,5 +1,5 @@
 import { memo, useRef, useEffect, useState } from "react";
-import styles from "../styles.module.scss";
+import styles from "../room.module.scss";
 import { getPlayerColor } from "../utils/playerColor";
 import { EffectToolbar } from "./GameUI";
 

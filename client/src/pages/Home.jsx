@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import bannerImg from "../assets/img/banner.png";
-import styles from "../styles.module.scss";
+import styles from "../home.module.scss";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 

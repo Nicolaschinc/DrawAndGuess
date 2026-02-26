@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PlayerListComponent from "../../components/PlayerList";
 import { getPlayerColor } from "../../utils/playerColor";
-import styles from "../../styles.module.scss";
+import styles from "../../room.module.scss";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 

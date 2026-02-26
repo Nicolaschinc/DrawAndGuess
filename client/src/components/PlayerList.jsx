@@ -1,5 +1,5 @@
 import { memo } from "react";
-import styles from "../styles.module.scss";
+import styles from "../room.module.scss";
 import { getPlayerColor } from "../utils/playerColor";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");

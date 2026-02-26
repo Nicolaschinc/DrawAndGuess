@@ -1,5 +1,7 @@
 import { useState } from "react";
-import styles from "../styles.module.scss";
+import styles from "../modal.module.scss";
+import roomStyles from "../room.module.scss";
+import homeStyles from "../home.module.scss";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 
@@ -15,9 +17,9 @@ export function EffectToolbar({ onThrow, usage, disabled }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className={styles["effect-toolbar"]}>
+    <div className={roomStyles["effect-toolbar"]}>
       <button
-        className={cx(styles["effect-toggle-btn"], expanded && styles.active)}
+        className={cx(roomStyles["effect-toggle-btn"], expanded && roomStyles.active)}
         onClick={() => setExpanded(!expanded)}
         title="互动道具"
         disabled={disabled}
@@ -25,14 +27,14 @@ export function EffectToolbar({ onThrow, usage, disabled }) {
         🎁
       </button>
       {expanded && (
-        <div className={styles["effect-list"]}>
+        <div className={roomStyles["effect-list"]}>
           {EFFECT_TYPES.map(({ type, label }) => {
             const count = usage[type] || 0;
             const isLimit = count >= 5;
             return (
               <button
                 key={type}
-                className={styles["effect-btn"]}
+                className={roomStyles["effect-btn"]}
                 onClick={() => onThrow(type)}
                 disabled={disabled || isLimit}
                 title={`${label} (剩余 ${5 - count})`}
@@ -49,11 +51,11 @@ export function EffectToolbar({ onThrow, usage, disabled }) {
 
 export function EffectOverlay({ effects, onAnimationEnd }) {
   return (
-    <div className={styles["effect-overlay"]}>
+    <div className={roomStyles["effect-overlay"]}>
       {effects.map((effect) => (
         <div
           key={effect.id}
-          className={styles["flying-effect"]}
+          className={roomStyles["flying-effect"]}
           style={{
             "--start-x": `${effect.startX}px`,
             "--start-y": `${effect.startY}px`,
@@ -169,7 +171,7 @@ export function RulesButton({ onClick, className = "", iconOnly = false }) {
   return (
     <button
       onClick={onClick}
-      className={cx(styles["rules-btn"], iconOnly && styles["icon-only"], className)}
+      className={cx(roomStyles["rules-btn"], iconOnly && roomStyles["icon-only"], className)}
       title="游戏规则"
       aria-label="查看游戏规则"
     >
@@ -194,10 +196,10 @@ export function JoinRoomModal({ roomId, defaultName, onJoin, onCancel }) {
           <button className={styles["close-btn"]} onClick={onCancel}>×</button>
         </div>
         <div className={styles["join-modal-body"]}>
-          <p className={styles.hint}>
+          <p className={homeStyles.hint}>
             正在加入房间: <strong>{roomId}</strong>
           </p>
-          <label className={styles.field}>
+          <label className={homeStyles.field}>
             <span>你的名称</span>
             <input
               value={name}

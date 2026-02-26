@@ -7,7 +7,8 @@ import {
   ToastModal,
   ConfirmModal,
 } from "../../components/GameUI";
-import styles from "../../styles.module.scss";
+import styles from "../../room.module.scss";
+import homeStyles from "../../home.module.scss";
 
 import { useRoomSocket } from "./useRoomSocket";
 import { useCanvasDraw } from "./useCanvasDraw";
@@ -89,16 +90,16 @@ export default function GameRoom() {
   if (showJoinModal) {
     const randomName = "玩家" + Math.floor(1000 + Math.random() * 9000);
     return (
-      <div className={styles["join-page"]}>
+      <div className={homeStyles["join-page"]}>
          <JoinRoomModal 
             roomId={roomId}
             defaultName={randomName}
             onJoin={handleJoinModalSubmit}
             onCancel={() => navigate("/")}
           />
-         <div className={cx(styles["join-card"], styles["join-card-muted"])}>
+         <div className={cx(homeStyles["join-card"], homeStyles["join-card-muted"])}>
             <h1>你画我猜</h1>
-            <p className={styles.hint}>正在连接...</p>
+            <p className={homeStyles.hint}>正在连接...</p>
          </div>
       </div>
     );
@@ -106,9 +107,9 @@ export default function GameRoom() {
 
   if (!joined) {
      return (
-        <div className={styles["join-page"]}>
-           <div className={cx(styles["join-card"], styles["join-card-centered"])}>
-              <p className={styles["join-status-text"]}>正在加入房间...</p>
+        <div className={homeStyles["join-page"]}>
+           <div className={cx(homeStyles["join-card"], homeStyles["join-card-centered"])}>
+              <p className={homeStyles["join-status-text"]}>正在加入房间...</p>
            </div>
         </div>
      );

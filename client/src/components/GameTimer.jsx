@@ -1,5 +1,4 @@
 import { useState, useEffect, memo } from "react";
-import styles from "../styles.module.scss";
 
 const GameTimer = memo(function GameTimer({ roundEndsAt, className }) {
   const [timeLeft, setTimeLeft] = useState(0);
