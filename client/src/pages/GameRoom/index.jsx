@@ -66,6 +66,7 @@ export default function GameRoom() {
     clearByDrawer,
     toggleFullScreen,
     isFullscreen,
+    isPseudoFullscreen,
     onPointerDown,
     onPointerMove,
     onPointerUp,
@@ -162,6 +163,7 @@ export default function GameRoom() {
           setActiveTool={setActiveTool}
           clearByDrawer={clearByDrawer}
           isFullscreen={isFullscreen}
+          isPseudoFullscreen={isPseudoFullscreen}
           toggleFullScreen={toggleFullScreen}
           canDraw={canDraw}
           isDrawer={isDrawer}

@@ -23,6 +23,7 @@ export function useCanvasDraw({ socketRef, isDrawer, gameStarted, joined }) {
   const [penWidth, setPenWidth] = useState(4);
   const [activeTool, setActiveTool] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPseudoFullscreen, setIsPseudoFullscreen] = useState(false);
 
   // Helper to draw a single stroke
   const drawStroke = useCallback((stroke) => {
@@ -240,24 +241,91 @@ export function useCanvasDraw({ socketRef, isDrawer, gameStarted, joined }) {
   // Fullscreen
   useEffect(() => {
     function handleFullscreenChange() {
-      setIsFullscreen(!!document.fullscreenElement);
+      const doc = document;
+      const isNativeFull = !!(
+        doc.fullscreenElement || 
+        doc.webkitFullscreenElement || 
+        doc.mozFullScreenElement || 
+        doc.msFullscreenElement
+      );
+
+      if (isNativeFull) {
+        setIsFullscreen(true);
+        setIsPseudoFullscreen(false);
+      } else if (!isPseudoFullscreen) {
+        setIsFullscreen(false);
+      }
     }
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, []);
+
+    const doc = document;
+    doc.addEventListener("fullscreenchange", handleFullscreenChange);
+    doc.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    doc.addEventListener("mozfullscreenchange", handleFullscreenChange);
+    doc.addEventListener("MSFullscreenChange", handleFullscreenChange);
+    
+    return () => {
+      doc.removeEventListener("fullscreenchange", handleFullscreenChange);
+      doc.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+      doc.removeEventListener("mozfullscreenchange", handleFullscreenChange);
+      doc.removeEventListener("MSFullscreenChange", handleFullscreenChange);
+    };
+  }, [isPseudoFullscreen]);
 
   const toggleFullScreen = useCallback(() => {
     const canvasWrap = canvasRef.current?.parentElement;
     if (!canvasWrap) return;
+    const doc = document;
 
-    if (!document.fullscreenElement) {
-      canvasWrap.requestFullscreen().catch((err) => {
-        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-      });
+    if (!isFullscreen) {
+      // Enter Fullscreen
+      const requestFs = 
+        canvasWrap.requestFullscreen || 
+        canvasWrap.webkitRequestFullscreen || 
+        canvasWrap.mozRequestFullScreen || 
+        canvasWrap.msRequestFullscreen;
+
+      if (requestFs) {
+        try {
+          const p = requestFs.call(canvasWrap);
+          if (p && typeof p.catch === 'function') {
+            p.catch((err) => {
+              console.warn("Native fullscreen failed, using pseudo:", err);
+              setIsPseudoFullscreen(true);
+              setIsFullscreen(true);
+            });
+          }
+        } catch (err) {
+          console.warn("Native fullscreen error, using pseudo:", err);
+          setIsPseudoFullscreen(true);
+          setIsFullscreen(true);
+        }
+      } else {
+        // Fallback
+        setIsPseudoFullscreen(true);
+        setIsFullscreen(true);
+      }
     } else {
-      document.exitFullscreen();
+      // Exit Fullscreen
+      const isNativeFull = !!(
+        doc.fullscreenElement || 
+        doc.webkitFullscreenElement || 
+        doc.mozFullScreenElement || 
+        doc.msFullscreenElement
+      );
+
+      if (isNativeFull) {
+        const exitFs = 
+          doc.exitFullscreen || 
+          doc.webkitExitFullscreen || 
+          doc.mozCancelFullScreen || 
+          doc.msExitFullscreen;
+        if (exitFs) exitFs.call(doc);
+      }
+      
+      setIsPseudoFullscreen(false);
+      setIsFullscreen(false);
     }
-  }, []);
+  }, [isFullscreen]);
 
   return {
     canvasRef,
@@ -270,6 +338,7 @@ export function useCanvasDraw({ socketRef, isDrawer, gameStarted, joined }) {
     clearByDrawer,
     toggleFullScreen,
     isFullscreen,
+    isPseudoFullscreen, // Export this
     onPointerDown,
     onPointerMove,
     onPointerUp,

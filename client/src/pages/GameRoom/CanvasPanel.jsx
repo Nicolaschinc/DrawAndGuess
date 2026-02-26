@@ -41,6 +41,7 @@ export default function CanvasPanel({
   setActiveTool,
   clearByDrawer,
   isFullscreen,
+  isPseudoFullscreen,
   toggleFullScreen,
   canDraw,
   isDrawer,
@@ -87,7 +88,7 @@ export default function CanvasPanel({
 
   return (
     <>
-      <div className={styles["canvas-wrap"]}>
+      <div className={cx(styles["canvas-wrap"], isPseudoFullscreen && styles["fullscreen-pseudo"])}>
         <CanvasControls
           showToolbar={showToolbar}
           setShowToolbar={setShowToolbar}
