@@ -1,8 +1,6 @@
 .container {
-  position: fixed;
-  top: 1.5rem;
-  left: 1.5rem;
-  z-index: 9999;
+  position: relative;
+  z-index: 10;
 }
 
 .switcherBtn {
@@ -45,7 +43,7 @@
 .dropdown {
   position: absolute;
   top: calc(100% + 8px);
-  left: 0;
+  right: 0;
   width: 140px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
@@ -95,5 +93,24 @@
     ) !important;
     color: #fff !important;
     font-weight: 600;
+  }
+}
+
+@media (max-width: 768px) {
+  .switcherBtn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+
+    .langCode {
+      letter-spacing: 0.2px;
+    }
+  }
+
+  .option {
+    padding: 10px 12px;
+    font-size: 0.9rem;
   }
 }

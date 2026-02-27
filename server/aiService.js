@@ -159,6 +159,22 @@ Requirements:
   return [];
 }
 
+export function getBingImageUrl(word, style) {
+  return `https://tse2.mm.bing.net/th?q=${encodeURIComponent(word + ' ' + style)}&w=512&h=512&c=7&rs=1&p=0`;
+}
+
+/**
+ * Fetches image buffer from a URL.
+ */
+export async function getImageBuffer(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${response.statusText}`);
+  }
+  const arrayBuffer = await response.arrayBuffer();
+  return Buffer.from(arrayBuffer);
+}
+
 /**
  * Searches for reference images for a given word using an external search API (mocked for now).
  * In a real scenario, you would use Bing Image Search API or Google Custom Search JSON API.
@@ -168,26 +184,10 @@ Requirements:
 export async function fetchReferenceImages(word) {
   if (!word) return [];
 
-  // Since we don't have a real Image Search API key (like Bing/Google), 
-  // we will use Unsplash Source or similar placeholder services that support keywords.
-  // Note: Unsplash Source is deprecated/unreliable, so we'll use a combination of 
-  // reliable placeholder services and maybe a direct scrape if needed (but scraping is risky).
-  // For this demo, we will use `pollinations.ai` which is a free generative AI 
-  // but it's very fast and works like a search engine for "concepts". 
-  // It's technically AI generation but it's instant and free, perfect for "reference".
-  
-  try {
-    // Strategy: Use Pollinations.ai for instant generated reference
-    // It's much faster than DALL-E and free.
-    // We add some seed to get different variations if needed.
-    // Use Bing Image Search thumbnail API as a stable alternative since pollinations.ai is experiencing downtime (Error 1033)
-    const imageUrl1 = `https://tse2.mm.bing.net/th?q=${encodeURIComponent(word + ' photo')}&w=512&h=512&c=7&rs=1&p=0`;
-    const imageUrl2 = `https://tse2.mm.bing.net/th?q=${encodeURIComponent(word + ' cartoon')}&w=512&h=512&c=7&rs=1&p=0`;
-    const imageUrl3 = `https://tse2.mm.bing.net/th?q=${encodeURIComponent(word + ' sketch')}&w=512&h=512&c=7&rs=1&p=0`;
-    
-    return [imageUrl1, imageUrl2, imageUrl3];
-  } catch (error) {
-    console.error("Error fetching reference images:", error);
-    return [];
-  }
+  // Return local proxy URLs to avoid CORS/Hotlinking issues with Bing
+  return [
+    `/api/proxy-image?word=${encodeURIComponent(word)}&style=photo`,
+    `/api/proxy-image?word=${encodeURIComponent(word)}&style=cartoon`,
+    `/api/proxy-image?word=${encodeURIComponent(word)}&style=sketch`
+  ];
 }

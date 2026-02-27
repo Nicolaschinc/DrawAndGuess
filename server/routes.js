@@ -1,8 +1,28 @@
 import { getAllWordsList, addHotWords } from "./wordManager.js";
-import { fetchTrendingWords, fetchReferenceImages } from "./aiService.js";
+import { fetchTrendingWords, fetchReferenceImages, getBingImageUrl, getImageBuffer } from "./aiService.js";
 
 export default function setupRoutes(app) {
   app.get("/health", (_, res) => res.json({ ok: true }));
+
+  // AI Image Proxy to avoid CORS/Hotlinking issues
+  app.get("/api/proxy-image", async (req, res) => {
+    const { word, style } = req.query;
+    if (!word) {
+      return res.status(400).send("Word is required");
+    }
+
+    try {
+      const aiUrl = getBingImageUrl(word, style || 'photo');
+      const buffer = await getImageBuffer(aiUrl);
+      
+      res.set("Content-Type", "image/jpeg");
+      res.set("Cache-Control", "public, max-age=3600"); 
+      res.send(buffer);
+    } catch (err) {
+      console.error("AI Image proxy error:", err);
+      res.status(500).send("Failed to fetch image");
+    }
+  });
 
   app.post("/api/refresh-hot-words", async (_, res) => {
     try {

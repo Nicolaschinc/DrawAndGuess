@@ -43,7 +43,7 @@
     }
   }
 
-  button {
+  .action-btn {
     border: 1px solid var(--line-strong);
     padding: 10px 16px;
     min-height: var(--touch-min);
@@ -130,12 +130,20 @@
 }
 
 .join-card-right {
+  position: relative;
   flex: 1;
   padding: 32px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   justify-content: center;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 .mode-switch {
@@ -159,6 +167,8 @@
   min-height: 36px !important;
   font-size: 13px !important;
   border-radius: 6px !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
 
   &:hover {
     color: var(--ink-800) !important;
@@ -233,5 +243,9 @@
       width: 12px;
       height: 12px;
     }
+  }
+
+  .join-card-right {
+    padding: 16px;
   }
 }

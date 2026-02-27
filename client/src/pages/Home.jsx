@@ -36,9 +36,10 @@ export default function Home() {
           <img src={currentBanner} alt="Draw and Guess Banner" className={styles["banner-img"]} />
         </div>
         <div className={styles["join-card-right"]}>
-          <h1>{t('home.title')}</h1>
-          
-          <LanguageSwitcher />
+          <div className={styles["header-row"]}>
+            <h1>{t('home.title')}</h1>
+            <LanguageSwitcher />
+          </div>
 
           <div className={styles["mode-switch"]}>
             <button
@@ -90,6 +91,7 @@ export default function Home() {
           )}
 
           <button
+            className={styles["action-btn"]}
             onClick={mode === "join" ? handleJoin : handleCreate}
             disabled={!name.trim() || (mode === "join" && !roomId.trim())}
           >
