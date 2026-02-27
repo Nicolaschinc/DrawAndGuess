@@ -22,6 +22,35 @@
     "confirmQuit": "Confirm Leave",
     "stayInRoom": "Stay in Room"
   },
+  "share": {
+    "invalid": "Invalid share link",
+    "resolving": "Resolving share link...",
+    "notice": "Notice"
+  },
+  "system": {
+    "joined": "<user>{{username}}</user> joined the room.",
+    "guessed": "<user>{{username}}</user> guessed correctly! (+{{score}} points)",
+    "roundEnd": "Round ended. The answer was \"{{word}}\".",
+    "timeout": "Time's up. The answer was \"{{word}}\".",
+    "gameOver": "Game over! All players have drawn.",
+    "minPlayers": "At least 2 players are needed to start.",
+    "hint": "Hint: {{hint}}",
+    "hintCategory": "Hint: {{category}}",
+    "maskedWord": "Hint: {{category}} ({{length}} letters)",
+    "drawerName": "Drawer"
+  },
+  "categories": {
+    "Animals": "Animals",
+    "Objects": "Objects",
+    "Foods": "Foods",
+    "Places": "Places",
+    "Actions": "Actions",
+    "热门": "Trending",
+    "系统": "System"
+  },
+  "error": {
+    "missingIdName": "Please provide Room ID and Name."
+  },
   "header": {
     "room": "Room",
     "waiting": "Waiting",

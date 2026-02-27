@@ -36,7 +36,7 @@ export default function GameRoom() {
   const [toast, setToast] = useState(null);
 
   const handleJoinError = useCallback((msg) => {
-    setToast({ title: t('game.joinFailed'), message: msg });
+    setToast({ title: t('game.joinFailed'), message: t(msg) });
   }, [t]);
 
   // Custom Hooks

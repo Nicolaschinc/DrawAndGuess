@@ -20,7 +20,7 @@ export default function registerSocketHandlers(io) {
       const safeName = String(name || "").trim().slice(0, 20);
 
       if (!safeRoomId || !safeName) {
-        cb({ ok: false, error: "请填写房间 ID 和名称。" });
+        cb({ ok: false, error: "error.missingIdName" });
         return;
       }
 
@@ -43,6 +43,8 @@ export default function registerSocketHandlers(io) {
       }
 
       io.to(safeRoomId).emit(EVENTS.SYSTEM_MESSAGE, { 
+        key: "system.joined",
+        args: { username: safeName },
         text: `${safeName} 加入了房间。`,
         relatedUser: { id: socket.id, name: safeName }
       });
@@ -141,6 +143,8 @@ export default function registerSocketHandlers(io) {
         if (drawer) drawer.score += drawerScore;
 
         io.to(roomId).emit(EVENTS.SYSTEM_MESSAGE, {
+          key: "system.guessed",
+          args: { username: player.name, score: guesserScore },
           text: `${player.name} 猜对了！(+${guesserScore} 分)`,
           relatedUser: { id: socket.id, name: player.name }
         });

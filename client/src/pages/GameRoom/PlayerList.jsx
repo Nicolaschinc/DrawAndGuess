@@ -22,13 +22,31 @@ export default function PlayerList({
   const { t } = useTranslation();
   const [showMobilePlayers, setShowMobilePlayers] = useState(false);
 
+  const renderMaskedWord = () => {
+    if (isDrawer) {
+      return `${t('ui.yourWord')}：${word || t('ui.waiting')}`;
+    }
+    
+    if (!maskedWord) return null;
+    
+    if (typeof maskedWord === 'object') {
+      if (maskedWord.hint) {
+        return t('system.hint', { hint: maskedWord.hint });
+      }
+      return t('system.maskedWord', { 
+        category: t(`categories.${maskedWord.category}`, maskedWord.category), 
+        length: maskedWord.length 
+      });
+    }
+    
+    return maskedWord;
+  };
+
   return (
     <>
       {gameStarted && (
         <div className={styles["word-box"]} aria-live="polite">
-          {isDrawer
-            ? `${t('ui.yourWord')}：${word || t('ui.waiting')}`
-            : maskedWord}
+          {renderMaskedWord()}
         </div>
       )}
 

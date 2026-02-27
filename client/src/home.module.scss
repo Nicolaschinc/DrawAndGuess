@@ -212,8 +212,11 @@
   }
 
   .join-card-left {
-    min-height: 200px;
-    height: 200px;
+    min-height: auto;
+    height: auto;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
   }
 
   .join-card-centered {

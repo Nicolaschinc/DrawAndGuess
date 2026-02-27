@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ToastModal } from "../components/GameUI";
 import { decryptRoomId } from "../utils/crypto";
 import styles from "../home.module.scss";
 
 export default function ShareRedirect() {
+  const { t } = useTranslation();
   const { hash } = useParams();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
@@ -17,19 +19,19 @@ export default function ShareRedirect() {
         navigate(`/room/${roomId}`, { replace: true });
       } else {
         // Handle invalid hash
-        setError("无效的分享链接");
+        setError(t("share.invalid"));
       }
     }
-  }, [hash, navigate]);
+  }, [hash, navigate, t]);
 
   return (
     <div className={styles["join-page"]}>
       <div className={`${styles["join-card"]} ${styles["join-card-centered"]}`}>
-        <p>正在解析分享链接...</p>
+        <p>{t("share.resolving")}</p>
       </div>
       {error && (
         <ToastModal
-          title="提示"
+          title={t("share.notice")}
           message={error}
           onClose={() => {
             setError(null);

@@ -1,7 +1,7 @@
 .container {
   position: fixed;
   top: 1.5rem;
-  right: 1.5rem;
+  left: 1.5rem;
   z-index: 9999;
 }
 
@@ -45,7 +45,7 @@
 .dropdown {
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
+  left: 0;
   width: 140px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);

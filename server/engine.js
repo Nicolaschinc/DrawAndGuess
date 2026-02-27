@@ -9,15 +9,6 @@ import {
 } from "./gameLogic.js";
 import { EVENTS } from "../shared/events.mjs";
 
-const CATEGORY_MAP = {
-  "Animals": "动物",
-  "Objects": "物品",
-  "Foods": "食物",
-  "Places": "场所",
-  "Actions": "动作",
-  "热门": "热门话题"
-};
-
 export function pickWord() {
   return getRandomWord();
 }
@@ -35,13 +26,6 @@ export function roomStateFor(room, viewerId) {
       };
     });
 
-  const categoryName = CATEGORY_MAP[game.currentCategory] || game.currentCategory || "未知";
-  
-  let hintText = `提示: ${categoryName}`;
-  if (game.currentHint) {
-    hintText = `提示: ${game.currentHint}`;
-  }
-
   return {
     players,
     hostId: room.hostId,
@@ -54,7 +38,11 @@ export function roomStateFor(room, viewerId) {
       word: game.drawerId === viewerId ? game.currentWord : null,
       maskedWord:
         game.currentWord && game.drawerId !== viewerId
-          ? `${hintText} (${game.currentWord.length}字)`
+          ? {
+              category: game.currentCategory || "系统",
+              length: game.currentWord.length,
+              hint: game.currentHint || null,
+            }
           : null,
     },
     strokes: room.strokes,
@@ -95,11 +83,13 @@ export function endRound(io, roomId, reason = "timeout") {
   stopRound(room);
 
   io.to(roomId).emit(EVENTS.SYSTEM_MESSAGE, {
-      text:
-        reason === "all_guessed"
-          ? `回合结束，答案是「${room.game.currentWord}」。`
-          : `时间到，答案是「${room.game.currentWord}」。`,
-    });
+    key: reason === "all_guessed" ? "system.roundEnd" : "system.timeout",
+    args: { word: room.game.currentWord },
+    text:
+      reason === "all_guessed"
+        ? `回合结束，答案是「${room.game.currentWord}」。`
+        : `时间到，答案是「${room.game.currentWord}」。`,
+  });
 
   if (!room.game.drawnPlayers) {
     room.game.drawnPlayers = new Set();
@@ -111,6 +101,7 @@ export function endRound(io, roomId, reason = "timeout") {
   if (allDrawn) {
     room.game.started = false;
     io.to(roomId).emit(EVENTS.SYSTEM_MESSAGE, {
+      key: "system.gameOver",
       text: "游戏结束！所有玩家都已作画。",
     });
     broadcastRoom(io, roomId);
@@ -143,6 +134,7 @@ export function startRound(io, roomId) {
   if (room.playerOrder.length < 2) {
     room.game.started = false;
     io.to(roomId).emit(EVENTS.SYSTEM_MESSAGE, {
+      key: "system.minPlayers",
       text: "至少需要 2 名玩家才能开始。",
     });
     broadcastRoom(io, roomId);

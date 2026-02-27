@@ -22,6 +22,35 @@
     "confirmQuit": "确认退出",
     "stayInRoom": "留在房间"
   },
+  "share": {
+    "invalid": "无效的分享链接",
+    "resolving": "正在解析分享链接...",
+    "notice": "提示"
+  },
+  "system": {
+    "joined": "<user>{{username}}</user> 加入了房间。",
+    "guessed": "<user>{{username}}</user> 猜对了！(+{{score}} 分)",
+    "roundEnd": "回合结束，答案是「{{word}}」。",
+    "timeout": "时间到，答案是「{{word}}」。",
+    "gameOver": "游戏结束！所有玩家都已作画。",
+    "minPlayers": "至少需要 2 名玩家才能开始。",
+    "hint": "提示: {{hint}}",
+    "hintCategory": "提示: {{category}}",
+    "maskedWord": "提示: {{category}} ({{length}}字)",
+    "drawerName": "画家"
+  },
+  "categories": {
+    "Animals": "动物",
+    "Objects": "物品",
+    "Foods": "食物",
+    "Places": "场所",
+    "Actions": "动作",
+    "热门": "热门话题",
+    "系统": "系统"
+  },
+  "error": {
+    "missingIdName": "请填写房间 ID 和名称。"
+  },
   "header": {
     "room": "房间",
     "waiting": "等待开始",

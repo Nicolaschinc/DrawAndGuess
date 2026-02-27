@@ -1,5 +1,5 @@
 import { memo, useRef, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 import styles from "../room.module.scss";
 import { getPlayerColor } from "../utils/playerColor";
 import { EffectToolbar } from "./GameUI";
@@ -28,6 +28,25 @@ const ChatBox = memo(function ChatBox({
   };
 
   const renderSystemMessage = (msg) => {
+    if (msg.key) {
+      return (
+        <Trans
+          i18nKey={msg.key}
+          values={msg.args}
+          components={{
+            user: (
+              <span
+                style={{
+                  color: msg.relatedUser ? getPlayerColor(msg.relatedUser.id) : "inherit",
+                  fontWeight: 600,
+                }}
+              />
+            ),
+          }}
+        />
+      );
+    }
+
     if (!msg.relatedUser || !msg.text.includes(msg.relatedUser.name)) {
       return msg.text;
     }

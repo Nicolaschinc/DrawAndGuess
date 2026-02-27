@@ -44,9 +44,9 @@ export function useRoomSocket(roomId, name, navigate, onError) {
       socket.emit(EVENTS.JOIN_ROOM, { roomId, name }, (res) => {
         if (!res?.ok) {
           if (onError) {
-            onError(res?.error || "加入失败");
+            onError(res?.error || "game.joinFailed");
           } else {
-            console.error(res?.error || "加入失败");
+            console.error(res?.error || "Join Failed");
           }
           navigate("/");
           return;
