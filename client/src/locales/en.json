@@ -1,6 +1,7 @@
 {
   "home": {
     "title": "Draw & Guess",
+    "description": "Online Draw & Guess game. Play with friends, draw masterpieces, and guess words in real-time!",
     "createRoom": "Create Room",
     "joinRoom": "Join Room",
     "hintCreate": "Create a new room and invite friends",

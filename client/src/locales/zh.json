@@ -1,6 +1,7 @@
 {
   "home": {
     "title": "你画我猜",
+    "description": "在线你画我猜多人游戏，与好友一起享受绘画与猜谜的乐趣。",
     "createRoom": "创建房间",
     "joinRoom": "加入房间",
     "hintCreate": "创建新房间并邀请好友",

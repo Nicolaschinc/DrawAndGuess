@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Helmet } from "react-helmet-async";
 import {
   EffectOverlay,
   RulesModal,
@@ -124,6 +125,10 @@ export default function GameRoom() {
 
   return (
     <div className={styles.layout}>
+      <Helmet>
+        <title>{t('header.room')} {roomId} - Draw & Guess</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
       <a className={styles["skip-link"]} href="#game-main">
         {t('game.skipToContent')}
       </a>

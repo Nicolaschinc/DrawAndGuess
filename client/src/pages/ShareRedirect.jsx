@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Helmet } from "react-helmet-async";
 import { ToastModal } from "../components/GameUI";
 import { decryptRoomId } from "../utils/crypto";
 import styles from "../home.module.scss";
@@ -27,6 +28,9 @@ export default function ShareRedirect() {
 
   return (
     <div className={styles["join-page"]}>
+      <Helmet>
+        <meta name="robots" content="noindex" />
+      </Helmet>
       <div className={`${styles["join-card"]} ${styles["join-card-centered"]}`}>
         <p>{t("share.resolving")}</p>
       </div>

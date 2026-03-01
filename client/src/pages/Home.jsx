@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Helmet } from "react-helmet-async";
 import bannerCn from "../assets/img/banner_cn.png";
 import bannerEn from "../assets/img/banner_en.png";
 import styles from "../home.module.scss";
@@ -40,6 +41,14 @@ export default function Home() {
 
   return (
     <div className={styles["join-page"]}>
+      <Helmet>
+        <title>{t('home.title')} - Draw & Guess</title>
+        <meta name="description" content={t('home.description')} />
+        <link rel="canonical" href="https://drawandguess.com/drawguess/" />
+        <link rel="alternate" hreflang="en" href="https://drawandguess.com/drawguess/en" />
+        <link rel="alternate" hreflang="zh" href="https://drawandguess.com/drawguess/zh" />
+        <link rel="alternate" hreflang="x-default" href="https://drawandguess.com/drawguess/" />
+      </Helmet>
       <div className={styles["join-card"]}>
         <div className={styles["join-card-left"]}>
           <img src={currentBanner} alt="Draw and Guess Banner" className={styles["banner-img"]} />

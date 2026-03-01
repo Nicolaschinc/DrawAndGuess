@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import styles from './StaticPages.module.scss';
 import { withLanguagePrefix } from '../utils/localeRoutes';
 
@@ -12,6 +13,10 @@ const PrivacyPolicy = () => {
 
   return (
     <div className={styles.container}>
+      <Helmet>
+        <title>{t('privacy.title')} - Draw & Guess</title>
+        <meta name="description" content={t('privacy.introText')} />
+      </Helmet>
       <Link to={homePath} className={styles['back-link']}>
         ← {t('static.backHome')}
       </Link>
