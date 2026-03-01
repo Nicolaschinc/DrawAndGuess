@@ -42,7 +42,7 @@ export default function Home() {
   return (
     <div className={styles["join-page"]}>
       <Helmet>
-        <title>{t('home.title')} - Draw & Guess</title>
+        <title>{t('seoTitle')}</title>
         <meta name="description" content={t('home.description')} />
         <link rel="canonical" href="https://drawandguess.com/drawguess/" />
         <link rel="alternate" hreflang="en" href="https://drawandguess.com/drawguess/en" />

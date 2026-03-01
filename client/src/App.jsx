@@ -64,6 +64,7 @@ export default function App() {
     <HelmetProvider>
       <Helmet>
         <html lang={normalizeLanguage(i18n.language)} />
+        <title>{i18n.t('seoTitle')}</title>
       </Helmet>
       <BrowserRouter basename={basename}>
         <GoogleAnalytics />
