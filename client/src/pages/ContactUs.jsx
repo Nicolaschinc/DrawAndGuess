@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import styles from './StaticPages.module.scss';
+import { withLanguagePrefix } from '../utils/localeRoutes';
 
 const ContactUs = () => {
   const { t } = useTranslation();
+  const { lang } = useParams();
+  const homePath = withLanguagePrefix(lang, "/");
   const contactEmail = import.meta.env.VITE_CONTACT_EMAIL || 'contact@game2048.xyz';
   const [formData, setFormData] = useState({
     name: '',
@@ -37,7 +40,7 @@ const ContactUs = () => {
 
   return (
     <div className={styles.container}>
-      <Link to="/" className={styles['back-link']}>
+      <Link to={homePath} className={styles['back-link']}>
         ← {t('static.backHome')}
       </Link>
       <h1>{t('contact.title')}</h1>

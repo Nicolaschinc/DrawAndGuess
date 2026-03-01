@@ -1,9 +1,11 @@
 import { useRef, useState, useEffect, useCallback } from "react";
+import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Share2, LogOut, Ellipsis, CircleHelp } from "lucide-react";
 import { encryptRoomId } from "../../utils/crypto";
 import GameTimer from "../../components/GameTimer";
 import styles from "../../room.module.scss";
+import { withLanguagePrefix } from "../../utils/localeRoutes";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 
@@ -17,6 +19,7 @@ export default function RoomHeader({
   setToast
 }) {
   const { t } = useTranslation();
+  const { lang } = useParams();
   const [showHeaderMenu, setShowHeaderMenu] = useState(false);
   const headerMenuRef = useRef(null);
 
@@ -33,7 +36,10 @@ export default function RoomHeader({
 
   const handleShareLink = useCallback(() => {
     const hash = encryptRoomId(roomId);
-    const url = `${window.location.origin}${import.meta.env.BASE_URL}share/${hash}`;
+    const sharePath = withLanguagePrefix(lang, `/share/${hash}`);
+    const basePath = import.meta.env.BASE_URL || "/";
+    const normalizedBase = basePath === "/" ? "" : basePath.replace(/\/$/, "");
+    const url = `${window.location.origin}${normalizedBase}${sharePath}`;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(() => {
@@ -66,7 +72,7 @@ export default function RoomHeader({
     }
 
     document.body.removeChild(textArea);
-  }, [roomId, setToast, t]);
+  }, [lang, roomId, setToast, t]);
 
   return (
     <>

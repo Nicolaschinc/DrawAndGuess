@@ -7,7 +7,7 @@ const SERVER_URL =
   import.meta.env.VITE_SERVER_URL ??
   (import.meta.env.DEV ? `http://${window.location.hostname}:3001` : window.location.origin);
 
-export function useRoomSocket(roomId, name, navigate, onError) {
+export function useRoomSocket(roomId, name, navigate, onError, homePath = "/") {
   const socketRef = useRef(null);
   const [joined, setJoined] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -51,7 +51,7 @@ export function useRoomSocket(roomId, name, navigate, onError) {
           } else {
             console.error(res?.error || "Join Failed");
           }
-          navigate("/");
+          navigate(homePath);
           return;
         }
         setJoined(true);
@@ -104,7 +104,7 @@ export function useRoomSocket(roomId, name, navigate, onError) {
     return () => {
       socket.disconnect();
     };
-  }, [roomId, name, navigate, onError]);
+  }, [roomId, name, navigate, onError, homePath]);
 
   const me = useMemo(() => {
     const socket = socketRef.current;
@@ -134,8 +134,8 @@ export function useRoomSocket(roomId, name, navigate, onError) {
 
   const leaveRoom = useCallback(() => {
     socketRef.current?.disconnect();
-    navigate("/");
-  }, [navigate]);
+    navigate(homePath);
+  }, [navigate, homePath]);
 
   return {
     socketRef,

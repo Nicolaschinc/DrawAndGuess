@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next";
 import { ToastModal } from "../components/GameUI";
 import { decryptRoomId } from "../utils/crypto";
 import styles from "../home.module.scss";
+import { withLanguagePrefix } from "../utils/localeRoutes";
 
 export default function ShareRedirect() {
   const { t } = useTranslation();
-  const { hash } = useParams();
+  const { hash, lang } = useParams();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
 
@@ -16,13 +17,13 @@ export default function ShareRedirect() {
       const roomId = decryptRoomId(hash);
       if (roomId) {
         // Redirect to the actual room page
-        navigate(`/room/${roomId}`, { replace: true });
+        navigate(withLanguagePrefix(lang, `/room/${roomId}`), { replace: true });
       } else {
         // Handle invalid hash
         setError(t("share.invalid"));
       }
     }
-  }, [hash, navigate, t]);
+  }, [hash, lang, navigate, t]);
 
   return (
     <div className={styles["join-page"]}>
@@ -35,7 +36,7 @@ export default function ShareRedirect() {
           message={error}
           onClose={() => {
             setError(null);
-            navigate("/", { replace: true });
+            navigate(withLanguagePrefix(lang, "/"), { replace: true });
           }}
         />
       )}

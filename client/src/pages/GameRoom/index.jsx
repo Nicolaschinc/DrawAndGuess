@@ -17,14 +17,16 @@ import RoomHeader from "./RoomHeader";
 import PlayerList from "./PlayerList";
 import ChatPanel from "./ChatPanel";
 import CanvasPanel from "./CanvasPanel";
+import { withLanguagePrefix } from "../../utils/localeRoutes";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 
 export default function GameRoom() {
   const { t } = useTranslation();
-  const { roomId } = useParams();
+  const { roomId, lang } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const homePath = withLanguagePrefix(lang, "/");
 
   // Initial name from router state
   const [name, setName] = useState(location.state?.name || "");
@@ -55,7 +57,7 @@ export default function GameRoom() {
     sendMessage,
     throwEffect,
     leaveRoom
-  } = useRoomSocket(roomId, name, navigate, handleJoinError);
+  } = useRoomSocket(roomId, name, navigate, handleJoinError, homePath);
 
   const {
     canvasRef,
@@ -98,7 +100,7 @@ export default function GameRoom() {
             roomId={roomId}
             defaultName={randomName}
             onJoin={handleJoinModalSubmit}
-            onCancel={() => navigate("/")}
+            onCancel={() => navigate(homePath)}
           />
          <div className={cx(homeStyles["join-card"], homeStyles["join-card-muted"])}>
             <h1>{t('home.title')}</h1>

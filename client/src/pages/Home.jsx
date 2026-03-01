@@ -1,32 +1,35 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import bannerCn from "../assets/img/banner_cn.png";
 import bannerEn from "../assets/img/banner_en.png";
 import styles from "../home.module.scss";
 import LanguageSwitcher from "../components/LanguageSwitcher";
+import { normalizeLanguage, withLanguagePrefix } from "../utils/localeRoutes";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 
 export default function Home() {
   const { t, i18n } = useTranslation();
+  const { lang } = useParams();
   const [name, setName] = useState("");
   const [roomId, setRoomId] = useState("");
   const [mode, setMode] = useState("create"); // "join" or "create"
   const navigate = useNavigate();
+  const currentLang = normalizeLanguage(lang || i18n.language);
 
   const currentBanner = i18n.language.startsWith('zh') ? bannerCn : bannerEn;
 
   const handleJoin = () => {
     if (!name.trim() || !roomId.trim()) return;
-    navigate(`/room/${roomId}`, { state: { name } });
+    navigate(withLanguagePrefix(currentLang, `/room/${roomId}`), { state: { name } });
   };
 
   const handleCreate = () => {
     if (!name.trim()) return;
     // Generate a random 6-character room ID
     const newRoomId = Math.random().toString(36).substring(2, 8);
-    navigate(`/room/${newRoomId}`, { state: { name } });
+    navigate(withLanguagePrefix(currentLang, `/room/${newRoomId}`), { state: { name } });
   };
 
   return (

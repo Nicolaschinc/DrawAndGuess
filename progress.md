@@ -62,3 +62,13 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
 - 验证:
   - `npm --prefix client run build` 通过。
   - 按技能流程尝试 Playwright 客户端验证失败：缺少 `playwright` 依赖（`ERR_MODULE_NOT_FOUND`）。
+
+- 2026-03-01（路由国际化重构）:
+  1) 路由结构改为 `/:lang/*`，支持 `en/zh` 语言前缀；新增无前缀旧链接自动重定向（如 `/room/:id` -> `/:lang/room/:id`）。
+  2) 新增 `client/src/utils/localeRoutes.js`，统一处理语言规范化、路径加前缀、路径换语言。
+  3) 改造关键跳转与链接：Home 创建/加入房间、ShareRedirect、GameRoom 退出与加入失败回跳、Footer、静态页返回链接均保留当前语言。
+  4) 语言切换器改为“切语言 + 切 URL”，确保 URL、i18n 状态和页面内容一致。
+  5) 房间分享链接改为携带语言路径（`/:lang/share/:hash`）。
+- 验证:
+  - `npm --prefix client run build` 通过。
+  - 按技能流程检查 Playwright 客户端可用性失败：运行 `$WEB_GAME_CLIENT --help` 报错缺少 `playwright` 包（`ERR_MODULE_NOT_FOUND`）。

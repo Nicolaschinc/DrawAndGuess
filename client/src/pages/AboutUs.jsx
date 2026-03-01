@@ -1,14 +1,17 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import styles from './StaticPages.module.scss';
+import { withLanguagePrefix } from '../utils/localeRoutes';
 
 const AboutUs = () => {
   const { t } = useTranslation();
+  const { lang } = useParams();
+  const homePath = withLanguagePrefix(lang, "/");
 
   return (
     <div className={styles.container}>
-      <Link to="/" className={styles['back-link']}>
+      <Link to={homePath} className={styles['back-link']}>
         ← {t('static.backHome')}
       </Link>
       <h1>{t('about.title')}</h1>

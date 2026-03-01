@@ -1,17 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Globe, Check } from 'lucide-react';
 import styles from './LanguageSwitcher.module.scss';
+import { normalizeLanguage, swapLanguageInPath } from '../utils/localeRoutes';
 
 export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
-  const currentLang = i18n.language.startsWith('zh') ? 'zh' : 'en';
+  const currentLang = normalizeLanguage(i18n.language);
 
   const changeLanguage = (lang) => {
-    i18n.changeLanguage(lang);
+    const normalizedLang = normalizeLanguage(lang);
+    i18n.changeLanguage(normalizedLang);
+    const localizedPath = swapLanguageInPath(location.pathname, normalizedLang);
+    navigate(`${localizedPath}${location.search}${location.hash}`, { replace: true });
     setIsOpen(false);
   };
 

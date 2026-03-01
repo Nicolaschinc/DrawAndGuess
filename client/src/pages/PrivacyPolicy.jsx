@@ -1,14 +1,18 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import styles from './StaticPages.module.scss';
+import { withLanguagePrefix } from '../utils/localeRoutes';
 
 const PrivacyPolicy = () => {
   const { t } = useTranslation();
+  const { lang } = useParams();
+  const homePath = withLanguagePrefix(lang, "/");
+  const contactPath = withLanguagePrefix(lang, "/contact");
 
   return (
     <div className={styles.container}>
-      <Link to="/" className={styles['back-link']}>
+      <Link to={homePath} className={styles['back-link']}>
         ← {t('static.backHome')}
       </Link>
       <h1>{t('privacy.title')}</h1>
@@ -67,7 +71,7 @@ const PrivacyPolicy = () => {
 
       <section>
         <h2>{t('privacy.contact')}</h2>
-        <p>{t('privacy.contactText')} <Link to="/contact">{t('static.contactUs')}</Link>.</p>
+        <p>{t('privacy.contactText')} <Link to={contactPath}>{t('static.contactUs')}</Link>.</p>
       </section>
     </div>
   );
