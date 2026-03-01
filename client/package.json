@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:platform": "VITE_ROUTER_BASE=/ vite build --base=./ --outDir ../releases/platform",
     "build:platform:zip": "npm run build:platform && (cd ../releases && rm -f drawguess-platform.zip && zip -r drawguess-platform.zip platform)",
+    "build:platform:zips": "npm run build:platform && (cd ../releases && rm -f drawguess-itchio.zip drawguess-kongregate.zip drawguess-crazygames.zip && zip -r drawguess-itchio.zip platform && zip -r drawguess-kongregate.zip platform && zip -r drawguess-crazygames.zip platform)",
     "preview": "vite preview"
   },
   "dependencies": {
