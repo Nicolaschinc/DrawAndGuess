@@ -72,3 +72,9 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
 - 验证:
   - `npm --prefix client run build` 通过。
   - 按技能流程检查 Playwright 客户端可用性失败：运行 `$WEB_GAME_CLIENT --help` 报错缺少 `playwright` 包（`ERR_MODULE_NOT_FOUND`）。
+
+- 2026-03-01（平台发行构建）:
+  1) 新增 `build:platform` 构建脚本：`VITE_ROUTER_BASE=/ vite build --base=./`，确保平台发行时资源使用相对路径且路由以根路径为基准。
+  2) `App.jsx` 增加 `VITE_ROUTER_BASE` 覆盖支持，并在 `BASE_URL` 为 `./` 时自动回退到 `/` 以避免路由基准异常。
+- 验证:
+  - 按技能流程检查 Playwright 客户端可用性失败：运行 `$WEB_GAME_CLIENT --help` 报错缺少 `playwright` 包（`ERR_MODULE_NOT_FOUND`）。

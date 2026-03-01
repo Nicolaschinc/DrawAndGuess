@@ -57,7 +57,9 @@ function LanguageFallbackRedirect() {
 }
 
 export default function App() {
-  const basename = import.meta.env.BASE_URL;
+  const rawBase = import.meta.env.VITE_ROUTER_BASE || import.meta.env.BASE_URL || "/";
+  const normalizedBase = rawBase === "." || rawBase === "./" ? "/" : rawBase;
+  const basename = normalizedBase.startsWith("/") ? normalizedBase : `/${normalizedBase}`;
   const { i18n } = useTranslation();
 
   return (
