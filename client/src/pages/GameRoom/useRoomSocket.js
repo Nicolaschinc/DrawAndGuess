@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { io } from "socket.io-client";
 import { EVENTS } from "@shared/events.mjs";
+import i18n from "../../i18n";
 
 const SERVER_URL =
   import.meta.env.VITE_SERVER_URL ??
@@ -41,7 +42,9 @@ export function useRoomSocket(roomId, name, navigate, onError) {
     socketRef.current = socket;
 
     socket.on(EVENTS.CONNECT, () => {
-      socket.emit(EVENTS.JOIN_ROOM, { roomId, name }, (res) => {
+      // Send language preference when joining
+      const language = i18n.language?.startsWith('zh') ? 'zh' : 'en';
+      socket.emit(EVENTS.JOIN_ROOM, { roomId, name, language }, (res) => {
         if (!res?.ok) {
           if (onError) {
             onError(res?.error || "game.joinFailed");

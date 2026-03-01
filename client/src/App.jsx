@@ -4,7 +4,11 @@ import { useTranslation } from "react-i18next";
 import Home from "./pages/Home";
 import GameRoom from "./pages/GameRoom";
 import ShareRedirect from "./pages/ShareRedirect";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import AboutUs from "./pages/AboutUs";
+import ContactUs from "./pages/ContactUs";
 import GoogleAnalytics from "./components/GoogleAnalytics";
+import Footer from "./components/Footer";
 
 export default function App() {
   const basename = import.meta.env.BASE_URL;
@@ -22,8 +26,12 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/room/:roomId" element={<GameRoom />} />
         <Route path="/share/:hash" element={<ShareRedirect />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/contact" element={<ContactUs />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <Footer />
     </BrowserRouter>
   );
 }

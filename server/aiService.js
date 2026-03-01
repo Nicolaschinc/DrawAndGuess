@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const apiKey = process.env.DEEPSEEK_API_KEY;
+
 // Check if API key is present but don't crash, just warn
 if (!apiKey) {
   console.warn('⚠️ Warning: DEEPSEEK_API_KEY is not set in .env file. AI features will not work.');
@@ -63,7 +64,7 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
  * @param {string[]} excludeWords List of words to exclude from generation
  * @returns {Promise<Array<{word: string, hints: string[]}>>} Array of trending words with hints
  */
-export async function fetchTrendingWords(count = 10, excludeWords = []) {
+export async function fetchTrendingWords(count = 10, excludeWords = [], language = 'zh') {
   if (!apiKey || apiKey === 'dummy' || apiKey.includes('NEW-ROTATED-KEY')) {
     safeLog('⚠️ API Key is missing or invalid. Skipping AI fetch.');
     return [];
@@ -73,11 +74,18 @@ export async function fetchTrendingWords(count = 10, excludeWords = []) {
   const excludeSample = excludeWords.slice(-50).join(", ");
   const excludePrompt = excludeSample ? `\n6. EXCLUDE these words (do NOT generate them): ${excludeSample}.` : "";
 
+  const isEn = language === 'en';
+  const targetRegion = isEn ? "English speaking countries" : "China";
+  const langInstruction = isEn ? "Language: English." : "Language: Simplified Chinese.";
+  const exampleJson = isEn 
+    ? `[ { "word": "Superman", "hints": ["Superhero", "Krypton", "Man of Steel"] } ]`
+    : `[ { "word": "孙悟空", "hints": ["神话人物", "西游记强者", "斗战胜佛"] } ]`;
+
   const messages = [
     {
       role: 'system',
       content: `You are a creative assistant for a "Draw and Guess" (Pictionary) game.
-Your task is to generate a list of ${count} currently trending, popular, or culturally relevant words in China.
+Your task is to generate a list of ${count} currently trending, popular, or culturally relevant words in ${targetRegion}.
 
 Requirements:
 1. **Easy to Draw**: Words must be CONCRETE NOUNS or VISUALIZABLE PHRASES. Avoid abstract concepts, emotions, or complex actions that are hard to sketch.
@@ -85,14 +93,11 @@ Requirements:
    - Hint 1 (Hard): A broad category or vague description (e.g., "Mythical Figure").
    - Hint 2 (Medium): A specific characteristic or context (e.g., "Strong fighter in Journey to the West").
    - Hint 3 (Easy): A very obvious clue like a nickname or famous catchphrase (e.g., "The Monkey King").
-   - Hints must be short and concise (under 15 chars).
+   - Hints must be short and concise (under ${isEn ? 30 : 15} chars).
 3. **Format**: Output MUST be a valid JSON array of objects.
    Example:
-   [
-     { "word": "孙悟空", "hints": ["神话人物", "西游记强者", "斗战胜佛"] },
-     { "word": "奶茶", "hints": ["饮品", "年轻人喜欢喝", "有珍珠"] }
-   ]
-4. **Language**: Simplified Chinese.
+   ${exampleJson}
+4. **${langInstruction}**
 5. Do NOT include any markdown formatting (like \`\`\`json), just the raw JSON string.${excludePrompt}
 7. **Randomness**: Please try to be diverse and pick words from different domains (Food, Internet Memes, Daily Objects, Famous People).`
     },
@@ -160,19 +165,66 @@ Requirements:
 }
 
 export function getBingImageUrl(word, style) {
+  // Use a placeholder domain that will be replaced by the proxy with actual domains
   return `https://tse2.mm.bing.net/th?q=${encodeURIComponent(word + ' ' + style)}&w=512&h=512&c=7&rs=1&p=0`;
 }
 
 /**
  * Fetches image buffer from a URL.
+ * Includes retry logic for Bing domains.
  */
 export async function getImageBuffer(url) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch image: ${response.statusText}`);
+  const bingDomains = [
+    'tse1.mm.bing.net',
+    'tse2.mm.bing.net',
+    'tse3.mm.bing.net',
+    'tse4.mm.bing.net',
+    'th.bing.com'
+  ];
+
+  // Helper to fetch with a specific domain
+  const fetchWithDomain = async (targetUrl, domain) => {
+    // Replace domain if it's a Bing URL
+    let finalUrl = targetUrl;
+    if (domain && targetUrl.includes('bing.net') || targetUrl.includes('bing.com')) {
+      finalUrl = targetUrl.replace(/https:\/\/[^\/]+/, `https://${domain}`);
+    }
+
+    const response = await fetch(finalUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Status ${response.status}`);
+    }
+    return response.arrayBuffer();
+  };
+
+  // If not a Bing URL, just fetch once
+  if (!url.includes('bing.net') && !url.includes('bing.com')) {
+    const buffer = await fetchWithDomain(url);
+    return Buffer.from(buffer);
   }
-  const arrayBuffer = await response.arrayBuffer();
-  return Buffer.from(arrayBuffer);
+
+  // Retry with different domains
+  let lastError;
+  
+  // Shuffle domains to load balance
+  const shuffledDomains = [...bingDomains].sort(() => Math.random() - 0.5);
+
+  for (const domain of shuffledDomains) {
+    try {
+      const buffer = await fetchWithDomain(url, domain);
+      return Buffer.from(buffer);
+    } catch (err) {
+      lastError = err;
+      // Continue to next domain
+    }
+  }
+
+  throw new Error(`Failed to fetch image after retries. Last error: ${lastError?.message}`);
 }
 
 /**

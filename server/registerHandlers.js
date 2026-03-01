@@ -15,7 +15,7 @@ import { EVENTS } from "../shared/events.mjs";
 
 export default function registerSocketHandlers(io) {
   io.on(EVENTS.CONNECTION, (socket) => {
-    socket.on(EVENTS.JOIN_ROOM, ({ roomId, name }, cb = () => {}) => {
+    socket.on(EVENTS.JOIN_ROOM, ({ roomId, name, language }, cb = () => {}) => {
       const safeRoomId = String(roomId || "").trim().toLowerCase().slice(0, 24);
       const safeName = String(name || "").trim().slice(0, 20);
 
@@ -25,6 +25,12 @@ export default function registerSocketHandlers(io) {
       }
 
       const room = getRoom(safeRoomId);
+
+      // If this is the first player (creator), set the room language
+      if (room.players.size === 0 && language) {
+        // Simple validation: support 'zh' or 'en', default to 'zh'
+        room.language = (language === 'en') ? 'en' : 'zh';
+      }
 
       socket.join(safeRoomId);
       socket.data.roomId = safeRoomId;
@@ -129,7 +135,7 @@ export default function registerSocketHandlers(io) {
         word &&
         !isDrawer &&
         !room.game.guessed.has(socket.id) &&
-        normalized === word
+        normalized.toLowerCase() === word.toLowerCase()
       ) {
         room.game.guessed.add(socket.id);
 
@@ -221,6 +227,8 @@ export default function registerSocketHandlers(io) {
 
       if (leaving) {
         io.to(roomId).emit(EVENTS.SYSTEM_MESSAGE, {
+          key: "system.left",
+          args: { username: leaving.name },
           text: `${leaving.name} 离开了房间。`,
           relatedUser: { id: socket.id, name: leaving.name }
         });

@@ -9,8 +9,12 @@ import {
 } from "./gameLogic.js";
 import { EVENTS } from "../shared/events.mjs";
 
-export function pickWord() {
-  return getRandomWord();
+export function pickWord(room) {
+  const picked = getRandomWord(room.language, room.game.usedWords);
+  if (picked && picked.word) {
+    room.game.usedWords.add(picked.word);
+  }
+  return picked;
 }
 
 export function roomStateFor(room, viewerId) {
@@ -150,7 +154,7 @@ export function startRound(io, roomId) {
     }
   }
 
-  const picked = pickWord();
+  const picked = pickWord(room);
   const newState = startRoundState({
     word: picked.word,
     category: picked.category,
@@ -192,6 +196,8 @@ export function startRound(io, roomId) {
   
   io.to(roomId).emit(EVENTS.CLEAR_CANVAS);
   io.to(roomId).emit(EVENTS.SYSTEM_MESSAGE, {
+    key: "system.drawing",
+    args: { username: drawerName },
     text: `${drawerName} 正在画。`,
     relatedUser: drawer ? { id: room.game.drawerId, name: drawerName } : null,
   });

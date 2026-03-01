@@ -1,22 +1,46 @@
 {
-  "Animals": [
-    "猫", "狗", "大象", "长颈鹿", "狮子", "老虎", "熊猫", "企鹅", "袋鼠", "猴子",
-    "兔子", "松鼠", "海豚", "鲨鱼", "鲸鱼", "鹰", "鹦鹉", "蝴蝶", "蜜蜂", "蚂蚁"
-  ],
-  "Objects": [
-    "椅子", "桌子", "电脑", "手机", "电视", "冰箱", "洗衣机", "吉他", "钢琴", "小提琴",
-    "书", "笔", "钟表", "眼镜", "雨伞", "背包", "鞋子", "帽子", "相机", "自行车"
-  ],
-  "Foods": [
-    "苹果", "香蕉", "橙子", "西瓜", "草莓", "葡萄", "汉堡", "披萨", "寿司", "面条",
-    "米饭", "面包", "蛋糕", "冰淇淋", "巧克力", "咖啡", "茶", "牛奶", "果汁", "可乐"
-  ],
-  "Places": [
-    "学校", "医院", "公园", "图书馆", "超市", "电影院", "餐厅", "酒店", "机场", "火车站",
-    "海滩", "森林", "沙漠", "高山", "河流", "湖泊", "城市", "乡村", "房子", "公寓"
-  ],
-  "Actions": [
-    "跑步", "游泳", "跳舞", "唱歌", "睡觉", "吃饭", "喝水", "看书", "写字", "画画",
-    "打球", "骑车", "开车", "飞翔", "哭泣", "大笑", "思考", "拥抱", "亲吻", "打架"
-  ]
+  "zh": {
+    "Animals": [
+      "猫", "狗", "大象", "长颈鹿", "狮子", "老虎", "熊猫", "企鹅", "袋鼠", "猴子",
+      "兔子", "松鼠", "海豚", "鲨鱼", "鲸鱼", "鹰", "鹦鹉", "蝴蝶", "蜜蜂", "蚂蚁"
+    ],
+    "Objects": [
+      "椅子", "桌子", "电脑", "手机", "电视", "冰箱", "洗衣机", "吉他", "钢琴", "小提琴",
+      "书", "笔", "钟表", "眼镜", "雨伞", "背包", "鞋子", "帽子", "相机", "自行车"
+    ],
+    "Foods": [
+      "苹果", "香蕉", "橙子", "西瓜", "草莓", "葡萄", "汉堡", "披萨", "寿司", "面条",
+      "米饭", "面包", "蛋糕", "冰淇淋", "巧克力", "咖啡", "茶", "牛奶", "果汁", "可乐"
+    ],
+    "Places": [
+      "学校", "医院", "公园", "图书馆", "超市", "电影院", "餐厅", "酒店", "机场", "火车站",
+      "海滩", "森林", "沙漠", "高山", "河流", "湖泊", "城市", "乡村", "房子", "公寓"
+    ],
+    "Actions": [
+      "跑步", "游泳", "跳舞", "唱歌", "睡觉", "吃饭", "喝水", "看书", "写字", "画画",
+      "打球", "骑车", "开车", "飞翔", "哭泣", "大笑", "思考", "拥抱", "亲吻", "打架"
+    ]
+  },
+  "en": {
+    "Animals": [
+      "Cat", "Dog", "Elephant", "Giraffe", "Lion", "Tiger", "Panda", "Penguin", "Kangaroo", "Monkey",
+      "Rabbit", "Squirrel", "Dolphin", "Shark", "Whale", "Eagle", "Parrot", "Butterfly", "Bee", "Ant"
+    ],
+    "Objects": [
+      "Chair", "Table", "Computer", "Phone", "TV", "Fridge", "Washer", "Guitar", "Piano", "Violin",
+      "Book", "Pen", "Clock", "Glasses", "Umbrella", "Backpack", "Shoes", "Hat", "Camera", "Bicycle"
+    ],
+    "Foods": [
+      "Apple", "Banana", "Orange", "Watermelon", "Strawberry", "Grape", "Burger", "Pizza", "Sushi", "Noodles",
+      "Rice", "Bread", "Cake", "Ice Cream", "Chocolate", "Coffee", "Tea", "Milk", "Juice", "Cola"
+    ],
+    "Places": [
+      "School", "Hospital", "Park", "Library", "Supermarket", "Cinema", "Restaurant", "Hotel", "Airport", "Station",
+      "Beach", "Forest", "Desert", "Mountain", "River", "Lake", "City", "Village", "House", "Apartment"
+    ],
+    "Actions": [
+      "Run", "Swim", "Dance", "Sing", "Sleep", "Eat", "Drink", "Read", "Write", "Draw",
+      "Play Ball", "Ride Bike", "Drive", "Fly", "Cry", "Laugh", "Think", "Hug", "Kiss", "Fight"
+    ]
+  }
 }

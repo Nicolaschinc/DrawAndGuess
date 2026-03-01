@@ -5,6 +5,7 @@ export function makeRoom() {
     players: new Map(),
     playerOrder: [],
     hostId: null,
+    language: 'zh',
     game: {
       started: false,
       roundEndsAt: null,
@@ -13,6 +14,7 @@ export function makeRoom() {
       drawerId: null,
       guessed: new Set(),
       drawnPlayers: new Set(),
+      usedWords: new Set(),
       timer: null,
       hintTimers: [],
       currentHint: null,

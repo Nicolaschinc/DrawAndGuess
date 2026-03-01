@@ -16,7 +16,9 @@ describe('Word Manager', () => {
   it('should load words from file successfully', async () => {
     // Setup mock file content
     const mockWords = {
-      "TestCategory": ["word1", "word2"]
+      zh: {
+        "TestCategory": ["word1", "word2"]
+      }
     };
     fs.readFileSync.mockReturnValue(JSON.stringify(mockWords));
 
@@ -45,7 +47,7 @@ describe('Word Manager', () => {
   });
 
   it('getRandomWord should return a word', async () => {
-    const mockWords = { "Test": ["singleWord"] };
+    const mockWords = { zh: { "Test": ["singleWord"] } };
     fs.readFileSync.mockReturnValue(JSON.stringify(mockWords));
     wordManager = await import('../wordManager.js');
 
@@ -55,7 +57,7 @@ describe('Word Manager', () => {
   });
 
   it('addHotWords should add new words and avoid duplicates', async () => {
-    const mockWords = { "Test": ["oldWord"] };
+    const mockWords = { zh: { "Test": ["oldWord"] } };
     fs.readFileSync.mockReturnValue(JSON.stringify(mockWords));
     wordManager = await import('../wordManager.js');
 
@@ -75,8 +77,10 @@ describe('Word Manager', () => {
 
   it('should handle hot words with 50% chance', async () => {
     const mockWords = { 
-      "Normal": ["normal1"],
-      "热门": ["hot1"]
+      zh: {
+        "Normal": ["normal1"],
+        "热门": ["hot1"]
+      }
     };
     fs.readFileSync.mockReturnValue(JSON.stringify(mockWords));
     
