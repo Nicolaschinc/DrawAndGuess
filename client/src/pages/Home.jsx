@@ -6,6 +6,7 @@ import bannerEn from "../assets/img/banner_en.png";
 import styles from "../home.module.scss";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { normalizeLanguage, withLanguagePrefix } from "../utils/localeRoutes";
+import { trackEvent } from "../utils/analytics";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 
@@ -18,6 +19,10 @@ export default function Home() {
   const navigate = useNavigate();
   const currentLang = normalizeLanguage(lang || i18n.language);
 
+  useEffect(() => {
+    trackEvent('landing_view');
+  }, []);
+
   const currentBanner = i18n.language.startsWith('zh') ? bannerCn : bannerEn;
 
   const handleJoin = () => {
@@ -27,6 +32,7 @@ export default function Home() {
 
   const handleCreate = () => {
     if (!name.trim()) return;
+    trackEvent('create_room_click');
     // Generate a random 6-character room ID
     const newRoomId = Math.random().toString(36).substring(2, 8);
     navigate(withLanguagePrefix(currentLang, `/room/${newRoomId}`), { state: { name } });

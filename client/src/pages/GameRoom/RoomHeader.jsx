@@ -6,6 +6,7 @@ import { encryptRoomId } from "../../utils/crypto";
 import GameTimer from "../../components/GameTimer";
 import styles from "../../room.module.scss";
 import { withLanguagePrefix } from "../../utils/localeRoutes";
+import { trackEvent } from "../../utils/analytics";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 
@@ -35,6 +36,7 @@ export default function RoomHeader({
   }, []);
 
   const handleShareLink = useCallback(() => {
+    trackEvent('share_click');
     const hash = encryptRoomId(roomId);
     const sharePath = withLanguagePrefix(lang, `/share/${hash}`);
     const basePath = import.meta.env.BASE_URL || "/";
@@ -44,6 +46,7 @@ export default function RoomHeader({
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(() => {
         setToast({ title: t('header.copied'), message: t('header.shareMsg') });
+        trackEvent('share_copy_success');
       }).catch((err) => {
         console.error("Clipboard write failed", err);
         setToast({ title: t('header.copyFailed'), message: t('header.manualCopy') + url });
@@ -63,6 +66,7 @@ export default function RoomHeader({
       const successful = document.execCommand("copy");
       if (successful) {
         setToast({ title: t('header.copied'), message: t('header.shareMsg') });
+        trackEvent('share_copy_success');
       } else {
         setToast({ title: t('header.copyFailed'), message: t('header.manualCopy') + url });
       }

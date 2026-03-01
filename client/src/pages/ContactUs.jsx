@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 import styles from './StaticPages.module.scss';
 import { withLanguagePrefix } from '../utils/localeRoutes';
+import { trackEvent } from '../utils/analytics';
 
 const ContactUs = () => {
   const { t } = useTranslation();
@@ -26,6 +27,7 @@ const ContactUs = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    trackEvent('feedback_click');
     const subject = formData.subject.trim() || t('contact.defaultSubject');
     const lines = [
       `${t('contact.name')}: ${formData.name}`,

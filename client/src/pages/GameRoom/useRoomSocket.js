@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { io } from "socket.io-client";
 import { EVENTS } from "@shared/events.mjs";
 import i18n from "../../i18n";
+import { trackEvent } from "../../utils/analytics";
 
 const SERVER_URL =
   import.meta.env.VITE_SERVER_URL ??
@@ -55,6 +56,7 @@ export function useRoomSocket(roomId, name, navigate, onError, homePath = "/") {
           return;
         }
         setJoined(true);
+        trackEvent('join_room_success', { roomId });
         setMessages([]);
       });
     });
@@ -78,6 +80,9 @@ export function useRoomSocket(roomId, name, navigate, onError, homePath = "/") {
 
     socket.on(EVENTS.SYSTEM_MESSAGE, (msg) => {
       setMessages((prev) => [...prev, { type: "system", ...msg }]);
+      if (msg.key === 'system.roundEnd' || msg.key === 'system.timeout') {
+        trackEvent('round_end');
+      }
     });
 
     socket.on(EVENTS.EFFECT_THROWN, ({ type, senderId, targetId }) => {
@@ -105,6 +110,15 @@ export function useRoomSocket(roomId, name, navigate, onError, homePath = "/") {
       socket.disconnect();
     };
   }, [roomId, name, navigate, onError, homePath]);
+
+  // Track game start event
+  const prevStartedRef = useRef(false);
+  useEffect(() => {
+    if (roomState.game.started && !prevStartedRef.current) {
+      trackEvent('game_start');
+    }
+    prevStartedRef.current = roomState.game.started;
+  }, [roomState.game.started]);
 
   const me = useMemo(() => {
     const socket = socketRef.current;
