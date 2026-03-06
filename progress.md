@@ -78,3 +78,20 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
   2) `App.jsx` 增加 `VITE_ROUTER_BASE` 覆盖支持，并在 `BASE_URL` 为 `./` 时自动回退到 `/` 以避免路由基准异常。
 - 验证:
   - 按技能流程检查 Playwright 客户端可用性失败：运行 `$WEB_GAME_CLIENT --help` 报错缺少 `playwright` 包（`ERR_MODULE_NOT_FOUND`）。
+
+- 2026-03-06（TDD 优化前端参考图加载）:
+  - 当前用户请求: 用 TDD 的方法来优化当前项目的前端部分。
+  1) 为 `client/src/pages/GameRoom/referenceImagesState.js` 新增纯函数状态机，拆出词语规范化、是否应发起请求、缓存复用和请求结果归并逻辑。
+  2) 为上述逻辑补充 Node 原生测试 `client/src/pages/GameRoom/referenceImagesState.test.js`，先以失败用例定义行为，再完成实现。
+  3) `CanvasPanel.jsx` 改为延迟加载 AI 参考图：只有画家真正打开参考图弹窗时才请求接口，不再在每次拿到 `word` 后立即请求。
+  4) 新增同词缓存复用：同一轮或切回相同词语时直接复用已加载图片，避免重复请求。
+  5) 处理过期/中断请求：关闭弹窗或切词时中止当前请求，并避免旧请求覆盖当前词语的展示结果。
+  6) 为前端测试补最小命令入口：`client/package.json` 新增 `npm run test`（`node --test`），根目录新增 `npm run test:client`。
+- 验证:
+  - `node --test client/src/pages/GameRoom/referenceImagesState.test.js` 先失败（缺少实现）后通过。
+  - `npm --prefix client run test` 通过。
+  - `npm --prefix client run build` 通过。
+  - 按技能流程再次检查 Playwright 客户端失败：本机仍缺少 `playwright` 包，`$WEB_GAME_CLIENT` 无法启动（`ERR_MODULE_NOT_FOUND`）。
+- TODO / 建议:
+  - 若要继续按技能要求做端到端回归，需要先补齐 `playwright` 依赖。
+  - 可继续把 `CanvasPanel` 的参考图请求提炼成独立 hook，并为 UI 层补组件测试（当前先覆盖了核心状态逻辑）。

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test": "node --test",
     "build": "vite build",
     "build:platform": "VITE_ROUTER_BASE=/ vite build --base=./ --outDir ../releases/platform",
     "build:platform:zip": "npm run build:platform && (cd ../releases && rm -f drawguess-platform.zip && zip -r drawguess-platform.zip platform)",
