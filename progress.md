@@ -95,3 +95,23 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
 - TODO / 建议:
   - 若要继续按技能要求做端到端回归，需要先补齐 `playwright` 依赖。
   - 可继续把 `CanvasPanel` 的参考图请求提炼成独立 hook，并为 UI 层补组件测试（当前先覆盖了核心状态逻辑）。
+
+- 2026-03-07（补齐 Playwright + 浏览器回归链路）:
+  1) 按 `develop-web-game` 技能要求，为共享脚本可解析路径安装 `playwright`：`npm install playwright --prefix ~/.codex`。
+  2) 下载 Playwright Chromium / headless shell：`npx --prefix ~/.codex playwright install chromium`，使 `$WEB_GAME_CLIENT` 可真实启动浏览器。
+  3) 以 `http://127.0.0.1:5174/drawguess/zh/room/<roomId>` 为目标，使用技能客户端验证“加入房间 -> 截图 -> 收集控制台错误”链路。
+  4) 额外跑了一条原生 Playwright DOM smoke：验证房间标题、菜单项、玩家数、画布可见且无 console/page error；产物在 `output/playwright-dom-smoke/`。
+  5) 为提高后续 E2E 可观察性，新增 `client/src/pages/GameRoom/renderGameToText.js` 与测试 `renderGameToText.test.js`，在 `GameRoom/index.jsx` 暴露 `window.render_game_to_text` 与一个简单的 `window.advanceTime(ms)` 等待钩子。
+  6) 浏览器回归第一次命中了真实回归：新增 `useEffect` 放在条件返回之后，触发 React hooks 顺序错误；随后已将该 effect 移回所有条件返回之前并修复。
+- 验证:
+  - `npm --prefix client run test` 通过（6 个 Node 测试）。
+  - `npm --prefix client run build` 通过。
+  - 技能客户端 smoke 产物：
+    - `output/web-game-smoke/shot-0.png`：成功加入房间后抓到画布截图。
+    - `output/web-game-state/state-0.json`：成功输出结构化房间状态，无 `errors-0.json`。
+  - 原生 Playwright smoke 产物：
+    - `output/playwright-dom-smoke/room-page.png`
+    - `output/playwright-dom-smoke/summary.json`
+- TODO / 建议:
+  - 现在 Playwright 基础环境已就绪，后续可以继续补“多玩家 join/start/guess”场景，而不是只停留在单人入房 smoke。
+  - `window.advanceTime(ms)` 当前只是等待钩子，不是确定性模拟时钟；若后续要做更强的交互回归，可继续为房间状态或画布更新补更可控的测试接口。

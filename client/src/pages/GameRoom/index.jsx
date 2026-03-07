@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
@@ -19,6 +19,7 @@ import PlayerList from "./PlayerList";
 import ChatPanel from "./ChatPanel";
 import CanvasPanel from "./CanvasPanel";
 import { withLanguagePrefix } from "../../utils/localeRoutes";
+import { renderGameRoomTextState } from "./renderGameToText";
 
 const cx = (...classNames) => classNames.filter(Boolean).join(" ");
 
@@ -91,6 +92,28 @@ export default function GameRoom() {
   const handleAnimationEnd = useCallback((id) => {
     setFlyingEffects((prev) => prev.filter((e) => e.id !== id));
   }, [setFlyingEffects]);
+
+  useEffect(() => {
+    window.render_game_to_text = () =>
+      renderGameRoomTextState({
+        roomId,
+        joined,
+        me,
+        isHost,
+        isDrawer,
+        roomState,
+        messages,
+      });
+
+    // This is a wait hook, not a deterministic simulation clock.
+    window.advanceTime = (ms) =>
+      new Promise((resolve) => window.setTimeout(resolve, Math.max(0, ms)));
+
+    return () => {
+      delete window.render_game_to_text;
+      delete window.advanceTime;
+    };
+  }, [roomId, joined, me, isHost, isDrawer, roomState, messages]);
 
   // Render
   if (showJoinModal) {

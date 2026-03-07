@@ -1,0 +1,27 @@
+{
+  "summary": {
+    "title": "房间 e2edom - Draw & Guess",
+    "roomHeader": "房间：e2edom等待开始",
+    "statusRow": [
+      "玩家：1",
+      "剩余：0s"
+    ],
+    "me": null,
+    "menuItems": [
+      "分享房间",
+      "游戏规则",
+      "退出房间",
+      "开始游戏",
+      "玩家 (1)",
+      "🎁",
+      "发送"
+    ],
+    "canvas": {
+      "width": 570,
+      "height": 866,
+      "ariaLabel": "绘图画布"
+    },
+    "playersListCollapsed": true
+  },
+  "consoleErrors": []
+}
