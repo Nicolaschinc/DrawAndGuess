@@ -8,6 +8,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   base: "/drawguess/",
   plugins: [react()],
+  ssr: {
+    noExternal: ["react-helmet-async", "react-i18next", "i18next"],
+  },
   resolve: {
     alias: {
       "@shared": path.resolve(__dirname, "../shared"),

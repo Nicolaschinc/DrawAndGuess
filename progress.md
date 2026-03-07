@@ -151,3 +151,32 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
   - `npm --prefix client run build` 通过。
 - TODO / 建议:
   - 当前仍是 CSR SPA。若目标是显著提升搜索流量，下一步应补预渲染或静态落地页，而不是只停留在 meta 标签层。
+
+- 2026-03-07（方案 A：静态预渲染）:
+  1) 新增 `client/src/entry-server.jsx`，使用 React SSR + `MemoryRouter` + `HelmetProvider` + 独立 i18n 实例，对首页和静态页做构建时渲染。
+  2) 新增 `client/scripts/prerender.mjs`：在客户端构建完成后，读取 `dist/index.html` 模板并为以下路由生成静态 HTML：
+     - `/en`
+     - `/zh`
+     - `/en/about`
+     - `/zh/about`
+     - `/en/privacy`
+     - `/zh/privacy`
+     - `/en/contact`
+     - `/zh/contact`
+  3) `client/package.json` 的 `build` 已升级为三段式流水线：`build:client -> build:ssr -> prerender`。
+  4) 新增 `client/src/i18nResources.js`，让浏览器 i18n 和 prerender SSR 共享同一份翻译资源，避免双份文案配置漂移。
+  5) `vite.config.js` 为 SSR 构建声明 `noExternal`，确保 `react-helmet-async` / `react-i18next` / `i18next` 在预渲染阶段可正常执行。
+- 验证:
+  - `npm --prefix client run build` 通过。
+  - 生成文件存在：
+    - `client/dist/en/index.html`
+    - `client/dist/zh/index.html`
+    - `client/dist/en/about/index.html`
+    - `client/dist/zh/about/index.html`
+    - `client/dist/en/privacy/index.html`
+    - `client/dist/zh/privacy/index.html`
+    - `client/dist/en/contact/index.html`
+    - `client/dist/zh/contact/index.html`
+  - `vite preview` 下访问 `/drawguess/en/` 可返回带正文和页面级 meta 的完整 HTML。
+- TODO / 建议:
+  - 若线上对 `/drawguess/en`（无尾斜杠）没有自动落到目录 `index.html`，应在 Nginx 加一个补充重定向或目录回落规则，避免请求落回 SPA 根壳。
