@@ -17,6 +17,12 @@ const staticRoutes = [
   "/zh/privacy",
   "/en/contact",
   "/zh/contact",
+  "/en/features",
+  "/zh/features",
+  "/en/use-cases",
+  "/zh/use-cases",
+  "/en/faq",
+  "/zh/faq",
 ];
 
 const originalConsoleError = console.error;

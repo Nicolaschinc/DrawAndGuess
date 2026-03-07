@@ -2,7 +2,8 @@
   "seoTitle": "Draw & Guess - Play with Friends Online",
   "home": {
     "title": "Draw & Guess",
-    "description": "Online Draw & Guess game. Play with friends, draw masterpieces, and guess words in real-time!",
+    "description": "Play Draw & Guess online with friends. Create a room instantly, draw in real time, and guess words together on mobile or desktop.",
+    "heroCopy": "A fast browser party game for groups. Start a room in seconds, share the link, and play real-time drawing rounds without installing anything.",
     "createRoom": "Create Room",
     "joinRoom": "Join Room",
     "hintCreate": "Create a new room and invite friends",
@@ -12,7 +13,37 @@
     "roomId": "Room ID",
     "roomPlaceholder": "e.g. room1...",
     "enterRoom": "Enter Room",
-    "createAndEnter": "Create & Enter"
+    "createAndEnter": "Create & Enter",
+    "features": {
+      "title": "Why play Draw & Guess online",
+      "intro": "This version is built for quick party sessions, simple sharing, and smooth browser play across devices.",
+      "instantTitle": "Instant room setup",
+      "instantText": "Create a room in one step, send the link, and let friends join without accounts or downloads.",
+      "socialTitle": "Real-time multiplayer rounds",
+      "socialText": "Players take turns drawing while everyone else guesses in chat, with scoring and round flow handled automatically.",
+      "mobileTitle": "Mobile and desktop friendly",
+      "mobileText": "The UI is optimized for touch and small screens while still working well for desktop group play."
+    },
+    "how": {
+      "title": "How the game works",
+      "intro": "The flow stays simple so new players can join a room and understand the rules immediately.",
+      "step1Title": "Create or join a room",
+      "step1Text": "Enter a nickname, create a room, or paste a room ID to jump into an existing game with friends.",
+      "step2Title": "Draw when it is your turn",
+      "step2Text": "One player becomes the drawer, gets the secret word, and uses the canvas tools to communicate the idea visually.",
+      "step3Title": "Guess in chat and score points",
+      "step3Text": "Other players type guesses in chat. Correct guesses score points, and the game rotates until everyone has drawn."
+    },
+    "faqTitle": "Frequently asked questions",
+    "faqIntro": "Quick answers for players comparing browser party games or checking whether this one fits their group.",
+    "linksTitle": "Learn more",
+    "linksIntro": "These pages add more product and trust context for both players and search engines.",
+    "linkFeaturesText": "Explore the core gameplay, real-time drawing flow, and browser-first product capabilities.",
+    "linkUseCasesText": "See which group scenarios fit this game, from friend hangouts to remote team breaks.",
+    "linkFaqText": "Read common setup, device, privacy, and gameplay questions before sharing a room.",
+    "linkAboutText": "See the product scope, core principles, and what the team is improving next.",
+    "linkPrivacyText": "Review how gameplay, analytics, and real-time room data are handled.",
+    "linkContactText": "Reach out for bug reports, feedback, or collaboration requests."
   },
   "game": {
     "joining": "Connecting...",
@@ -155,7 +186,97 @@
     "backHome": "Back to Home",
     "contactUs": "Contact Us",
     "privacy": "Privacy Policy",
-    "about": "About Us"
+    "about": "About Us",
+    "features": "Features",
+    "useCases": "Use Cases",
+    "faq": "FAQ"
+  },
+  "features": {
+    "title": "Features",
+    "intro": "Draw & Guess focuses on the features that matter for quick browser party sessions: fast setup, clear rounds, and easy sharing.",
+    "coreTitle": "Core product features",
+    "fitTitle": "What this setup is best for",
+    "fitPoint1": "Small to medium friend groups that want to play immediately in the browser",
+    "fitPoint2": "Mobile-first sessions where touch drawing and readable layout matter",
+    "fitPoint3": "International groups that need English and Chinese support on one site",
+    "items": {
+      "rooms": {
+        "title": "Instant room creation",
+        "text": "Players can create a room quickly and invite others with a shared link instead of going through registration."
+      },
+      "drawing": {
+        "title": "Real-time drawing sync",
+        "text": "Canvas strokes are synchronized live so guessers can react as the sketch evolves."
+      },
+      "guessing": {
+        "title": "Chat-based guessing and scoring",
+        "text": "Guessers submit answers in chat while the game handles scoring, round timing, and turn rotation."
+      },
+      "reference": {
+        "title": "AI reference images for the drawer",
+        "text": "The current drawer can request reference images to get unstuck without leaving the room."
+      },
+      "mobile": {
+        "title": "Mobile-friendly gameplay",
+        "text": "The interface is tuned for smaller screens so room info, chat, and canvas controls stay usable."
+      },
+      "bilingual": {
+        "title": "Bilingual routes and content",
+        "text": "English and Chinese routes, content, and metadata help support international players and localized SEO."
+      }
+    }
+  },
+  "useCases": {
+    "title": "Use Cases",
+    "intro": "This browser drawing game works best in situations where people need fast setup and lightweight group interaction.",
+    "items": {
+      "friends": {
+        "title": "Online game night with friends",
+        "text": "Use it as a quick party game when a group wants something social, simple, and easy to join from a shared link."
+      },
+      "remote": {
+        "title": "Remote team icebreaker",
+        "text": "It fits short internal sessions where a team wants a lightweight guessing game between meetings."
+      },
+      "classroom": {
+        "title": "Classroom or language practice",
+        "text": "Teachers or group organizers can use drawing and guessing rounds as a simple interactive activity."
+      },
+      "stream": {
+        "title": "Community stream or live audience room",
+        "text": "Creators can open a room for live viewers who want a simple browser game that is easy to understand on the spot."
+      }
+    }
+  },
+  "faqPage": {
+    "title": "FAQ",
+    "intro": "Answers to common questions about setup, devices, privacy, and gameplay flow.",
+    "items": {
+      "what": {
+        "question": "What is Draw & Guess?",
+        "answer": "Draw & Guess is a browser-based multiplayer drawing and guessing game where one player draws and others guess through chat."
+      },
+      "download": {
+        "question": "Do players need to download anything?",
+        "answer": "No. Players can open the room in a browser and start playing without installing an app."
+      },
+      "friends": {
+        "question": "Can I play with friends privately?",
+        "answer": "Yes. Create a room, share the link or room ID, and let invited players join directly."
+      },
+      "mobile": {
+        "question": "Does it work on mobile?",
+        "answer": "Yes. The interface is designed to support mobile screens while remaining usable on desktop."
+      },
+      "private": {
+        "question": "Do I need an account?",
+        "answer": "No account is required for the current web experience. Players join with a nickname and room ID."
+      },
+      "ai": {
+        "question": "What are AI reference images for?",
+        "answer": "The drawer can request reference images to get visual inspiration for the current word without leaving the game."
+      }
+    }
   },
   "privacy": {
     "title": "Privacy Policy",

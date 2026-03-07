@@ -180,3 +180,27 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
   - `vite preview` 下访问 `/drawguess/en/` 可返回带正文和页面级 meta 的完整 HTML。
 - TODO / 建议:
   - 若线上对 `/drawguess/en`（无尾斜杠）没有自动落到目录 `index.html`，应在 Nginx 加一个补充重定向或目录回落规则，避免请求落回 SPA 根壳。
+
+- 2026-03-07（Agent Skills 文章实践：营销增长 / SEO 方法验证）:
+  1) 根据文章建议，新增仓库级营销上下文文件 `.agents/product-marketing-context.md`，明确产品定位、目标用户、SEO 目标、话术边界和当前能力，避免后续代理产出泛化营销文案。
+  2) 新增本地 skill `.agents/skills/drawguess-home-seo-refresh/SKILL.md`，把首页 SEO/转化优化流程沉淀为可复用步骤：先读项目上下文，再审首页可见内容、schema 对齐、内链、双语文案和构建验证。
+  3) 将该流程直接实践到首页：`Home.jsx` 增加首屏说明文案、Why play / How it works / FAQ / Learn more 四块可抓取内容；FAQ 可见文案与既有 FAQ JSON-LD 对齐；补 About / Privacy / Contact 内链；同步更新中英文 locale 与首页样式。
+  4) 产出总结文档 `docs/skills-practice-validation.md`，记录这次实践验证了什么、哪些点确实有用、哪些结论还需要真实搜索流量数据才能证明。
+- 验证:
+  - `npm --prefix client run build` 通过。
+  - 预渲染产物 `client/dist/en/index.html` 与 `client/dist/zh/index.html` 已包含新增首页正文区块，说明这次改动对爬虫可见，不只是 CSR 运行时内容。
+- 结论:
+  - 文章里“Skill + 项目上下文 + 可复用工作流”的方法在这个项目上是实用的，尤其适合把一次性的 SEO/营销判断沉淀成后续可重复执行的流程。
+  - 目前能验证的是“内容质量和工程落地效率提升”；还不能验证“自然流量增长 / 排名提升 / 搜索转化提升”，这些需要上线后结合 Search Console 与分析数据继续看。
+
+- 2026-03-07（整站 SEO 扩展：features / use-cases / faq）:
+  1) 新增三类可索引静态页：`/:lang/features`、`/:lang/use-cases`、`/:lang/faq`，分别承接功能意图、场景意图和问答意图。
+  2) 更新首页 “Learn more” 区块与 Footer 内链，把新页面纳入站内链接结构，不再只依赖首页 + 关于/隐私/联系三页。
+  3) 更新 prerender 路由与 `sitemap.xml`，保证新增页面能被构建成静态 HTML 并进入站点地图。
+  4) 新增 `docs/sitewide-seo-strategy.md`，记录整站 SEO 扩展思路和上线后的观察指标。
+- 验证:
+  - 待本轮 `npm --prefix client run build` 完成后检查 `client/dist/en/features/index.html`、`client/dist/en/use-cases/index.html`、`client/dist/en/faq/index.html` 以及对应中文页面是否生成。
+- 结果补充:
+  - `npm --prefix client run build` 已通过。
+  - 新增预渲染产物已确认存在：`client/dist/en/features/index.html`、`client/dist/en/use-cases/index.html`、`client/dist/en/faq/index.html` 及中文对应页面。
+  - 新增 `docs/launch-metrics-playbook.md`，整理上线后通过 Search Console / GA4 观察索引、查询、CTR、自然流量和从 SEO 到开房/开局的转化路径。

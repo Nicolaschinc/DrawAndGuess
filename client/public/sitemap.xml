@@ -53,4 +53,40 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://playflowpulse.com/drawguess/zh/contact" />
     <priority>0.5</priority>
   </url>
+  <url>
+    <loc>https://playflowpulse.com/drawguess/en/features</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://playflowpulse.com/drawguess/en/features" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://playflowpulse.com/drawguess/zh/features" />
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://playflowpulse.com/drawguess/zh/features</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://playflowpulse.com/drawguess/en/features" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://playflowpulse.com/drawguess/zh/features" />
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://playflowpulse.com/drawguess/en/use-cases</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://playflowpulse.com/drawguess/en/use-cases" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://playflowpulse.com/drawguess/zh/use-cases" />
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://playflowpulse.com/drawguess/zh/use-cases</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://playflowpulse.com/drawguess/en/use-cases" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://playflowpulse.com/drawguess/zh/use-cases" />
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://playflowpulse.com/drawguess/en/faq</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://playflowpulse.com/drawguess/en/faq" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://playflowpulse.com/drawguess/zh/faq" />
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://playflowpulse.com/drawguess/zh/faq</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://playflowpulse.com/drawguess/en/faq" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://playflowpulse.com/drawguess/zh/faq" />
+    <priority>0.7</priority>
+  </url>
 </urlset>

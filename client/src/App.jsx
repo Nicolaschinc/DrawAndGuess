@@ -8,6 +8,9 @@ import ShareRedirect from "./pages/ShareRedirect";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
+import Features from "./pages/Features";
+import UseCases from "./pages/UseCases";
+import FaqPage from "./pages/FaqPage";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import Footer from "./components/Footer";
 import {
@@ -80,6 +83,9 @@ export default function App() {
             <Route path="privacy" element={<PrivacyPolicy />} />
             <Route path="about" element={<AboutUs />} />
             <Route path="contact" element={<ContactUs />} />
+            <Route path="features" element={<Features />} />
+            <Route path="use-cases" element={<UseCases />} />
+            <Route path="faq" element={<FaqPage />} />
             <Route path="*" element={<LanguageFallbackRedirect />} />
           </Route>
 

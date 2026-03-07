@@ -49,6 +49,32 @@
   }
 }
 
+.cards,
+.faq-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.cards {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.card {
+  padding: 1.1rem 1.2rem;
+  border: 1px solid rgba(52, 73, 94, 0.12);
+  border-radius: 10px;
+  background: rgba(248, 250, 252, 0.95);
+
+  h2,
+  h3 {
+    margin-top: 0;
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+}
+
 .back-link {
   display: inline-block;
   margin-bottom: 20px;
@@ -58,6 +84,28 @@
   
   &:hover {
     color: #333;
+  }
+}
+
+@media (max-width: 767px) {
+  .container {
+    padding: 24px 16px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1.25rem;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+    }
+
+    p,
+    ul li {
+      font-size: 1rem;
+    }
   }
 }
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import bannerCn from "../assets/img/banner_cn.png";
 import bannerEn from "../assets/img/banner_en.png";
@@ -62,6 +62,44 @@ export default function Home() {
       },
     ],
   };
+  const featureItems = [
+    {
+      title: t("home.features.instantTitle"),
+      text: t("home.features.instantText"),
+    },
+    {
+      title: t("home.features.socialTitle"),
+      text: t("home.features.socialText"),
+    },
+    {
+      title: t("home.features.mobileTitle"),
+      text: t("home.features.mobileText"),
+    },
+  ];
+  const howItWorksItems = [
+    {
+      title: t("home.how.step1Title"),
+      text: t("home.how.step1Text"),
+    },
+    {
+      title: t("home.how.step2Title"),
+      text: t("home.how.step2Text"),
+    },
+    {
+      title: t("home.how.step3Title"),
+      text: t("home.how.step3Text"),
+    },
+  ];
+  const faqItems = faqSchema.mainEntity.map((item) => ({
+    question: item.name,
+    answer: item.acceptedAnswer.text,
+  }));
+  const featuresPath = withLanguagePrefix(currentLang, "/features");
+  const useCasesPath = withLanguagePrefix(currentLang, "/use-cases");
+  const faqPath = withLanguagePrefix(currentLang, "/faq");
+  const aboutPath = withLanguagePrefix(currentLang, "/about");
+  const privacyPath = withLanguagePrefix(currentLang, "/privacy");
+  const contactPath = withLanguagePrefix(currentLang, "/contact");
   const gameSchema = {
     "@context": "https://schema.org",
     "@type": "VideoGame",
@@ -108,73 +146,160 @@ export default function Home() {
         path="/"
         structuredData={[gameSchema, faqSchema]}
       />
-      <div className={styles["join-card"]}>
-        <div className={styles["join-card-left"]}>
-          <img src={currentBanner} alt="Draw and Guess Banner" className={styles["banner-img"]} />
-        </div>
-        <div className={styles["join-card-right"]}>
-          <div className={styles["header-row"]}>
-            <h1>{t('home.title')}</h1>
-            <LanguageSwitcher />
+      <div className={styles["hero-shell"]}>
+        <div className={styles["join-card"]}>
+          <div className={styles["join-card-left"]}>
+            <img src={currentBanner} alt="Draw and Guess Banner" className={styles["banner-img"]} />
           </div>
+          <div className={styles["join-card-right"]}>
+            <div className={styles["header-row"]}>
+              <h1>{t('home.title')}</h1>
+              <LanguageSwitcher />
+            </div>
 
-          <div className={styles["mode-switch"]}>
-            <button
-              className={cx(styles["mode-btn"], mode === "create" && styles.active)}
-              onClick={() => setMode("create")}
-            >
-              {t('home.createRoom')}
-            </button>
-            <button
-              className={cx(styles["mode-btn"], mode === "join" && styles.active)}
-              onClick={() => setMode("join")}
-            >
-              {t('home.joinRoom')}
-            </button>
-          </div>
+            <p className={styles["hero-copy"]}>{t("home.heroCopy")}</p>
 
-          <p className={styles.hint} aria-live="polite">
-            {mode === "join" ? t('home.hintJoin') : t('home.hintCreate')}
-          </p>
+            <div className={styles["mode-switch"]}>
+              <button
+                className={cx(styles["mode-btn"], mode === "create" && styles.active)}
+                onClick={() => setMode("create")}
+              >
+                {t('home.createRoom')}
+              </button>
+              <button
+                className={cx(styles["mode-btn"], mode === "join" && styles.active)}
+                onClick={() => setMode("join")}
+              >
+                {t('home.joinRoom')}
+              </button>
+            </div>
 
-          <label className={styles.field}>
-            <span>{t('home.yourName')}</span>
-            <input
-              name="player_name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t('home.namePlaceholder')}
-              maxLength={20}
-              autoComplete="nickname"
-              spellCheck={false}
-            />
-          </label>
+            <p className={styles.hint} aria-live="polite">
+              {mode === "join" ? t('home.hintJoin') : t('home.hintCreate')}
+            </p>
 
-          {mode === "join" && (
             <label className={styles.field}>
-              <span>{t('home.roomId')}</span>
+              <span>{t('home.yourName')}</span>
               <input
-                name="room_id"
-                value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
-                placeholder={t('home.roomPlaceholder')}
-                maxLength={24}
-                autoComplete="off"
-                autoCapitalize="off"
-                autoCorrect="off"
+                name="player_name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={t('home.namePlaceholder')}
+                maxLength={20}
+                autoComplete="nickname"
                 spellCheck={false}
               />
             </label>
-          )}
 
-          <button
-            className={styles["action-btn"]}
-            onClick={mode === "join" ? handleJoin : handleCreate}
-            disabled={!name.trim() || (mode === "join" && !roomId.trim())}
-          >
-            {mode === "join" ? t('home.enterRoom') : t('home.createAndEnter')}
-          </button>
+            {mode === "join" && (
+              <label className={styles.field}>
+                <span>{t('home.roomId')}</span>
+                <input
+                  name="room_id"
+                  value={roomId}
+                  onChange={(e) => setRoomId(e.target.value)}
+                  placeholder={t('home.roomPlaceholder')}
+                  maxLength={24}
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                />
+              </label>
+            )}
+
+            <button
+              className={styles["action-btn"]}
+              onClick={mode === "join" ? handleJoin : handleCreate}
+              disabled={!name.trim() || (mode === "join" && !roomId.trim())}
+            >
+              {mode === "join" ? t('home.enterRoom') : t('home.createAndEnter')}
+            </button>
+          </div>
         </div>
+      </div>
+
+      <div className={styles["content-shell"]}>
+        <section className={styles["content-panel"]}>
+          <div className={styles["section-heading"]}>
+            <h2>{t("home.features.title")}</h2>
+            <p>{t("home.features.intro")}</p>
+          </div>
+          <div className={styles["feature-grid"]}>
+            {featureItems.map((item) => (
+              <article key={item.title} className={styles["feature-card"]}>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles["content-panel"]}>
+          <div className={styles["section-heading"]}>
+            <h2>{t("home.how.title")}</h2>
+            <p>{t("home.how.intro")}</p>
+          </div>
+          <div className={styles["step-list"]}>
+            {howItWorksItems.map((item, index) => (
+              <article key={item.title} className={styles["step-card"]}>
+                <span className={styles["step-index"]}>{index + 1}</span>
+                <div>
+                  <h3>{item.title}</h3>
+                  <p>{item.text}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles["content-panel"]}>
+          <div className={styles["section-heading"]}>
+            <h2>{t("home.faqTitle")}</h2>
+            <p>{t("home.faqIntro")}</p>
+          </div>
+          <div className={styles["faq-list"]}>
+            {faqItems.map((item) => (
+              <article key={item.question} className={styles["faq-item"]}>
+                <h3>{item.question}</h3>
+                <p>{item.answer}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles["content-panel"]}>
+          <div className={styles["section-heading"]}>
+            <h2>{t("home.linksTitle")}</h2>
+            <p>{t("home.linksIntro")}</p>
+          </div>
+          <div className={styles["link-grid"]}>
+            <Link to={featuresPath} className={styles["link-card"]}>
+              <h3>{t("static.features")}</h3>
+              <p>{t("home.linkFeaturesText")}</p>
+            </Link>
+            <Link to={useCasesPath} className={styles["link-card"]}>
+              <h3>{t("static.useCases")}</h3>
+              <p>{t("home.linkUseCasesText")}</p>
+            </Link>
+            <Link to={faqPath} className={styles["link-card"]}>
+              <h3>{t("static.faq")}</h3>
+              <p>{t("home.linkFaqText")}</p>
+            </Link>
+            <Link to={aboutPath} className={styles["link-card"]}>
+              <h3>{t("static.about")}</h3>
+              <p>{t("home.linkAboutText")}</p>
+            </Link>
+            <Link to={privacyPath} className={styles["link-card"]}>
+              <h3>{t("static.privacy")}</h3>
+              <p>{t("home.linkPrivacyText")}</p>
+            </Link>
+            <Link to={contactPath} className={styles["link-card"]}>
+              <h3>{t("static.contactUs")}</h3>
+              <p>{t("home.linkContactText")}</p>
+            </Link>
+          </div>
+        </section>
       </div>
     </div>
   );

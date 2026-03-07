@@ -3365,22 +3365,36 @@ function I18nextProvider({
 }
 const bannerCn = "/drawguess/assets/banner_cn-DFA4LkCJ.png";
 const bannerEn = "/drawguess/assets/banner_en-ZREnH-B1.png";
-const active$1 = "_active_wy7jg_169";
-const hint = "_hint_wy7jg_175";
-const field = "_field_wy7jg_199";
+const active$1 = "_active_16l34_184";
+const hint = "_hint_16l34_190";
+const field = "_field_16l34_214";
 const styles$3 = {
-  "join-page": "_join-page_wy7jg_1",
-  "join-card": "_join-card_wy7jg_11",
-  "action-btn": "_action-btn_wy7jg_41",
-  "join-card-left": "_join-card-left_wy7jg_110",
-  "banner-img": "_banner-img_wy7jg_119",
-  "join-card-right": "_join-card-right_wy7jg_125",
-  "header-row": "_header-row_wy7jg_135",
-  "mode-switch": "_mode-switch_wy7jg_142",
-  "mode-btn": "_mode-btn_wy7jg_152",
+  "join-page": "_join-page_16l34_1",
+  "hero-shell": "_hero-shell_16l34_14",
+  "content-shell": "_content-shell_16l34_15",
+  "join-card": "_join-card_16l34_19",
+  "action-btn": "_action-btn_16l34_49",
+  "join-card-left": "_join-card-left_16l34_118",
+  "banner-img": "_banner-img_16l34_127",
+  "join-card-right": "_join-card-right_16l34_133",
+  "hero-copy": "_hero-copy_16l34_143",
+  "header-row": "_header-row_16l34_150",
+  "mode-switch": "_mode-switch_16l34_157",
+  "mode-btn": "_mode-btn_16l34_167",
   active: active$1,
   hint,
-  field
+  field,
+  "content-panel": "_content-panel_16l34_227",
+  "section-heading": "_section-heading_16l34_235",
+  "feature-grid": "_feature-grid_16l34_252",
+  "link-grid": "_link-grid_16l34_253",
+  "feature-card": "_feature-card_16l34_259",
+  "faq-item": "_faq-item_16l34_260",
+  "link-card": "_link-card_16l34_261",
+  "step-card": "_step-card_16l34_262",
+  "step-list": "_step-list_16l34_288",
+  "faq-list": "_faq-list_16l34_289",
+  "step-index": "_step-index_16l34_312"
 };
 const container$1 = "_container_d8xz0_1";
 const switcherBtn = "_switcherBtn_d8xz0_6";
@@ -3582,6 +3596,44 @@ function Home() {
       }
     ]
   };
+  const featureItems = [
+    {
+      title: t("home.features.instantTitle"),
+      text: t("home.features.instantText")
+    },
+    {
+      title: t("home.features.socialTitle"),
+      text: t("home.features.socialText")
+    },
+    {
+      title: t("home.features.mobileTitle"),
+      text: t("home.features.mobileText")
+    }
+  ];
+  const howItWorksItems = [
+    {
+      title: t("home.how.step1Title"),
+      text: t("home.how.step1Text")
+    },
+    {
+      title: t("home.how.step2Title"),
+      text: t("home.how.step2Text")
+    },
+    {
+      title: t("home.how.step3Title"),
+      text: t("home.how.step3Text")
+    }
+  ];
+  const faqItems = faqSchema.mainEntity.map((item) => ({
+    question: item.name,
+    answer: item.acceptedAnswer.text
+  }));
+  const featuresPath = withLanguagePrefix(currentLang, "/features");
+  const useCasesPath = withLanguagePrefix(currentLang, "/use-cases");
+  const faqPath = withLanguagePrefix(currentLang, "/faq");
+  const aboutPath = withLanguagePrefix(currentLang, "/about");
+  const privacyPath = withLanguagePrefix(currentLang, "/privacy");
+  const contactPath = withLanguagePrefix(currentLang, "/contact");
   const gameSchema = {
     "@context": "https://schema.org",
     "@type": "VideoGame",
@@ -3624,13 +3676,14 @@ function Home() {
         structuredData: [gameSchema, faqSchema]
       }
     ),
-    /* @__PURE__ */ jsxs("div", { className: styles$3["join-card"], children: [
+    /* @__PURE__ */ jsx("div", { className: styles$3["hero-shell"], children: /* @__PURE__ */ jsxs("div", { className: styles$3["join-card"], children: [
       /* @__PURE__ */ jsx("div", { className: styles$3["join-card-left"], children: /* @__PURE__ */ jsx("img", { src: currentBanner, alt: "Draw and Guess Banner", className: styles$3["banner-img"] }) }),
       /* @__PURE__ */ jsxs("div", { className: styles$3["join-card-right"], children: [
         /* @__PURE__ */ jsxs("div", { className: styles$3["header-row"], children: [
           /* @__PURE__ */ jsx("h1", { children: t("home.title") }),
           /* @__PURE__ */ jsx(LanguageSwitcher, {})
         ] }),
+        /* @__PURE__ */ jsx("p", { className: styles$3["hero-copy"], children: t("home.heroCopy") }),
         /* @__PURE__ */ jsxs("div", { className: styles$3["mode-switch"], children: [
           /* @__PURE__ */ jsx(
             "button",
@@ -3692,16 +3745,88 @@ function Home() {
           }
         )
       ] })
+    ] }) }),
+    /* @__PURE__ */ jsxs("div", { className: styles$3["content-shell"], children: [
+      /* @__PURE__ */ jsxs("section", { className: styles$3["content-panel"], children: [
+        /* @__PURE__ */ jsxs("div", { className: styles$3["section-heading"], children: [
+          /* @__PURE__ */ jsx("h2", { children: t("home.features.title") }),
+          /* @__PURE__ */ jsx("p", { children: t("home.features.intro") })
+        ] }),
+        /* @__PURE__ */ jsx("div", { className: styles$3["feature-grid"], children: featureItems.map((item) => /* @__PURE__ */ jsxs("article", { className: styles$3["feature-card"], children: [
+          /* @__PURE__ */ jsx("h3", { children: item.title }),
+          /* @__PURE__ */ jsx("p", { children: item.text })
+        ] }, item.title)) })
+      ] }),
+      /* @__PURE__ */ jsxs("section", { className: styles$3["content-panel"], children: [
+        /* @__PURE__ */ jsxs("div", { className: styles$3["section-heading"], children: [
+          /* @__PURE__ */ jsx("h2", { children: t("home.how.title") }),
+          /* @__PURE__ */ jsx("p", { children: t("home.how.intro") })
+        ] }),
+        /* @__PURE__ */ jsx("div", { className: styles$3["step-list"], children: howItWorksItems.map((item, index) => /* @__PURE__ */ jsxs("article", { className: styles$3["step-card"], children: [
+          /* @__PURE__ */ jsx("span", { className: styles$3["step-index"], children: index + 1 }),
+          /* @__PURE__ */ jsxs("div", { children: [
+            /* @__PURE__ */ jsx("h3", { children: item.title }),
+            /* @__PURE__ */ jsx("p", { children: item.text })
+          ] })
+        ] }, item.title)) })
+      ] }),
+      /* @__PURE__ */ jsxs("section", { className: styles$3["content-panel"], children: [
+        /* @__PURE__ */ jsxs("div", { className: styles$3["section-heading"], children: [
+          /* @__PURE__ */ jsx("h2", { children: t("home.faqTitle") }),
+          /* @__PURE__ */ jsx("p", { children: t("home.faqIntro") })
+        ] }),
+        /* @__PURE__ */ jsx("div", { className: styles$3["faq-list"], children: faqItems.map((item) => /* @__PURE__ */ jsxs("article", { className: styles$3["faq-item"], children: [
+          /* @__PURE__ */ jsx("h3", { children: item.question }),
+          /* @__PURE__ */ jsx("p", { children: item.answer })
+        ] }, item.question)) })
+      ] }),
+      /* @__PURE__ */ jsxs("section", { className: styles$3["content-panel"], children: [
+        /* @__PURE__ */ jsxs("div", { className: styles$3["section-heading"], children: [
+          /* @__PURE__ */ jsx("h2", { children: t("home.linksTitle") }),
+          /* @__PURE__ */ jsx("p", { children: t("home.linksIntro") })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: styles$3["link-grid"], children: [
+          /* @__PURE__ */ jsxs(Link, { to: featuresPath, className: styles$3["link-card"], children: [
+            /* @__PURE__ */ jsx("h3", { children: t("static.features") }),
+            /* @__PURE__ */ jsx("p", { children: t("home.linkFeaturesText") })
+          ] }),
+          /* @__PURE__ */ jsxs(Link, { to: useCasesPath, className: styles$3["link-card"], children: [
+            /* @__PURE__ */ jsx("h3", { children: t("static.useCases") }),
+            /* @__PURE__ */ jsx("p", { children: t("home.linkUseCasesText") })
+          ] }),
+          /* @__PURE__ */ jsxs(Link, { to: faqPath, className: styles$3["link-card"], children: [
+            /* @__PURE__ */ jsx("h3", { children: t("static.faq") }),
+            /* @__PURE__ */ jsx("p", { children: t("home.linkFaqText") })
+          ] }),
+          /* @__PURE__ */ jsxs(Link, { to: aboutPath, className: styles$3["link-card"], children: [
+            /* @__PURE__ */ jsx("h3", { children: t("static.about") }),
+            /* @__PURE__ */ jsx("p", { children: t("home.linkAboutText") })
+          ] }),
+          /* @__PURE__ */ jsxs(Link, { to: privacyPath, className: styles$3["link-card"], children: [
+            /* @__PURE__ */ jsx("h3", { children: t("static.privacy") }),
+            /* @__PURE__ */ jsx("p", { children: t("home.linkPrivacyText") })
+          ] }),
+          /* @__PURE__ */ jsxs(Link, { to: contactPath, className: styles$3["link-card"], children: [
+            /* @__PURE__ */ jsx("h3", { children: t("static.contactUs") }),
+            /* @__PURE__ */ jsx("p", { children: t("home.linkContactText") })
+          ] })
+        ] })
+      ] })
     ] })
   ] });
 }
-const container = "_container_kpoq7_1";
-const meta = "_meta_kpoq7_56";
+const container = "_container_1e3hx_1";
+const cards = "_cards_1e3hx_45";
+const card = "_card_1e3hx_45";
+const meta = "_meta_1e3hx_98";
 const styles$1 = {
   container,
-  "back-link": "_back-link_kpoq7_45",
+  cards,
+  "faq-stack": "_faq-stack_1e3hx_46",
+  card,
+  "back-link": "_back-link_1e3hx_69",
   meta,
-  "contact-form": "_contact-form_kpoq7_61"
+  "contact-form": "_contact-form_1e3hx_103"
 };
 const AboutUs = () => {
   const { t } = useTranslation();
@@ -3936,9 +4061,114 @@ const ContactUs = () => {
     ] })
   ] });
 };
-const footer = "_footer_tka24_1";
-const links = "_links_tka24_8";
-const copyright = "_copyright_tka24_23";
+const Features = () => {
+  const { t } = useTranslation();
+  const { lang } = useParams();
+  const homePath = withLanguagePrefix(lang, "/");
+  const featureKeys = ["rooms", "drawing", "guessing", "reference", "mobile", "bilingual"];
+  return /* @__PURE__ */ jsxs("div", { className: styles$1.container, children: [
+    /* @__PURE__ */ jsx(
+      SeoHead,
+      {
+        lang,
+        title: `${t("features.title")} | Draw & Guess`,
+        description: t("features.intro"),
+        path: "/features"
+      }
+    ),
+    /* @__PURE__ */ jsxs(Link, { to: homePath, className: styles$1["back-link"], children: [
+      "← ",
+      t("static.backHome")
+    ] }),
+    /* @__PURE__ */ jsx("h1", { children: t("features.title") }),
+    /* @__PURE__ */ jsx("p", { children: t("features.intro") }),
+    /* @__PURE__ */ jsxs("section", { children: [
+      /* @__PURE__ */ jsx("h2", { children: t("features.coreTitle") }),
+      /* @__PURE__ */ jsx("div", { className: styles$1.cards, children: featureKeys.map((key) => /* @__PURE__ */ jsxs("article", { className: styles$1.card, children: [
+        /* @__PURE__ */ jsx("h3", { children: t(`features.items.${key}.title`) }),
+        /* @__PURE__ */ jsx("p", { children: t(`features.items.${key}.text`) })
+      ] }, key)) })
+    ] }),
+    /* @__PURE__ */ jsxs("section", { children: [
+      /* @__PURE__ */ jsx("h2", { children: t("features.fitTitle") }),
+      /* @__PURE__ */ jsxs("ul", { children: [
+        /* @__PURE__ */ jsx("li", { children: t("features.fitPoint1") }),
+        /* @__PURE__ */ jsx("li", { children: t("features.fitPoint2") }),
+        /* @__PURE__ */ jsx("li", { children: t("features.fitPoint3") })
+      ] })
+    ] })
+  ] });
+};
+const UseCases = () => {
+  const { t } = useTranslation();
+  const { lang } = useParams();
+  const homePath = withLanguagePrefix(lang, "/");
+  const cases = ["friends", "remote", "classroom", "stream"];
+  return /* @__PURE__ */ jsxs("div", { className: styles$1.container, children: [
+    /* @__PURE__ */ jsx(
+      SeoHead,
+      {
+        lang,
+        title: `${t("useCases.title")} | Draw & Guess`,
+        description: t("useCases.intro"),
+        path: "/use-cases"
+      }
+    ),
+    /* @__PURE__ */ jsxs(Link, { to: homePath, className: styles$1["back-link"], children: [
+      "← ",
+      t("static.backHome")
+    ] }),
+    /* @__PURE__ */ jsx("h1", { children: t("useCases.title") }),
+    /* @__PURE__ */ jsx("p", { children: t("useCases.intro") }),
+    /* @__PURE__ */ jsx("div", { className: styles$1.cards, children: cases.map((key) => /* @__PURE__ */ jsxs("section", { className: styles$1.card, children: [
+      /* @__PURE__ */ jsx("h2", { children: t(`useCases.items.${key}.title`) }),
+      /* @__PURE__ */ jsx("p", { children: t(`useCases.items.${key}.text`) })
+    ] }, key)) })
+  ] });
+};
+const FAQ_ITEMS = ["what", "download", "friends", "mobile", "private", "ai"];
+const FaqPage = () => {
+  const { t } = useTranslation();
+  const { lang } = useParams();
+  const homePath = withLanguagePrefix(lang, "/");
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ_ITEMS.map((key) => ({
+      "@type": "Question",
+      name: t(`faqPage.items.${key}.question`),
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: t(`faqPage.items.${key}.answer`)
+      }
+    }))
+  };
+  return /* @__PURE__ */ jsxs("div", { className: styles$1.container, children: [
+    /* @__PURE__ */ jsx(
+      SeoHead,
+      {
+        lang,
+        title: `${t("faqPage.title")} | Draw & Guess`,
+        description: t("faqPage.intro"),
+        path: "/faq",
+        structuredData
+      }
+    ),
+    /* @__PURE__ */ jsxs(Link, { to: homePath, className: styles$1["back-link"], children: [
+      "← ",
+      t("static.backHome")
+    ] }),
+    /* @__PURE__ */ jsx("h1", { children: t("faqPage.title") }),
+    /* @__PURE__ */ jsx("p", { children: t("faqPage.intro") }),
+    /* @__PURE__ */ jsx("div", { className: styles$1["faq-stack"], children: FAQ_ITEMS.map((key) => /* @__PURE__ */ jsxs("section", { className: styles$1.card, children: [
+      /* @__PURE__ */ jsx("h2", { children: t(`faqPage.items.${key}.question`) }),
+      /* @__PURE__ */ jsx("p", { children: t(`faqPage.items.${key}.answer`) })
+    ] }, key)) })
+  ] });
+};
+const footer = "_footer_jlawc_1";
+const links = "_links_jlawc_8";
+const copyright = "_copyright_jlawc_24";
 const styles = {
   footer,
   links,
@@ -3949,6 +4179,9 @@ const Footer = () => {
   const location = useLocation();
   const year = (/* @__PURE__ */ new Date()).getFullYear();
   const currentLang = normalizeLanguage(location.pathname.split("/")[1]);
+  const featuresPath = withLanguagePrefix(currentLang, "/features");
+  const useCasesPath = withLanguagePrefix(currentLang, "/use-cases");
+  const faqPath = withLanguagePrefix(currentLang, "/faq");
   const aboutPath = withLanguagePrefix(currentLang, "/about");
   const privacyPath = withLanguagePrefix(currentLang, "/privacy");
   const contactPath = withLanguagePrefix(currentLang, "/contact");
@@ -3957,6 +4190,9 @@ const Footer = () => {
   }
   return /* @__PURE__ */ jsxs("footer", { className: styles.footer, children: [
     /* @__PURE__ */ jsxs("div", { className: styles.links, children: [
+      /* @__PURE__ */ jsx(Link, { to: featuresPath, children: t("static.features") }),
+      /* @__PURE__ */ jsx(Link, { to: useCasesPath, children: t("static.useCases") }),
+      /* @__PURE__ */ jsx(Link, { to: faqPath, children: t("static.faq") }),
       /* @__PURE__ */ jsx(Link, { to: aboutPath, children: t("static.about") }),
       /* @__PURE__ */ jsx(Link, { to: privacyPath, children: t("static.privacy") }),
       /* @__PURE__ */ jsx(Link, { to: contactPath, children: t("static.contactUs") })
@@ -3971,7 +4207,8 @@ const Footer = () => {
 const seoTitle$1 = "Draw & Guess - Play with Friends Online";
 const home$1 = {
   title: "Draw & Guess",
-  description: "Online Draw & Guess game. Play with friends, draw masterpieces, and guess words in real-time!",
+  description: "Play Draw & Guess online with friends. Create a room instantly, draw in real time, and guess words together on mobile or desktop.",
+  heroCopy: "A fast browser party game for groups. Start a room in seconds, share the link, and play real-time drawing rounds without installing anything.",
   createRoom: "Create Room",
   joinRoom: "Join Room",
   hintCreate: "Create a new room and invite friends",
@@ -3981,7 +4218,37 @@ const home$1 = {
   roomId: "Room ID",
   roomPlaceholder: "e.g. room1...",
   enterRoom: "Enter Room",
-  createAndEnter: "Create & Enter"
+  createAndEnter: "Create & Enter",
+  features: {
+    title: "Why play Draw & Guess online",
+    intro: "This version is built for quick party sessions, simple sharing, and smooth browser play across devices.",
+    instantTitle: "Instant room setup",
+    instantText: "Create a room in one step, send the link, and let friends join without accounts or downloads.",
+    socialTitle: "Real-time multiplayer rounds",
+    socialText: "Players take turns drawing while everyone else guesses in chat, with scoring and round flow handled automatically.",
+    mobileTitle: "Mobile and desktop friendly",
+    mobileText: "The UI is optimized for touch and small screens while still working well for desktop group play."
+  },
+  how: {
+    title: "How the game works",
+    intro: "The flow stays simple so new players can join a room and understand the rules immediately.",
+    step1Title: "Create or join a room",
+    step1Text: "Enter a nickname, create a room, or paste a room ID to jump into an existing game with friends.",
+    step2Title: "Draw when it is your turn",
+    step2Text: "One player becomes the drawer, gets the secret word, and uses the canvas tools to communicate the idea visually.",
+    step3Title: "Guess in chat and score points",
+    step3Text: "Other players type guesses in chat. Correct guesses score points, and the game rotates until everyone has drawn."
+  },
+  faqTitle: "Frequently asked questions",
+  faqIntro: "Quick answers for players comparing browser party games or checking whether this one fits their group.",
+  linksTitle: "Learn more",
+  linksIntro: "These pages add more product and trust context for both players and search engines.",
+  linkFeaturesText: "Explore the core gameplay, real-time drawing flow, and browser-first product capabilities.",
+  linkUseCasesText: "See which group scenarios fit this game, from friend hangouts to remote team breaks.",
+  linkFaqText: "Read common setup, device, privacy, and gameplay questions before sharing a room.",
+  linkAboutText: "See the product scope, core principles, and what the team is improving next.",
+  linkPrivacyText: "Review how gameplay, analytics, and real-time room data are handled.",
+  linkContactText: "Reach out for bug reports, feedback, or collaboration requests."
 };
 const game$1 = {
   joining: "Connecting...",
@@ -4120,6 +4387,93 @@ const modal$1 = {
   join: "Join",
   confirm: "Confirm"
 };
+const features$1 = {
+  title: "Features",
+  intro: "Draw & Guess focuses on the features that matter for quick browser party sessions: fast setup, clear rounds, and easy sharing.",
+  coreTitle: "Core product features",
+  fitTitle: "What this setup is best for",
+  fitPoint1: "Small to medium friend groups that want to play immediately in the browser",
+  fitPoint2: "Mobile-first sessions where touch drawing and readable layout matter",
+  fitPoint3: "International groups that need English and Chinese support on one site",
+  items: {
+    rooms: {
+      title: "Instant room creation",
+      text: "Players can create a room quickly and invite others with a shared link instead of going through registration."
+    },
+    drawing: {
+      title: "Real-time drawing sync",
+      text: "Canvas strokes are synchronized live so guessers can react as the sketch evolves."
+    },
+    guessing: {
+      title: "Chat-based guessing and scoring",
+      text: "Guessers submit answers in chat while the game handles scoring, round timing, and turn rotation."
+    },
+    reference: {
+      title: "AI reference images for the drawer",
+      text: "The current drawer can request reference images to get unstuck without leaving the room."
+    },
+    mobile: {
+      title: "Mobile-friendly gameplay",
+      text: "The interface is tuned for smaller screens so room info, chat, and canvas controls stay usable."
+    },
+    bilingual: {
+      title: "Bilingual routes and content",
+      text: "English and Chinese routes, content, and metadata help support international players and localized SEO."
+    }
+  }
+};
+const useCases$1 = {
+  title: "Use Cases",
+  intro: "This browser drawing game works best in situations where people need fast setup and lightweight group interaction.",
+  items: {
+    friends: {
+      title: "Online game night with friends",
+      text: "Use it as a quick party game when a group wants something social, simple, and easy to join from a shared link."
+    },
+    remote: {
+      title: "Remote team icebreaker",
+      text: "It fits short internal sessions where a team wants a lightweight guessing game between meetings."
+    },
+    classroom: {
+      title: "Classroom or language practice",
+      text: "Teachers or group organizers can use drawing and guessing rounds as a simple interactive activity."
+    },
+    stream: {
+      title: "Community stream or live audience room",
+      text: "Creators can open a room for live viewers who want a simple browser game that is easy to understand on the spot."
+    }
+  }
+};
+const faqPage$1 = {
+  title: "FAQ",
+  intro: "Answers to common questions about setup, devices, privacy, and gameplay flow.",
+  items: {
+    what: {
+      question: "What is Draw & Guess?",
+      answer: "Draw & Guess is a browser-based multiplayer drawing and guessing game where one player draws and others guess through chat."
+    },
+    download: {
+      question: "Do players need to download anything?",
+      answer: "No. Players can open the room in a browser and start playing without installing an app."
+    },
+    friends: {
+      question: "Can I play with friends privately?",
+      answer: "Yes. Create a room, share the link or room ID, and let invited players join directly."
+    },
+    mobile: {
+      question: "Does it work on mobile?",
+      answer: "Yes. The interface is designed to support mobile screens while remaining usable on desktop."
+    },
+    "private": {
+      question: "Do I need an account?",
+      answer: "No account is required for the current web experience. Players join with a nickname and room ID."
+    },
+    ai: {
+      question: "What are AI reference images for?",
+      answer: "The drawer can request reference images to get visual inspiration for the current word without leaving the game."
+    }
+  }
+};
 const privacy$1 = {
   title: "Privacy Policy",
   lastUpdated: "Last updated: March 1, 2026",
@@ -4197,8 +4551,14 @@ const en = {
     backHome: "Back to Home",
     contactUs: "Contact Us",
     privacy: "Privacy Policy",
-    about: "About Us"
+    about: "About Us",
+    features: "Features",
+    useCases: "Use Cases",
+    faq: "FAQ"
   },
+  features: features$1,
+  useCases: useCases$1,
+  faqPage: faqPage$1,
   privacy: privacy$1,
   about: about$1,
   contact: contact$1
@@ -4206,7 +4566,8 @@ const en = {
 const seoTitle = "Draw & Guess - 与好友在线同玩";
 const home = {
   title: "你画我猜",
-  description: "在线你画我猜多人游戏，与好友一起享受绘画与猜谜的乐趣。",
+  description: "在线和好友一起玩你画我猜。无需下载，快速创建房间，实时画图猜词，支持手机和桌面浏览器。",
+  heroCopy: "适合朋友聚会和线上娱乐的轻量网页游戏。几秒创建房间，分享链接即可开玩，不需要安装任何应用。",
   createRoom: "创建房间",
   joinRoom: "加入房间",
   hintCreate: "创建新房间并邀请好友",
@@ -4216,7 +4577,37 @@ const home = {
   roomId: "房间 ID",
   roomPlaceholder: "例如 room1…",
   enterRoom: "进入房间",
-  createAndEnter: "创建并进入"
+  createAndEnter: "创建并进入",
+  features: {
+    title: "为什么适合在线玩你画我猜",
+    intro: "这个版本针对快速组局、便捷分享和跨设备浏览器游玩做了优化。",
+    instantTitle: "开房快",
+    instantText: "一步创建房间，直接把链接发给好友，无需注册，也不用下载客户端。",
+    socialTitle: "多人实时互动",
+    socialText: "玩家轮流作画，其他人通过聊天框猜词，系统自动处理回合和计分。",
+    mobileTitle: "手机电脑都能玩",
+    mobileText: "界面兼顾触屏和小屏体验，也适合在桌面端和朋友一起组局。"
+  },
+  how: {
+    title: "游戏怎么玩",
+    intro: "规则保持足够简单，让第一次进入房间的玩家也能很快理解。",
+    step1Title: "创建或加入房间",
+    step1Text: "输入昵称后创建新房间，或填写房间号，快速进入朋友已经开的对局。",
+    step2Title: "轮到你时开始作画",
+    step2Text: "系统会指定当前画家并给出词语，画家用画布工具把意思表达出来。",
+    step3Title: "在聊天里猜词拿分",
+    step3Text: "其他玩家在聊天框输入答案，猜对后得分，直到每个人都轮流画过一遍。"
+  },
+  faqTitle: "常见问题",
+  faqIntro: "给第一次接触这款在线聚会游戏的玩家一个快速判断依据。",
+  linksTitle: "了解更多",
+  linksIntro: "这些页面补充了产品信息和信任信息，也有利于搜索引擎理解站点。",
+  linkFeaturesText: "了解核心玩法、实时画图流程，以及这个浏览器产品已经支持的能力。",
+  linkUseCasesText: "看看哪些场景适合用这款游戏，比如朋友聚会、远程团队破冰等。",
+  linkFaqText: "提前查看设备、玩法、隐私和房间使用方式的常见问题。",
+  linkAboutText: "查看产品能力范围、设计原则，以及接下来会持续优化的方向。",
+  linkPrivacyText: "了解房间数据、基础统计和实时游戏数据是如何被处理的。",
+  linkContactText: "如果你要反馈 bug、提建议或谈合作，可以从这里联系。"
 };
 const game = {
   joining: "正在连接...",
@@ -4356,6 +4747,93 @@ const modal = {
   join: "加入",
   confirm: "确定"
 };
+const features = {
+  title: "功能介绍",
+  intro: "Draw & Guess 的重点不是复杂系统，而是让浏览器多人聚会局能快速开始、清晰进行、方便分享。",
+  coreTitle: "核心能力",
+  fitTitle: "更适合哪些使用场景",
+  fitPoint1: "想在浏览器里快速开一局的小到中型好友群体",
+  fitPoint2: "以手机为主、需要触屏绘画和清晰布局的游戏场景",
+  fitPoint3: "需要中英文支持、面向国际化用户的轻量网页游戏场景",
+  items: {
+    rooms: {
+      title: "快速创建房间",
+      text: "玩家可以直接创建房间并分享链接，无需先走复杂注册流程。"
+    },
+    drawing: {
+      title: "实时绘画同步",
+      text: "画布轨迹会实时同步，猜词玩家可以随着草图变化即时反应。"
+    },
+    guessing: {
+      title: "聊天猜词与自动计分",
+      text: "玩家在聊天框提交答案，系统负责处理计分、回合计时和轮转。"
+    },
+    reference: {
+      title: "AI 参考图",
+      text: "当前画家可以请求参考图片，在不离开房间的情况下获得视觉灵感。"
+    },
+    mobile: {
+      title: "移动端友好",
+      text: "界面对小屏和触屏做了适配，让房间信息、聊天和画布控制都更易用。"
+    },
+    bilingual: {
+      title: "双语路由与内容",
+      text: "提供中英文路由、内容和元信息，方便国际用户访问，也有利于本地化 SEO。"
+    }
+  }
+};
+const useCases = {
+  title: "适用场景",
+  intro: "这款浏览器你画我猜最适合那些需要快速开局、轻量互动的群体场景。",
+  items: {
+    friends: {
+      title: "朋友线上娱乐或聚会局",
+      text: "适合一群朋友想快速玩一个轻松社交小游戏时使用，发链接就能加入。"
+    },
+    remote: {
+      title: "远程团队破冰",
+      text: "适合团队在会议之间来一轮轻量猜词互动，而不用准备复杂道具或安装软件。"
+    },
+    classroom: {
+      title: "课堂互动或语言练习",
+      text: "老师或组织者可以把轮流画图和猜词当作一个简单的互动活动。"
+    },
+    stream: {
+      title: "直播社区互动",
+      text: "内容创作者可以为直播观众准备一个容易理解、打开浏览器就能参与的小游戏房间。"
+    }
+  }
+};
+const faqPage = {
+  title: "常见问题",
+  intro: "这里集中回答有关设备、玩法、隐私和使用方式的问题。",
+  items: {
+    what: {
+      question: "Draw & Guess 是什么？",
+      answer: "Draw & Guess 是一款基于浏览器的多人你画我猜游戏，一名玩家作画，其他玩家通过聊天猜词。"
+    },
+    download: {
+      question: "需要下载应用吗？",
+      answer: "不需要。玩家直接在浏览器打开房间就能开始，不用安装客户端。"
+    },
+    friends: {
+      question: "可以和朋友私下玩吗？",
+      answer: "可以。你可以创建房间并分享链接或房间号，邀请的人直接加入即可。"
+    },
+    mobile: {
+      question: "手机能玩吗？",
+      answer: "可以。当前界面已经针对移动端做了适配，同时也支持桌面浏览器。"
+    },
+    "private": {
+      question: "需要账号吗？",
+      answer: "当前网页版本不需要账号。玩家只需填写昵称和房间号即可进入。"
+    },
+    ai: {
+      question: "AI 参考图是做什么的？",
+      answer: "画家可以请求参考图片，为当前词语获得视觉灵感，而不用离开游戏界面。"
+    }
+  }
+};
 const privacy = {
   title: "隐私政策",
   lastUpdated: "最后更新：2026-03-01",
@@ -4433,8 +4911,14 @@ const zh = {
     backHome: "返回首页",
     contactUs: "联系我们",
     privacy: "隐私政策",
-    about: "关于我们"
+    about: "关于我们",
+    features: "功能介绍",
+    useCases: "适用场景",
+    faq: "常见问题"
   },
+  features,
+  useCases,
+  faqPage,
   privacy,
   about,
   contact
@@ -4474,6 +4958,9 @@ function PrerenderApp({ defaultLang = "en" }) {
         /* @__PURE__ */ jsx(Route, { path: "about", element: /* @__PURE__ */ jsx(AboutUs, {}) }),
         /* @__PURE__ */ jsx(Route, { path: "privacy", element: /* @__PURE__ */ jsx(PrivacyPolicy, {}) }),
         /* @__PURE__ */ jsx(Route, { path: "contact", element: /* @__PURE__ */ jsx(ContactUs, {}) }),
+        /* @__PURE__ */ jsx(Route, { path: "features", element: /* @__PURE__ */ jsx(Features, {}) }),
+        /* @__PURE__ */ jsx(Route, { path: "use-cases", element: /* @__PURE__ */ jsx(UseCases, {}) }),
+        /* @__PURE__ */ jsx(Route, { path: "faq", element: /* @__PURE__ */ jsx(FaqPage, {}) }),
         /* @__PURE__ */ jsx(Route, { path: "*", element: /* @__PURE__ */ jsx(LanguageFallbackRedirect, {}) })
       ] })
     ] }),

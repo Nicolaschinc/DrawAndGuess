@@ -9,6 +9,9 @@ const Footer = () => {
   const location = useLocation();
   const year = new Date().getFullYear();
   const currentLang = normalizeLanguage(location.pathname.split('/')[1]);
+  const featuresPath = withLanguagePrefix(currentLang, "/features");
+  const useCasesPath = withLanguagePrefix(currentLang, "/use-cases");
+  const faqPath = withLanguagePrefix(currentLang, "/faq");
   const aboutPath = withLanguagePrefix(currentLang, "/about");
   const privacyPath = withLanguagePrefix(currentLang, "/privacy");
   const contactPath = withLanguagePrefix(currentLang, "/contact");
@@ -21,6 +24,9 @@ const Footer = () => {
   return (
     <footer className={styles.footer}>
       <div className={styles.links}>
+        <Link to={featuresPath}>{t('static.features')}</Link>
+        <Link to={useCasesPath}>{t('static.useCases')}</Link>
+        <Link to={faqPath}>{t('static.faq')}</Link>
         <Link to={aboutPath}>{t('static.about')}</Link>
         <Link to={privacyPath}>{t('static.privacy')}</Link>
         <Link to={contactPath}>{t('static.contactUs')}</Link>

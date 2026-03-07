@@ -8,6 +8,9 @@ import Home from "./pages/Home";
 import AboutUs from "./pages/AboutUs";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ContactUs from "./pages/ContactUs";
+import Features from "./pages/Features";
+import UseCases from "./pages/UseCases";
+import FaqPage from "./pages/FaqPage";
 import Footer from "./components/Footer";
 import { i18nResources } from "./i18nResources";
 import {
@@ -52,6 +55,9 @@ function PrerenderApp({ defaultLang = "en" }) {
           <Route path="about" element={<AboutUs />} />
           <Route path="privacy" element={<PrivacyPolicy />} />
           <Route path="contact" element={<ContactUs />} />
+          <Route path="features" element={<Features />} />
+          <Route path="use-cases" element={<UseCases />} />
+          <Route path="faq" element={<FaqPage />} />
           <Route path="*" element={<LanguageFallbackRedirect />} />
         </Route>
       </Routes>
