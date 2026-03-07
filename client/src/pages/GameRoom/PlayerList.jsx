@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import PlayerListComponent from "../../components/PlayerList";
 import { getPlayerColor } from "../../utils/playerColor";
@@ -17,10 +16,12 @@ export default function PlayerList({
   word,
   maskedWord,
   isDrawer,
-  onStartGame
+  onStartGame,
+  mobilePanel = "chat",
+  onMobilePanelChange,
 }) {
   const { t } = useTranslation();
-  const [showMobilePlayers, setShowMobilePlayers] = useState(false);
+  const showMobilePlayers = mobilePanel === "players";
 
   const renderMaskedWord = () => {
     if (isDrawer) {
@@ -61,7 +62,7 @@ export default function PlayerList({
           <button
             type="button"
             className={cx(styles["mobile-players-toggle"], showMobilePlayers && styles.active)}
-            onClick={() => setShowMobilePlayers((prev) => !prev)}
+            onClick={() => onMobilePanelChange?.(showMobilePlayers ? "chat" : "players")}
             aria-expanded={showMobilePlayers}
             aria-controls="players-list"
           >

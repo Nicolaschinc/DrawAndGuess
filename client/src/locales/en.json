@@ -145,6 +145,8 @@
     "roleDrawer": " (Drawer)",
     "roleHost": " (Host)",
     "statusGuessed": " (Guessed)"
+    ,
+    "closeDialog": "Close dialog"
   },
   "effects": {
     "flower": "Flower",

@@ -38,6 +38,7 @@ export default function GameRoom() {
   const [showRules, setShowRules] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [toast, setToast] = useState(null);
+  const [mobilePanel, setMobilePanel] = useState("chat");
 
   const handleJoinError = useCallback((msg) => {
     setToast({ title: t('game.joinFailed'), message: t(msg) });
@@ -145,6 +146,7 @@ export default function GameRoom() {
   }
 
   const canDraw = isDrawer && roomState.game.started;
+  const isPlayersPanelOpen = mobilePanel === "players";
 
   return (
     <div className={styles.layout}>
@@ -178,6 +180,8 @@ export default function GameRoom() {
           maskedWord={roomState.game.maskedWord}
           isDrawer={isDrawer}
           onStartGame={startGame}
+          mobilePanel={mobilePanel}
+          onMobilePanelChange={setMobilePanel}
         />
       </aside>
 
@@ -209,6 +213,7 @@ export default function GameRoom() {
           onThrowEffect={throwEffect}
           gameStarted={roomState.game.started}
           isDrawer={isDrawer}
+          hiddenOnMobile={isPlayersPanelOpen}
         />
       </main>
       

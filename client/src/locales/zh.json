@@ -146,6 +146,8 @@
     "roleDrawer": " (画家)",
     "roleHost": " (房主)",
     "statusGuessed": " (已猜中)"
+    ,
+    "closeDialog": "关闭弹窗"
   },
   "effects": {
     "flower": "鲜花",

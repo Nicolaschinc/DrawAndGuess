@@ -6,7 +6,8 @@ export default function ChatPanel({
   effectUsage,
   onThrowEffect,
   gameStarted,
-  isDrawer
+  isDrawer,
+  hiddenOnMobile = false,
 }) {
   return (
     <ChatBox 
@@ -16,6 +17,7 @@ export default function ChatPanel({
       onThrowEffect={onThrowEffect}
       gameStarted={gameStarted}
       isDrawer={isDrawer}
+      hiddenOnMobile={hiddenOnMobile}
     />
   );
 }

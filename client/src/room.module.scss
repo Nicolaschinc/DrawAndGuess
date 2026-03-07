@@ -209,6 +209,10 @@
   display: contents;
 }
 
+.mobile-panel-hidden {
+  display: none;
+}
+
 .mobile-players-toggle {
   width: 100%;
   border: 1px solid var(--line-soft);
@@ -771,6 +775,10 @@
     flex-shrink: 0;
     max-height: none;
     border-radius: var(--radius-md);
+  }
+
+  .chat-box.mobile-panel-hidden {
+    display: none;
   }
 
   .chat-form {

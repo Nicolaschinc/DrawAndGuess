@@ -87,5 +87,6 @@ input[type="range"] {
 }
 
 :focus-visible {
-  outline: none;
+  outline: 3px solid color-mix(in oklab, var(--accent-400), white 10%);
+  outline-offset: 2px;
 }

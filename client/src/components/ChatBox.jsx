@@ -4,13 +4,16 @@ import styles from "../room.module.scss";
 import { getPlayerColor } from "../utils/playerColor";
 import { EffectToolbar } from "./GameUI";
 
+const cx = (...classNames) => classNames.filter(Boolean).join(" ");
+
 const ChatBox = memo(function ChatBox({
   messages,
   onSendMessage,
   effectUsage,
   onThrowEffect,
   gameStarted,
-  isDrawer
+  isDrawer,
+  hiddenOnMobile = false,
 }) {
   const { t } = useTranslation();
   const [chatInput, setChatInput] = useState("");
@@ -68,7 +71,7 @@ const ChatBox = memo(function ChatBox({
   };
 
   return (
-    <section className={styles["chat-box"]}>
+    <section className={cx(styles["chat-box"], hiddenOnMobile && styles["mobile-panel-hidden"])}>
       <ul className={styles.messages} role="log" aria-live="polite" aria-label={t('ui.chat')}>
         {messages.map((m, idx) => (
           <li key={idx} className={m.type === "system" ? styles["msg-system"] : styles["msg-chat"]}>

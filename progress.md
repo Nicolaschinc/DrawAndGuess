@@ -204,3 +204,18 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
   - `npm --prefix client run build` 已通过。
   - 新增预渲染产物已确认存在：`client/dist/en/features/index.html`、`client/dist/en/use-cases/index.html`、`client/dist/en/faq/index.html` 及中文对应页面。
   - 新增 `docs/launch-metrics-playbook.md`，整理上线后通过 Search Console / GA4 观察索引、查询、CTR、自然流量和从 SEO 到开房/开局的转化路径。
+
+- 2026-03-08（UI 试点：按技能链路验证移动端房间布局）:
+  1) 按 `web-design-guidelines` 审视房间页相关文件，优先锁定一个结构问题：移动端玩家面板和聊天同时占位，导致画布舞台感不足；同时补记两个基础可访问性问题：全局 focus ring 被移除、多个 icon-only 关闭按钮缺少 `aria-label`。
+  2) 按 `vercel-react-best-practices` 的“小范围、避免状态重复”思路做试点重构：在 `GameRoom` 顶层增加 `mobilePanel` 单一状态，移动端玩家按钮切换 `chat / players` 两个面板；当玩家面板打开时隐藏聊天区，把垂直空间还给画布。
+  3) 同轮顺手修复基础可访问性：为全局 `:focus-visible` 补回可见焦点样式；为规则/确认/参考图/加入房间弹窗关闭按钮补 `aria-label`。
+- 验证:
+  - `npm --prefix client run build` 通过。
+  - `develop-web-game` 技能客户端已跑通房间 smoke：`output/web-game-mobile-layout-smoke/shot-0.png`、`output/web-game-mobile-layout-smoke/state-0.json`。
+  - 由于技能客户端默认更偏画布截图，额外补了最小 Playwright 移动端整页验证：`output/mobile-room-trial/chat-default.png`、`output/mobile-room-trial/players-open.png`、`output/mobile-room-trial/summary.json`。
+  - 移动端验证结果：
+    - 初始聊天面板可见
+    - 点击玩家按钮后聊天面板隐藏
+    - 玩家列表保持可见
+- 结论:
+  - 这条“先审视 -> 小范围重构 -> 真页验证”的流程是有效的，适合继续扩到房间页其它块，而不是一次性大改全站。

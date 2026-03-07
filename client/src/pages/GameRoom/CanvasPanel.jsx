@@ -189,7 +189,11 @@ export default function CanvasPanel({
           <div className={cx(modalStyles["modal-content"], modalStyles["modal-content-ref"])}>
             <div className={modalStyles["modal-header"]}>
               <h2>{t('ui.reference')} - {word}</h2>
-              <button className={modalStyles["close-btn"]} onClick={closeReferenceModal}>
+              <button
+                className={modalStyles["close-btn"]}
+                onClick={closeReferenceModal}
+                aria-label={t('ui.closeDialog')}
+              >
                 <X size={24} />
               </button>
             </div>

@@ -80,7 +80,7 @@ export function ToastModal({ title, message, onClose }) {
       <div className={cx(styles["modal-content"], styles["join-modal-content"])} onClick={(e) => e.stopPropagation()}>
         <div className={styles["modal-header"]}>
           <h2>{title}</h2>
-          <button className={styles["close-btn"]} onClick={onClose}>×</button>
+          <button className={styles["close-btn"]} onClick={onClose} aria-label={t('ui.closeDialog')}>×</button>
         </div>
         <div className={cx(styles["join-modal-body"], styles["join-modal-body-spaced"])}>
           <p className={styles["toast-message"]}>
@@ -115,7 +115,7 @@ export function ConfirmModal({
       <div className={cx(styles["modal-content"], styles["join-modal-content"])} onClick={(e) => e.stopPropagation()}>
         <div className={styles["modal-header"]}>
           <h2>{title}</h2>
-          <button className={styles["close-btn"]} onClick={onCancel}>×</button>
+          <button className={styles["close-btn"]} onClick={onCancel} aria-label={t('ui.closeDialog')}>×</button>
         </div>
         <div className={cx(styles["join-modal-body"], styles["join-modal-body-spaced"])}>
           <p className={styles["toast-message"]}>{message}</p>
@@ -146,7 +146,7 @@ export function RulesModal({ onClose }) {
       <div className={styles["modal-content"]} onClick={(e) => e.stopPropagation()}>
         <div className={styles["modal-header"]}>
           <h2>{t('rules.title')}</h2>
-          <button className={styles["close-btn"]} onClick={onClose}>×</button>
+          <button className={styles["close-btn"]} onClick={onClose} aria-label={t('ui.closeDialog')}>×</button>
         </div>
         <div className={styles["rules-content"]}>
           <section>
@@ -200,7 +200,7 @@ export function JoinRoomModal({ roomId, defaultName, onJoin, onCancel }) {
       <div className={cx(styles["modal-content"], styles["join-modal-content"])} onClick={(e) => e.stopPropagation()}>
         <div className={styles["modal-header"]}>
           <h2>{t('modal.joinRoom')}</h2>
-          <button className={styles["close-btn"]} onClick={onCancel}>×</button>
+          <button className={styles["close-btn"]} onClick={onCancel} aria-label={t('ui.closeDialog')}>×</button>
         </div>
         <div className={styles["join-modal-body"]}>
           <p className={homeStyles.hint}>
