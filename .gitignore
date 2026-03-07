@@ -39,4 +39,5 @@ yarn.lock
 # Server env
 server/.env
 client/dist
+client/dist-ssr
 .agents/
