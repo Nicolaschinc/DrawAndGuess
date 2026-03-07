@@ -115,3 +115,14 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
 - TODO / 建议:
   - 现在 Playwright 基础环境已就绪，后续可以继续补“多玩家 join/start/guess”场景，而不是只停留在单人入房 smoke。
   - `window.advanceTime(ms)` 当前只是等待钩子，不是确定性模拟时钟；若后续要做更强的交互回归，可继续为房间状态或画布更新补更可控的测试接口。
+
+- 2026-03-07（修复参考图跨域加载失败）:
+  1) 定位到参考图接口 `/api/reference-images` 返回的是相对路径 `/api/proxy-image?...`，当前端与后端分域部署时，浏览器会错误地向前端域名请求图片，导致“参考图一直无法生成”。
+  2) 在 `client/src/pages/GameRoom/referenceImagesState.js` 新增 `resolveReferenceImageUrls()`，统一把相对图片地址解析为基于 `SERVER_URL` 的绝对地址，同时保留已是绝对地址的返回值。
+  3) `CanvasPanel.jsx` 在消费 `/api/reference-images` 响应时改为先做 URL 归一化，再写入参考图状态。
+  4) 为该行为补充测试，覆盖“相对代理图地址在跨域部署下必须指向后端域名”的场景。
+- 验证:
+  - `npm --prefix client run test` 通过（7 个 Node 测试）。
+  - `npm --prefix client run build` 通过。
+- TODO / 建议:
+  - 这次修复解决的是前端地址解析问题；如果线上后端本身拿不到 Bing 图片，需再看服务端 `/api/proxy-image` 日志。

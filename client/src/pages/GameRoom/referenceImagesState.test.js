@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   initialReferenceImagesState,
   normalizeReferenceWord,
+  resolveReferenceImageUrls,
   referenceImagesReducer,
   shouldFetchReferenceImages,
 } from "./referenceImagesState.js";
@@ -57,6 +58,23 @@ test("shouldFetchReferenceImages only loads uncached words for an open modal", (
       loading: false,
     }),
     false
+  );
+});
+
+test("resolveReferenceImageUrls rewrites relative proxy paths against the server origin", () => {
+  assert.deepEqual(
+    resolveReferenceImageUrls(
+      [
+        "/api/proxy-image?word=cat&style=photo",
+        "https://cdn.example.com/cat.png",
+        "  ",
+      ],
+      "https://api.drawguess.example"
+    ),
+    [
+      "https://api.drawguess.example/api/proxy-image?word=cat&style=photo",
+      "https://cdn.example.com/cat.png",
+    ]
   );
 });
 

@@ -8,6 +8,7 @@ import {
   initialReferenceImagesState,
   normalizeReferenceWord,
   referenceImagesReducer,
+  resolveReferenceImageUrls,
   shouldFetchReferenceImages,
 } from "./referenceImagesState";
 
@@ -125,7 +126,7 @@ export default function CanvasPanel({
         dispatchReferenceState({
           type: "request-success",
           word: normalizedWord,
-          images: data.images,
+          images: resolveReferenceImageUrls(data.images, SERVER_URL),
         });
       } catch (err) {
         if (err.name === "AbortError") {

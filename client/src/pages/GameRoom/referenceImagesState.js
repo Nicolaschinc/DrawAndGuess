@@ -10,6 +10,31 @@ export function normalizeReferenceWord(word) {
   return typeof word === "string" ? word.trim() : "";
 }
 
+export function resolveReferenceImageUrls(images, serverUrl) {
+  if (!Array.isArray(images)) {
+    return [];
+  }
+
+  const baseUrl =
+    typeof serverUrl === "string" && serverUrl.trim() ? serverUrl.trim() : "";
+
+  return images
+    .filter((image) => typeof image === "string" && image.trim())
+    .map((image) => {
+      const trimmedImage = image.trim();
+
+      if (!baseUrl) {
+        return trimmedImage;
+      }
+
+      try {
+        return new URL(trimmedImage, `${baseUrl.replace(/\/+$/, "")}/`).toString();
+      } catch {
+        return trimmedImage;
+      }
+    });
+}
+
 export function shouldFetchReferenceImages({
   isDrawer,
   showReferenceModal,
