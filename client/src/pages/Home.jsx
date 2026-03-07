@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Helmet } from "react-helmet-async";
 import bannerCn from "../assets/img/banner_cn.png";
 import bannerEn from "../assets/img/banner_en.png";
 import styles from "../home.module.scss";
 import LanguageSwitcher from "../components/LanguageSwitcher";
+import SeoHead from "../components/SeoHead";
 import { normalizeLanguage, withLanguagePrefix } from "../utils/localeRoutes";
 import { trackEvent } from "../utils/analytics";
 
@@ -19,6 +19,66 @@ export default function Home() {
   const [mode, setMode] = useState("create"); // "join" or "create"
   const navigate = useNavigate();
   const currentLang = normalizeLanguage(lang || i18n.language);
+  const seoTitle =
+    currentLang === "zh"
+      ? "在线你画我猜多人游戏 | Draw & Guess"
+      : "Online Draw & Guess Multiplayer Game | Draw & Guess";
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: currentLang === "zh" ? "这是什么游戏？" : "What is Draw & Guess?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text:
+            currentLang === "zh"
+              ? "这是一款在线多人你画我猜网页游戏，玩家可以创建房间、实时作画并通过聊天猜词。"
+              : "Draw & Guess is an online multiplayer drawing and guessing game where players create rooms, draw in real time, and guess through chat.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: currentLang === "zh" ? "需要下载吗？" : "Do I need to download anything?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text:
+            currentLang === "zh"
+              ? "不需要，直接在浏览器中打开即可开始游戏，支持手机和桌面端。"
+              : "No. You can start playing directly in the browser on mobile or desktop.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: currentLang === "zh" ? "支持和朋友一起玩吗？" : "Can I play with friends?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text:
+            currentLang === "zh"
+              ? "支持。你可以创建房间并分享链接，邀请朋友实时加入同一局游戏。"
+              : "Yes. You can create a room, share the link, and invite friends to join in real time.",
+        },
+      },
+    ],
+  };
+  const gameSchema = {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    name: "Draw & Guess",
+    url: `https://playflowpulse.com/drawguess/${currentLang}`,
+    inLanguage: currentLang,
+    applicationCategory: "Game",
+    genre: ["Party Game", "Drawing Game", "Word Game"],
+    operatingSystem: "Any",
+    description: t("home.description"),
+    image: "https://playflowpulse.com/drawguess/img/banner.png",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+  };
 
   useEffect(() => {
     trackEvent('landing_view');
@@ -41,14 +101,13 @@ export default function Home() {
 
   return (
     <div className={styles["join-page"]}>
-      <Helmet>
-        <title>{t('seoTitle')}</title>
-        <meta name="description" content={t('home.description')} />
-        <link rel="canonical" href="https://drawandguess.com/drawguess/" />
-        <link rel="alternate" hreflang="en" href="https://drawandguess.com/drawguess/en" />
-        <link rel="alternate" hreflang="zh" href="https://drawandguess.com/drawguess/zh" />
-        <link rel="alternate" hreflang="x-default" href="https://drawandguess.com/drawguess/" />
-      </Helmet>
+      <SeoHead
+        lang={currentLang}
+        title={seoTitle}
+        description={t("home.description")}
+        path="/"
+        structuredData={[gameSchema, faqSchema]}
+      />
       <div className={styles["join-card"]}>
         <div className={styles["join-card-left"]}>
           <img src={currentBanner} alt="Draw and Guess Banner" className={styles["banner-img"]} />

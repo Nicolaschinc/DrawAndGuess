@@ -140,3 +140,14 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
     - `output/reference-debug/host-reference-modal.png`
     - `output/reference-debug/events.json`
   - 额外跑了技能客户端 smoke，产物在 `output/web-game-reference-smoke/shot-0.png`。
+
+- 2026-03-07（SEO 基础优化）:
+  1) 新增 `client/src/components/SeoHead.jsx`，统一输出页面级 `title`、`description`、`canonical`、`hreflang`、`og:*`、`twitter:*` 和可选 `JSON-LD`。
+  2) 首页与静态页（About / Privacy / Contact）接入新的 SEO 头部；分享跳转页保留 `noindex,nofollow`，避免无意义路由被抓取。
+  3) 首页新增结构化数据：`VideoGame` + `FAQPage`，提升搜索结果对产品类型和常见问题的理解。
+  4) 统一站点公开域名到 `https://playflowpulse.com/drawguess`，修复旧的 `drawandguess.com` canonical / og / sitemap 残留。
+  5) 更新 `client/public/robots.txt` 与 `client/public/sitemap.xml`：加入 sitemap 声明，并按当前 `en/zh` 国际化路由输出可抓取地址与 alternate 语言映射。
+- 验证:
+  - `npm --prefix client run build` 通过。
+- TODO / 建议:
+  - 当前仍是 CSR SPA。若目标是显著提升搜索流量，下一步应补预渲染或静态落地页，而不是只停留在 meta 标签层。

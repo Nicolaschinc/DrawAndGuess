@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import styles from './StaticPages.module.scss';
+import SeoHead from '../components/SeoHead';
 import { withLanguagePrefix } from '../utils/localeRoutes';
 
 const AboutUs = () => {
@@ -12,10 +12,12 @@ const AboutUs = () => {
 
   return (
     <div className={styles.container}>
-      <Helmet>
-        <title>{t('about.title')} - Draw & Guess</title>
-        <meta name="description" content={t('about.missionText')} />
-      </Helmet>
+      <SeoHead
+        lang={lang}
+        title={`${t('about.title')} | Draw & Guess`}
+        description={t('about.missionText')}
+        path="/about"
+      />
       <Link to={homePath} className={styles['back-link']}>
         ← {t('static.backHome')}
       </Link>
