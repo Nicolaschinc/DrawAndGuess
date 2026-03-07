@@ -1,0 +1,99 @@
+[
+  {
+    "page": "host",
+    "type": "console:debug",
+    "text": "[vite] connecting..."
+  },
+  {
+    "page": "host",
+    "type": "console:debug",
+    "text": "[vite] connected."
+  },
+  {
+    "page": "host",
+    "type": "console:info",
+    "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+  },
+  {
+    "page": "host",
+    "type": "console:info",
+    "text": "🌐 i18next is maintained with support from Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙"
+  },
+  {
+    "page": "host",
+    "type": "console:log",
+    "text": "Draw & Guess Client v1.0.0"
+  },
+  {
+    "page": "host",
+    "type": "console:warning",
+    "text": "WebSocket connection to 'ws://127.0.0.1:3001/socket.io/?EIO=4&transport=websocket' failed: WebSocket is closed before the connection is established."
+  },
+  {
+    "page": "host",
+    "type": "room-id",
+    "text": "8034pe"
+  },
+  {
+    "page": "host",
+    "type": "response",
+    "url": "http://127.0.0.1:3001/api/reference-images?word=%E9%A3%9E%E7%9B%98",
+    "status": 200,
+    "contentType": "application/json; charset=utf-8"
+  },
+  {
+    "page": "host",
+    "type": "response",
+    "url": "http://127.0.0.1:3001/api/proxy-image?word=%E9%A3%9E%E7%9B%98&style=sketch",
+    "status": 200,
+    "contentType": "image/jpeg"
+  },
+  {
+    "page": "host",
+    "type": "response",
+    "url": "http://127.0.0.1:3001/api/proxy-image?word=%E9%A3%9E%E7%9B%98&style=cartoon",
+    "status": 200,
+    "contentType": "image/jpeg"
+  },
+  {
+    "page": "host",
+    "type": "response",
+    "url": "http://127.0.0.1:3001/api/proxy-image?word=%E9%A3%9E%E7%9B%98&style=photo",
+    "status": 200,
+    "contentType": "image/jpeg"
+  },
+  {
+    "page": "host",
+    "type": "modal-state",
+    "data": {
+      "bodyText": "跳到游戏内容\n房间：8034pe\n玩家：2\n剩余：69s\n你的词：飞盘\nHostA (画家) (房主)\n0\nGuestB\n0\n\n我：HostA\n\n参考图 - 飞盘\n\n*图片由 AI 实时生成，仅供参考，请勿直接照抄哦~\n\nGuestB 加入了房间。\nHostA 正在画。\n🎁\n发送",
+      "imageCount": 3,
+      "imageDetails": [
+        {
+          "alt": "参考图 1",
+          "src": "http://127.0.0.1:3001/api/proxy-image?word=%E9%A3%9E%E7%9B%98&style=photo",
+          "currentSrc": "http://127.0.0.1:3001/api/proxy-image?word=%E9%A3%9E%E7%9B%98&style=photo",
+          "complete": true,
+          "naturalWidth": 512,
+          "naturalHeight": 512
+        },
+        {
+          "alt": "参考图 2",
+          "src": "http://127.0.0.1:3001/api/proxy-image?word=%E9%A3%9E%E7%9B%98&style=cartoon",
+          "currentSrc": "http://127.0.0.1:3001/api/proxy-image?word=%E9%A3%9E%E7%9B%98&style=cartoon",
+          "complete": true,
+          "naturalWidth": 512,
+          "naturalHeight": 512
+        },
+        {
+          "alt": "参考图 3",
+          "src": "http://127.0.0.1:3001/api/proxy-image?word=%E9%A3%9E%E7%9B%98&style=sketch",
+          "currentSrc": "http://127.0.0.1:3001/api/proxy-image?word=%E9%A3%9E%E7%9B%98&style=sketch",
+          "complete": true,
+          "naturalWidth": 512,
+          "naturalHeight": 512
+        }
+      ]
+    }
+  }
+]

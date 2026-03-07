@@ -22,7 +22,6 @@ test("shouldFetchReferenceImages only loads uncached words for an open modal", (
       showReferenceModal: true,
       word: "cat",
       cache: {},
-      loading: false,
     }),
     true
   );
@@ -33,7 +32,6 @@ test("shouldFetchReferenceImages only loads uncached words for an open modal", (
       showReferenceModal: false,
       word: "cat",
       cache: {},
-      loading: false,
     }),
     false
   );
@@ -44,7 +42,6 @@ test("shouldFetchReferenceImages only loads uncached words for an open modal", (
       showReferenceModal: true,
       word: "cat",
       cache: { cat: ["cached-image"] },
-      loading: false,
     }),
     false
   );
@@ -55,9 +52,21 @@ test("shouldFetchReferenceImages only loads uncached words for an open modal", (
       showReferenceModal: true,
       word: "cat",
       cache: {},
-      loading: false,
     }),
     false
+  );
+});
+
+test("shouldFetchReferenceImages stays eligible while an uncached request is in flight", () => {
+  assert.equal(
+    shouldFetchReferenceImages({
+      isDrawer: true,
+      showReferenceModal: true,
+      word: "cat",
+      cache: {},
+      loading: true,
+    }),
+    true
   );
 });
 

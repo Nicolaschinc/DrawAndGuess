@@ -40,7 +40,6 @@ export function shouldFetchReferenceImages({
   showReferenceModal,
   word,
   cache,
-  loading,
 }) {
   const normalizedWord = normalizeReferenceWord(word);
 
@@ -48,8 +47,7 @@ export function shouldFetchReferenceImages({
     isDrawer &&
       showReferenceModal &&
       normalizedWord &&
-      !cache[normalizedWord] &&
-      !loading
+      !cache[normalizedWord]
   );
 }
 

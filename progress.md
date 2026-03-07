@@ -126,3 +126,17 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
   - `npm --prefix client run build` 通过。
 - TODO / 建议:
   - 这次修复解决的是前端地址解析问题；如果线上后端本身拿不到 Bing 图片，需再看服务端 `/api/proxy-image` 日志。
+
+- 2026-03-07（修复参考图请求被前端 effect 自己中断）:
+  1) 复现结果：画家点击“AI 参考图”后，弹窗会一直停在“正在生成参考图...”，但 `/api/reference-images` 已经返回成功。
+  2) 根因定位：`CanvasPanel.jsx` 的参考图请求 `useEffect` 把 `referenceState.loading` 放进依赖数组；`request-start` 触发后组件立即重渲染，effect cleanup 先执行并中止了刚发出的 fetch，导致请求被自己取消，界面永久卡在 loading。
+  3) 修复方式：`shouldFetchReferenceImages()` 不再把 `loading` 当作是否可发起请求的条件；同时将 `referenceState.loading` 从参考图请求 effect 的依赖中移除，避免 `request-start` 造成自取消。
+  4) 为该行为补了回归测试：未缓存词语在请求进行中仍保持“应当拉取”的资格，避免再次引入同类 effect 依赖回归。
+- 验证:
+  - `npm --prefix client run test` 通过（8 个 Node 测试）。
+  - `npm --prefix client run build` 通过。
+  - 本地 Playwright 双端验证通过：一名浏览器玩家 + 一名 `socket.io-client` 模拟玩家进入同房，房主开始游戏后点击参考图按钮，弹窗成功显示 3 张图片。
+  - 验证产物:
+    - `output/reference-debug/host-reference-modal.png`
+    - `output/reference-debug/events.json`
+  - 额外跑了技能客户端 smoke，产物在 `output/web-game-reference-smoke/shot-0.png`。

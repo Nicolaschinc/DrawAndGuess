@@ -76,7 +76,6 @@ export default function CanvasPanel({
       showReferenceModal,
       word: normalizedWord,
       cache: referenceState.cache,
-      loading: referenceState.loading,
     });
 
   const closeReferenceModal = useCallback(() => {
@@ -101,7 +100,6 @@ export default function CanvasPanel({
         showReferenceModal,
         word: normalizedWord,
         cache: referenceState.cache,
-        loading: referenceState.loading,
       })
     ) {
       return undefined;
@@ -151,7 +149,6 @@ export default function CanvasPanel({
     isDrawer,
     normalizedWord,
     referenceState.cache,
-    referenceState.loading,
     showReferenceModal,
   ]);
 
