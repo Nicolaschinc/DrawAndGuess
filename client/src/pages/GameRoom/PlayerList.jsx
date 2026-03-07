@@ -45,6 +45,11 @@ export default function PlayerList({
 
   return (
     <>
+      <div className={styles["desktop-panel-header"]}>
+        <h3>{t('ui.players')}</h3>
+        <p>{t('ui.playersSummary', { count: players.length })}</p>
+      </div>
+
       {gameStarted && (
         <div className={styles["word-box"]} aria-live="polite">
           {renderMaskedWord()}

@@ -145,9 +145,11 @@
     "remainingTime": "剩余",
     "roleDrawer": " (画家)",
     "roleHost": " (房主)",
-    "statusGuessed": " (已猜中)"
-    ,
-    "closeDialog": "关闭弹窗"
+    "statusGuessed": " (已猜中)",
+    "closeDialog": "关闭弹窗",
+    "playersSummary": "房间内共 {{count}} 位玩家",
+    "roleDrawerNotice": "你当前是画家，其他玩家会在聊天区猜词。",
+    "roleGuesserNotice": "先看画布，再在下方聊天区输入答案。"
   },
   "effects": {
     "flower": "鲜花",

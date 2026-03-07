@@ -8,7 +8,7 @@
   width: 44px;
   height: 44px;
   border-radius: var(--radius-sm);
-  background: white;
+  background: rgb(255 255 255 / 92%);
   border: 1px solid var(--line-soft);
   box-shadow: var(--shadow-sm);
   display: flex;
@@ -18,7 +18,7 @@
   color: var(--ink-600);
 
   &:hover {
-    background: var(--paper-1);
+    background: #fff;
     color: var(--ink-800);
   }
 
@@ -41,7 +41,7 @@
   width: 44px;
   height: 44px;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.9);
+  background: rgb(255 255 255 / 92%);
   border: 1px solid var(--line-soft);
   box-shadow: var(--shadow-sm);
   display: flex;
@@ -52,7 +52,7 @@
   transition: all 0.2s;
 
   &:hover {
-    background: var(--paper-1);
+    background: #fff;
     color: var(--ink-800);
     transform: scale(1.05);
   }
@@ -73,8 +73,8 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  background: white;
-  padding: 4px;
+  background: color-mix(in oklab, #fff, var(--paper-0) 16%);
+  padding: 6px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--line-soft);
   box-shadow: var(--shadow-md);
@@ -166,7 +166,7 @@
   }
 
   &:hover:not(:disabled) {
-    background: var(--paper-1);
+    background: color-mix(in oklab, #fff, var(--paper-1) 42%);
     color: var(--ink-800);
     transform: none;
   }
@@ -230,7 +230,7 @@
   position: absolute;
   top: calc(100% + 12px);
   left: 0;
-  background: #fff;
+  background: color-mix(in oklab, #fff, var(--paper-0) 10%);
   border: 1px solid var(--line-soft);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
@@ -246,7 +246,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 14px;
-  background: var(--paper-0);
+  background: color-mix(in oklab, #fff, var(--paper-0) 20%);
   border-bottom: 1px solid var(--line-soft);
   font-size: 12px;
   font-weight: 600;
@@ -254,8 +254,8 @@
 }
 
 .popup-close {
-  background: transparent;
-  border: none;
+  background: rgb(255 255 255 / 88%);
+  border: 1px solid var(--line-soft);
   padding: 4px;
   color: var(--ink-400);
   cursor: pointer;
@@ -269,7 +269,7 @@
   border-radius: 4px;
 
   &:hover {
-    background: rgba(0,0,0,0.05);
+    background: #fff;
     color: var(--ink-800);
   }
 }

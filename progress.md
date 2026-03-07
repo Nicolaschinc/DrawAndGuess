@@ -219,3 +219,48 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
     - 玩家列表保持可见
 - 结论:
   - 这条“先审视 -> 小范围重构 -> 真页验证”的流程是有效的，适合继续扩到房间页其它块，而不是一次性大改全站。
+
+- 2026-03-08（UI 第二试点：桌面端房间页信息层级）:
+  1) 延续同一技能链路，只做桌面端结构，不改核心行为逻辑：把左侧信息区拆成两张卡片（房间状态卡、玩家信息卡），把右侧聊天区单独包装为卡片，并增加简短上下文文案，强化“画布是主舞台、聊天是辅面板”的层级。
+  2) `PlayerList` 增加桌面端 panel heading 和玩家数量摘要；`GameRoom` 在桌面端为聊天面板增加说明文案（画家/猜词者视角不同）。
+  3) `room.module.scss` 为桌面端补卡片容器、spacing 和 grid 调整：左侧列更像 sidebar，聊天列更像 secondary panel，画布继续保持最大面积。
+- 验证:
+  - `npm --prefix client run build` 通过。
+  - 桌面端 Playwright 整页截图产物：
+    - `output/desktop-room-trial/desktop-room.png`
+    - `output/desktop-room-trial/summary.json`
+  - 验证摘要：
+    - `sidebarCards = 2`
+    - `chatCards = 1`
+    - panel headers: `Players`, `Chat Messages`
+- 结论:
+  - 第二个试点同样有效，说明这条技能流程不仅适用于移动端压缩布局，也适用于桌面端信息层级优化。
+
+- 2026-03-08（UI 第三试点：跨页面视觉语言统一）:
+  1) 不改业务逻辑，只统一视觉语气：收窄强个性 display font 的使用范围，让首页、静态页、弹窗、页脚、工具栏回到同一套更中性的国际化字体与卡片语义。
+  2) 首页保留现有暖色品牌方向，但提升一致性：hero 标题字重/字号更稳，卡片阴影和 hover 更统一，banner 区背景更像产品容器而不是单独贴图区域。
+  3) 静态页从“文档页气质”往“同品牌落地页气质”靠：统一边框、圆角、阴影、正文色、链接色、表单边框和主按钮样式。
+  4) 弹窗与工具栏同步收敛到同一视觉系统：边框、背景、关闭按钮、面板底色和悬停反馈更接近首页/房间页。
+- 验证:
+  - `npm --prefix client run build` 通过。
+  - 跨页面截图产物：
+    - `output/visual-language-pass/home.png`
+    - `output/visual-language-pass/features.png`
+    - `output/visual-language-pass/room.png`
+- 结论:
+  - 第三个试点也成立，说明当前这套技能流程不仅能处理局部布局问题，也能逐步把整站视觉语言收敛成一个更统一、更加全球化的产品形象。
+
+- 2026-03-08（UI 继续阶段：语言切换器 / 工具栏 / 页脚统一补丁）:
+  1) 继续按 `web-design-guidelines` 收尾剩余的系统级不一致点，优先挑三个跨页面反复出现的元素：语言切换器、画布工具栏浮层、页脚链接区。
+  2) 按 `vercel-react-best-practices` 的低风险原则，只改视觉语义和可访问性，不改页面数据流或游戏逻辑：语言切换器按钮与下拉菜单回到同一套边框/阴影/hover 体系；工具栏弹层和关闭按钮与全站 modal/card 语义对齐；页脚增加更稳定的分隔和悬停反馈；为画布工具栏弹层关闭按钮补 `aria-label`。
+- 验证:
+  - `npm --prefix client run build` 通过。
+  - 本地 Playwright 截图产物：
+    - `output/visual-language-pass-2/home.png`
+    - `output/visual-language-pass-2/features.png`
+    - `output/visual-language-pass-2/room.png`
+    - `output/visual-language-pass-2/room-mobile.png`
+    - `output/visual-language-pass-2/summary.json`
+  - 摘要结果确认首页、Features 页和房间页都已成功加载；移动端聊天面板可见。`playerToggleVisible` 在本轮摘要里为 `false`，更像是验证脚本选择器过窄，未见对应布局回归证据。
+- 结论:
+  - 这轮补丁稳定，说明当前流程适合继续从“结构性问题”转向“系统级细节统一”；后续可以继续精修房间页状态栏、首页 hero 和中英文排版细节，而不用再怀疑方法本身。

@@ -1,0 +1,18 @@
+{
+  "home": {
+    "url": "http://localhost:5174/drawguess/en",
+    "title": "Online Draw & Guess Multiplayer Game | Draw & Guess"
+  },
+  "features": {
+    "url": "http://localhost:5174/drawguess/en/features",
+    "title": "Features | Draw & Guess"
+  },
+  "room": {
+    "url": "http://localhost:5174/drawguess/en/room/ui-smoke",
+    "title": "Room ui-smoke - Draw & Guess"
+  },
+  "mobileRoom": {
+    "chatVisible": true,
+    "playerToggleVisible": false
+  }
+}

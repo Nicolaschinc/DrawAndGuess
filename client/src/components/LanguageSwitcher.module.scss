@@ -7,36 +7,37 @@
   display: flex;
   align-items: center;
   gap: 6px;
-
-  padding: 6px 10px;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 18px;
+  min-height: 36px;
+  padding: 6px 12px;
+  background: rgb(255 255 255 / 88%);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
 
   font-family: inherit;
   font-size: 0.85rem;
-  font-weight: 500;
-  color: #666;
+  font-weight: 600;
+  color: var(--ink-600);
 
   cursor: pointer;
   backdrop-filter: blur(4px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
   transition:
     background-color 0.2s,
-    color 0.2s;
+    color 0.2s,
+    border-color 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
 
   &:hover,
   &.active {
-    /* No visual change on hover */
-  }
-
-  &:active {
-    /* No visual change on active */
+    background: #fff;
+    color: var(--ink-800);
+    border-color: color-mix(in oklab, var(--accent-300), white 26%);
   }
 
   .langCode {
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.04em;
   }
 }
 
@@ -45,14 +46,12 @@
   top: calc(100% + 8px);
   right: 0;
   width: 140px;
-  background: rgba(255, 255, 255, 0.95);
+  background: color-mix(in oklab, #fff, var(--paper-0) 10%);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
   padding: 6px;
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.12),
-    0 4px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-md);
 
   /* Animation */
   opacity: 0;
@@ -73,17 +72,22 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  background: rgba(0, 0, 0, 0.06) !important;
-  border: none;
+  background: transparent !important;
+  border: 1px solid transparent;
   border-radius: 10px;
   cursor: pointer;
 
   font-family: inherit;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #000 !important;
+  color: var(--ink-700) !important;
   text-align: left;
   transition: all 0.15s ease;
+
+  &:hover {
+    background: #fff !important;
+    border-color: var(--line-soft);
+  }
 
   &.selected {
     background: linear-gradient(
@@ -101,8 +105,8 @@
     padding: 6px 12px;
     font-size: 0.85rem;
     gap: 6px;
-    background: rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgb(255 255 255 / 90%);
+    border: 1px solid var(--line-soft);
 
     .langCode {
       letter-spacing: 0.2px;

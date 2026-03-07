@@ -158,31 +158,35 @@ export default function GameRoom() {
         {t('game.skipToContent')}
       </a>
       <aside className={styles["left-panel"]}>
-        <RoomHeader 
-          roomId={roomId}
-          gameStarted={roomState.game.started}
-          playersCount={roomState.players.length}
-          roundEndsAt={roomState.game.roundEndsAt}
-          onShowRules={() => setShowRules(true)}
-          onLeaveRoom={() => setShowLeaveConfirm(true)}
-          setToast={setToast}
-        />
+        <section className={styles["sidebar-card"]}>
+          <RoomHeader 
+            roomId={roomId}
+            gameStarted={roomState.game.started}
+            playersCount={roomState.players.length}
+            roundEndsAt={roomState.game.roundEndsAt}
+            onShowRules={() => setShowRules(true)}
+            onLeaveRoom={() => setShowLeaveConfirm(true)}
+            setToast={setToast}
+          />
+        </section>
 
-        <PlayerList 
-          players={roomState.players}
-          drawerId={roomState.game.drawerId}
-          hostId={roomState.hostId}
-          guessedIds={roomState.game.guessedIds}
-          me={me}
-          isHost={isHost}
-          gameStarted={roomState.game.started}
-          word={roomState.game.word}
-          maskedWord={roomState.game.maskedWord}
-          isDrawer={isDrawer}
-          onStartGame={startGame}
-          mobilePanel={mobilePanel}
-          onMobilePanelChange={setMobilePanel}
-        />
+        <section className={styles["sidebar-card"]}>
+          <PlayerList 
+            players={roomState.players}
+            drawerId={roomState.game.drawerId}
+            hostId={roomState.hostId}
+            guessedIds={roomState.game.guessedIds}
+            me={me}
+            isHost={isHost}
+            gameStarted={roomState.game.started}
+            word={roomState.game.word}
+            maskedWord={roomState.game.maskedWord}
+            isDrawer={isDrawer}
+            onStartGame={startGame}
+            mobilePanel={mobilePanel}
+            onMobilePanelChange={setMobilePanel}
+          />
+        </section>
       </aside>
 
       <main className={styles["board-panel"]} id="game-main">
@@ -206,15 +210,21 @@ export default function GameRoom() {
           word={roomState.game.word}
         />
 
-        <ChatPanel 
-          messages={messages}
-          onSendMessage={sendMessage}
-          effectUsage={effectUsage}
-          onThrowEffect={throwEffect}
-          gameStarted={roomState.game.started}
-          isDrawer={isDrawer}
-          hiddenOnMobile={isPlayersPanelOpen}
-        />
+        <section className={styles["chat-card"]}>
+          <div className={styles["desktop-panel-header"]}>
+            <h3>{t('ui.chat')}</h3>
+            <p>{isDrawer ? t('ui.roleDrawerNotice') : t('ui.roleGuesserNotice')}</p>
+          </div>
+          <ChatPanel 
+            messages={messages}
+            onSendMessage={sendMessage}
+            effectUsage={effectUsage}
+            onThrowEffect={throwEffect}
+            gameStarted={roomState.game.started}
+            isDrawer={isDrawer}
+            hiddenOnMobile={isPlayersPanelOpen}
+          />
+        </section>
       </main>
       
       {showRules && <RulesModal onClose={() => setShowRules(false)} />}

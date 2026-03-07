@@ -1,9 +1,10 @@
 .footer {
   width: 100%;
-  padding: 20px 0;
+  padding: 28px 0 22px;
   background-color: transparent;
   text-align: center;
   margin-top: auto;
+  border-top: 1px solid rgb(188 169 143 / 35%);
   
   .links {
     display: flex;
@@ -12,21 +13,21 @@
     gap: 20px;
     
     a {
-      color: #666;
+      color: var(--ink-600);
       text-decoration: none;
       font-size: 0.9rem;
-      transition: color 0.2s;
+      transition: color 0.2s, transform 0.2s;
       
       &:hover {
-        color: #333;
-        text-decoration: underline;
+        color: var(--ink-800);
+        transform: translateY(-1px);
       }
     }
   }
   
   .copyright {
     margin-top: 10px;
-    color: #999;
+    color: var(--ink-400);
     font-size: 0.8rem;
   }
 }

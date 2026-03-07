@@ -144,9 +144,11 @@
     "remainingTime": "Time",
     "roleDrawer": " (Drawer)",
     "roleHost": " (Host)",
-    "statusGuessed": " (Guessed)"
-    ,
-    "closeDialog": "Close dialog"
+    "statusGuessed": " (Guessed)",
+    "closeDialog": "Close dialog",
+    "playersSummary": "{{count}} players in room",
+    "roleDrawerNotice": "You are drawing. Guessers will answer in chat.",
+    "roleGuesserNotice": "Watch the canvas and send your guess below."
   },
   "effects": {
     "flower": "Flower",

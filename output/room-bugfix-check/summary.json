@@ -1,0 +1,28 @@
+{
+  "panelBox": {
+    "x": 140,
+    "y": 77,
+    "width": 164,
+    "height": 124
+  },
+  "cardBox": {
+    "x": 18,
+    "y": 18,
+    "width": 303,
+    "height": 108
+  },
+  "startBox": {
+    "x": 35,
+    "y": 211.796875,
+    "width": 269,
+    "height": 37
+  },
+  "summaryTextBox": {
+    "x": 35,
+    "y": 183,
+    "width": 269,
+    "height": 16.796875
+  },
+  "panelExtendsBelowCard": true,
+  "gapBetweenSummaryAndButton": 12
+}

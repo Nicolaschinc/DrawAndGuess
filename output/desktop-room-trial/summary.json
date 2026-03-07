@@ -1,0 +1,8 @@
+{
+  "sidebarCards": 2,
+  "chatCards": 1,
+  "panelHeaders": [
+    "Players",
+    "Chat Messages"
+  ]
+}

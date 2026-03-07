@@ -62,7 +62,11 @@ const CanvasControls = memo(function CanvasControls({
               <div className={styles["tool-popup"]}>
                 <div className={styles["popup-header"]}>
                   <span>{t('ui.chooseColor')}</span>
-                  <button className={styles["popup-close"]} onClick={() => setActiveTool(null)}>
+                  <button
+                    className={styles["popup-close"]}
+                    onClick={() => setActiveTool(null)}
+                    aria-label={t('ui.closeDialog')}
+                  >
                     <X size={14} />
                   </button>
                 </div>
@@ -105,7 +109,11 @@ const CanvasControls = memo(function CanvasControls({
               <div className={styles["tool-popup"]}>
                 <div className={styles["popup-header"]}>
                   <span>{t('ui.brushSize')}</span>
-                  <button className={styles["popup-close"]} onClick={() => setActiveTool(null)}>
+                  <button
+                    className={styles["popup-close"]}
+                    onClick={() => setActiveTool(null)}
+                    aria-label={t('ui.closeDialog')}
+                  >
                     <X size={14} />
                   </button>
                 </div>

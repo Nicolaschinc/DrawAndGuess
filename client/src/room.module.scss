@@ -30,6 +30,39 @@
   }
 }
 
+.sidebar-card,
+.chat-card {
+  background: color-mix(in oklab, #fff, var(--paper-0) 14%);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-card {
+  padding: 14px;
+}
+
+.chat-card {
+  display: contents;
+}
+
+.desktop-panel-header {
+  display: none;
+
+  h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--ink-800);
+  }
+
+  p {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--ink-600);
+    line-height: 1.4;
+  }
+}
+
 .room-header {
   display: flex;
   justify-content: space-between;
@@ -206,7 +239,9 @@
 }
 
 .mobile-actions-row {
-  display: contents;
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .mobile-panel-hidden {
@@ -633,6 +668,19 @@
     }
   }
 
+  .sidebar-card,
+  .chat-card {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .desktop-panel-header {
+    display: none;
+  }
+
   .room-header {
     margin: 0;
     align-items: flex-start;
@@ -681,6 +729,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
+    margin-top: 8px;
 
     &.single {
       grid-template-columns: 1fr;
@@ -820,7 +869,7 @@
 @media (min-width: 768px) {
   .layout {
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 320px 1fr;
     grid-template-rows: 1fr;
     height: 100vh;
     height: 100dvh;
@@ -830,8 +879,11 @@
   .left-panel {
     border-right: 1px solid var(--line-soft);
     border-bottom: 0;
-    padding: 20px;
-    padding-top: 20px;
+    padding: 18px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 14px;
+    align-content: start;
   }
 
   .players {
@@ -840,18 +892,37 @@
 
   .board-panel {
     display: grid;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: minmax(0, 1fr) 340px;
     grid-template-rows: 1fr;
     grid-template-areas:
       "canvas chat";
-    gap: 16px;
-    padding: 16px;
+    gap: 18px;
+    padding: 18px;
     overflow: hidden;
+    align-items: stretch;
   }
 
   .canvas-wrap {
     grid-area: canvas;
     min-height: 0;
+  }
+
+  .sidebar-card {
+    padding: 16px;
+    overflow: visible;
+  }
+
+  .chat-card {
+    grid-area: chat;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 10px;
+    min-height: 0;
+    padding: 14px;
+  }
+
+  .desktop-panel-header {
+    display: block;
   }
 
   .canvas {
@@ -860,11 +931,12 @@
   }
 
   .chat-box {
-    grid-area: chat;
     max-height: none;
     min-height: 0;
     height: 100%;
     overflow: hidden;
+    border-radius: var(--radius-md);
+    box-shadow: none;
   }
 
   .messages {
@@ -875,6 +947,16 @@
 
   .chat-form {
     padding-bottom: 10px;
+  }
+
+  .word-box {
+    margin-top: 12px;
+  }
+
+  .me {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid color-mix(in oklab, var(--line-soft), white 20%);
   }
 }
 

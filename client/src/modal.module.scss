@@ -13,8 +13,9 @@
 }
 
 .modal-content {
-  background: #fff;
+  background: color-mix(in oklab, white, var(--paper-0) 8%);
   width: min(480px, 100%);
+  border: 1px solid var(--line-soft);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   overflow: hidden;
@@ -123,7 +124,7 @@
   align-items: center;
   padding: 16px 20px;
   border-bottom: 1px solid var(--line-soft);
-  background: var(--paper-0);
+  background: color-mix(in oklab, white, var(--paper-0) 18%);
 
   h2 {
     margin: 0;
@@ -133,18 +134,20 @@
 }
 
 .close-btn {
-  background: transparent;
-  border: none;
+  background: rgb(255 255 255 / 86%);
+  border: 1px solid var(--line-soft);
   font-size: 24px;
   color: var(--ink-400);
   padding: 4px;
   line-height: 1;
   cursor: pointer;
   box-shadow: none;
-  min-height: auto;
+  min-height: 34px;
+  min-width: 34px;
 
   &:hover {
-    color: var(--alert-500);
+    color: var(--ink-800);
+    background: #fff;
     transform: none;
   }
 }
@@ -217,8 +220,8 @@
 .ref-item {
   aspect-ratio: 1;
   overflow: hidden;
-  border-radius: 8px;
-  border: 1px solid #eee;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-soft);
 }
 
 .ref-img {
@@ -231,7 +234,7 @@
 .ref-hint {
   margin-top: 15px;
   font-size: 12px;
-  color: #666;
+  color: var(--ink-600);
   text-align: center;
 }
 
