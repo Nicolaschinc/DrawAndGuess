@@ -56,25 +56,17 @@ const ContactUs = () => {
         path="/contact"
       />
       <section className={styles.section}>
-        <span className={styles.eyebrow}>{t('contact.directTitle')}</span>
-        <div className={styles['contact-grid']}>
-          <article className={styles.card}>
-            <h2>{t('contact.directTitle')}</h2>
-            <p>
-              {t('contact.directText')}{' '}
-              <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
-            </p>
-            <p className={styles.muted}>{t('contact.responseTime')}</p>
-          </article>
-          <article className={styles.card}>
-            <h2>{t('contact.formTitle')}</h2>
-            <p>{t('contact.notice')}</p>
-          </article>
-        </div>
+        <h2>{t('contact.directTitle')}</h2>
+        <p>
+          {t('contact.directText')}{' '}
+          <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+        </p>
+        <p className={styles.muted}>{t('contact.responseTime')}</p>
       </section>
 
       <section className={styles.section}>
         <h2>{t('contact.formTitle')}</h2>
+        <p>{t('contact.notice')}</p>
         <form className={styles['contact-form']} onSubmit={handleSubmit}>
           <label>
             {t('contact.name')}

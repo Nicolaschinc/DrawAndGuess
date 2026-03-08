@@ -28,7 +28,7 @@ const UseCases = () => {
         <div className={styles.cards}>
         {cases.map((key) => (
           <article key={key} className={styles.card}>
-            <h2>{t(`useCases.items.${key}.title`)}</h2>
+            <h3>{t(`useCases.items.${key}.title`)}</h3>
             <p>{t(`useCases.items.${key}.text`)}</p>
           </article>
         ))}

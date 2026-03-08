@@ -17,8 +17,8 @@ const Footer = () => {
   const privacyPath = withLanguagePrefix(currentLang, "/privacy");
   const contactPath = withLanguagePrefix(currentLang, "/contact");
 
-  // Don't show footer in game room
-  if (/^\/(?:en|zh)\/room\//.test(location.pathname) || location.pathname.startsWith('/room/')) {
+  // Don't show footer in game room or static pages
+  if (/^\/(?:(?:en|zh)\/)?(?:room|features|use-cases|faq|about|privacy|contact)(?:$|\/)/.test(location.pathname)) {
     return null;
   }
 

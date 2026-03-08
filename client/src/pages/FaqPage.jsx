@@ -42,7 +42,7 @@ const FaqPage = () => {
         <div className={styles["faq-stack"]}>
         {FAQ_ITEMS.map((key) => (
           <article key={key} className={styles.card}>
-            <h2>{t(`faqPage.items.${key}.question`)}</h2>
+            <h3>{t(`faqPage.items.${key}.question`)}</h3>
             <p>{t(`faqPage.items.${key}.answer`)}</p>
           </article>
         ))}
