@@ -1,0 +1,23 @@
+{
+  "features": {
+    "title": "功能介绍 | Draw & Guess",
+    "h1": "功能介绍"
+  },
+  "faq": {
+    "title": "常见问题 | Draw & Guess",
+    "h1": "常见问题"
+  },
+  "privacy": {
+    "title": "隐私政策 | Draw & Guess",
+    "h1": "隐私政策"
+  },
+  "contact": {
+    "title": "联系我们 | Draw & Guess",
+    "h1": "联系我们"
+  },
+  "links": {
+    "homeCardTarget": "_blank",
+    "homeCardRel": "noopener noreferrer",
+    "footerTarget": "_blank"
+  }
+}

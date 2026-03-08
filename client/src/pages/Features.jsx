@@ -1,31 +1,29 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import styles from "./StaticPages.module.scss";
 import SeoHead from "../components/SeoHead";
-import { withLanguagePrefix } from "../utils/localeRoutes";
+import StaticPageLayout from "../components/StaticPageLayout";
 
 const Features = () => {
   const { t } = useTranslation();
   const { lang } = useParams();
-  const homePath = withLanguagePrefix(lang, "/");
   const featureKeys = ["rooms", "drawing", "guessing", "reference", "mobile", "bilingual"];
 
   return (
-    <div className={styles.container}>
+    <StaticPageLayout
+      title={t("features.title")}
+      intro={t("features.intro")}
+      summary={t("features.summary")}
+    >
       <SeoHead
         lang={lang}
         title={`${t("features.title")} | Draw & Guess`}
         description={t("features.intro")}
         path="/features"
       />
-      <Link to={homePath} className={styles["back-link"]}>
-        ← {t("static.backHome")}
-      </Link>
-      <h1>{t("features.title")}</h1>
-      <p>{t("features.intro")}</p>
-
-      <section>
+      <section className={styles.section}>
+        <span className={styles.eyebrow}>{t("features.coreTitle")}</span>
         <h2>{t("features.coreTitle")}</h2>
         <div className={styles.cards}>
           {featureKeys.map((key) => (
@@ -37,7 +35,8 @@ const Features = () => {
         </div>
       </section>
 
-      <section>
+      <section className={styles.section}>
+        <span className={styles.eyebrow}>{t("features.fitTitle")}</span>
         <h2>{t("features.fitTitle")}</h2>
         <ul>
           <li>{t("features.fitPoint1")}</li>
@@ -45,7 +44,7 @@ const Features = () => {
           <li>{t("features.fitPoint3")}</li>
         </ul>
       </section>
-    </div>
+    </StaticPageLayout>
   );
 };
 

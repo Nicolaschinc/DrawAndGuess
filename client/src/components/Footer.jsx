@@ -1,8 +1,9 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import styles from './Footer.module.scss';
 import { normalizeLanguage, withLanguagePrefix } from '../utils/localeRoutes';
+import StaticPageLink from './StaticPageLink';
 
 const Footer = () => {
   const { t } = useTranslation();
@@ -24,12 +25,12 @@ const Footer = () => {
   return (
     <footer className={styles.footer}>
       <div className={styles.links}>
-        <Link to={featuresPath}>{t('static.features')}</Link>
-        <Link to={useCasesPath}>{t('static.useCases')}</Link>
-        <Link to={faqPath}>{t('static.faq')}</Link>
-        <Link to={aboutPath}>{t('static.about')}</Link>
-        <Link to={privacyPath}>{t('static.privacy')}</Link>
-        <Link to={contactPath}>{t('static.contactUs')}</Link>
+        <StaticPageLink to={featuresPath}>{t('static.features')}</StaticPageLink>
+        <StaticPageLink to={useCasesPath}>{t('static.useCases')}</StaticPageLink>
+        <StaticPageLink to={faqPath}>{t('static.faq')}</StaticPageLink>
+        <StaticPageLink to={aboutPath}>{t('static.about')}</StaticPageLink>
+        <StaticPageLink to={privacyPath}>{t('static.privacy')}</StaticPageLink>
+        <StaticPageLink to={contactPath}>{t('static.contactUs')}</StaticPageLink>
       </div>
       <div className={styles.copyright}>
         &copy; {year} DrawAndGuess. All rights reserved.

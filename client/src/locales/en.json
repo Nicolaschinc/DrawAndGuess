@@ -188,6 +188,9 @@
   },
   "static": {
     "backHome": "Back to Home",
+    "updatedLabel": "Updated",
+    "effectiveLabel": "Effective",
+    "responseLabel": "Response",
     "contactUs": "Contact Us",
     "privacy": "Privacy Policy",
     "about": "About Us",
@@ -198,6 +201,7 @@
   "features": {
     "title": "Features",
     "intro": "Draw & Guess focuses on the features that matter for quick browser party sessions: fast setup, clear rounds, and easy sharing.",
+    "summary": "This page outlines the gameplay and product capabilities that make it easy to start a round and keep players engaged.",
     "coreTitle": "Core product features",
     "fitTitle": "What this setup is best for",
     "fitPoint1": "Small to medium friend groups that want to play immediately in the browser",
@@ -233,6 +237,9 @@
   "useCases": {
     "title": "Use Cases",
     "intro": "This browser drawing game works best in situations where people need fast setup and lightweight group interaction.",
+    "summary": "These are the situations where a quick browser-based drawing game usually works best.",
+    "sectionLabel": "Scenarios",
+    "sectionTitle": "Where people usually use Draw & Guess",
     "items": {
       "friends": {
         "title": "Online game night with friends",
@@ -255,6 +262,9 @@
   "faqPage": {
     "title": "FAQ",
     "intro": "Answers to common questions about setup, devices, privacy, and gameplay flow.",
+    "summary": "Use this page to check the basics before you invite players into a room.",
+    "sectionLabel": "Support",
+    "sectionTitle": "Questions players usually ask first",
     "items": {
       "what": {
         "question": "What is Draw & Guess?",
@@ -285,8 +295,11 @@
   "privacy": {
     "title": "Privacy Policy",
     "lastUpdated": "Last updated: March 1, 2026",
+    "lastUpdatedValue": "March 1, 2026",
+    "effectiveDate": "March 1, 2026",
     "intro": "Scope",
     "introText": "This policy applies to the DrawAndGuess web game, including room play, chat, drawing sync, sharing, and reference-image features. You can play without creating an account.",
+    "summary": "This page explains what data the service processes, why that data is used, and what choices players have.",
     "dataCollection": "Data We Process",
     "dataCollectionText": "To keep the game working and stable, we process:",
     "dataPoint1": "Basic info such as nickname, room ID, and language preference",
@@ -314,6 +327,7 @@
   },
   "about": {
     "title": "About Us",
+    "summary": "Draw & Guess is built as a lightweight browser party game for people who want to start quickly and keep the interaction simple.",
     "mission": "What We Build",
     "missionText": "DrawAndGuess is a lightweight real-time multiplayer drawing game designed for quick starts and instant social interaction.",
     "story": "Current Product Scope",
@@ -326,6 +340,7 @@
   "contact": {
     "title": "Contact Us",
     "intro": "You can reach us by email for bug reports, suggestions, or collaboration requests.",
+    "summary": "Use the direct email or the draft form below if you want to report an issue, share feedback, or discuss collaboration.",
     "directTitle": "Direct Contact",
     "directText": "Email:",
     "responseTime": "We usually respond within 3 business days.",

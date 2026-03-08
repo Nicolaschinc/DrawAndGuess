@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import styles from './StaticPages.module.scss';
 import SeoHead from '../components/SeoHead';
-import { withLanguagePrefix } from '../utils/localeRoutes';
 import { trackEvent } from '../utils/analytics';
+import StaticPageLayout from '../components/StaticPageLayout';
 
 const ContactUs = () => {
   const { t } = useTranslation();
   const { lang } = useParams();
-  const homePath = withLanguagePrefix(lang, "/");
   const contactEmail = import.meta.env.VITE_CONTACT_EMAIL || 'contact@game2048.xyz';
   const [formData, setFormData] = useState({
     name: '',
@@ -42,29 +41,39 @@ const ContactUs = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <StaticPageLayout
+      title={t('contact.title')}
+      intro={t('contact.intro')}
+      summary={t('contact.summary')}
+      metaItems={[
+        { label: t('static.responseLabel'), value: t('contact.responseTime') },
+      ]}
+    >
       <SeoHead
         lang={lang}
         title={`${t('contact.title')} | Draw & Guess`}
         description={t('contact.intro')}
         path="/contact"
       />
-      <Link to={homePath} className={styles['back-link']}>
-        ← {t('static.backHome')}
-      </Link>
-      <h1>{t('contact.title')}</h1>
-      <p>{t('contact.intro')}</p>
-
-      <section>
-        <h2>{t('contact.directTitle')}</h2>
-        <p>
-          {t('contact.directText')}{' '}
-          <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
-        </p>
-        <p className={styles.meta}>{t('contact.responseTime')}</p>
+      <section className={styles.section}>
+        <span className={styles.eyebrow}>{t('contact.directTitle')}</span>
+        <div className={styles['contact-grid']}>
+          <article className={styles.card}>
+            <h2>{t('contact.directTitle')}</h2>
+            <p>
+              {t('contact.directText')}{' '}
+              <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+            </p>
+            <p className={styles.muted}>{t('contact.responseTime')}</p>
+          </article>
+          <article className={styles.card}>
+            <h2>{t('contact.formTitle')}</h2>
+            <p>{t('contact.notice')}</p>
+          </article>
+        </div>
       </section>
 
-      <section>
+      <section className={styles.section}>
         <h2>{t('contact.formTitle')}</h2>
         <form className={styles['contact-form']} onSubmit={handleSubmit}>
           <label>
@@ -116,9 +125,8 @@ const ContactUs = () => {
 
           <button type="submit">{t('contact.send')}</button>
         </form>
-        <p className={styles.meta}>{t('contact.notice')}</p>
       </section>
-    </div>
+    </StaticPageLayout>
   );
 };
 

@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import bannerCn from "../assets/img/banner_cn.png";
 import bannerEn from "../assets/img/banner_en.png";
 import styles from "../home.module.scss";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import SeoHead from "../components/SeoHead";
+import StaticPageLink from "../components/StaticPageLink";
 import { normalizeLanguage, withLanguagePrefix } from "../utils/localeRoutes";
 import { trackEvent } from "../utils/analytics";
 
@@ -274,30 +275,30 @@ export default function Home() {
             <p>{t("home.linksIntro")}</p>
           </div>
           <div className={styles["link-grid"]}>
-            <Link to={featuresPath} className={styles["link-card"]}>
+            <StaticPageLink to={featuresPath} className={styles["link-card"]}>
               <h3>{t("static.features")}</h3>
               <p>{t("home.linkFeaturesText")}</p>
-            </Link>
-            <Link to={useCasesPath} className={styles["link-card"]}>
+            </StaticPageLink>
+            <StaticPageLink to={useCasesPath} className={styles["link-card"]}>
               <h3>{t("static.useCases")}</h3>
               <p>{t("home.linkUseCasesText")}</p>
-            </Link>
-            <Link to={faqPath} className={styles["link-card"]}>
+            </StaticPageLink>
+            <StaticPageLink to={faqPath} className={styles["link-card"]}>
               <h3>{t("static.faq")}</h3>
               <p>{t("home.linkFaqText")}</p>
-            </Link>
-            <Link to={aboutPath} className={styles["link-card"]}>
+            </StaticPageLink>
+            <StaticPageLink to={aboutPath} className={styles["link-card"]}>
               <h3>{t("static.about")}</h3>
               <p>{t("home.linkAboutText")}</p>
-            </Link>
-            <Link to={privacyPath} className={styles["link-card"]}>
+            </StaticPageLink>
+            <StaticPageLink to={privacyPath} className={styles["link-card"]}>
               <h3>{t("static.privacy")}</h3>
               <p>{t("home.linkPrivacyText")}</p>
-            </Link>
-            <Link to={contactPath} className={styles["link-card"]}>
+            </StaticPageLink>
+            <StaticPageLink to={contactPath} className={styles["link-card"]}>
               <h3>{t("static.contactUs")}</h3>
               <p>{t("home.linkContactText")}</p>
-            </Link>
+            </StaticPageLink>
           </div>
         </section>
       </div>

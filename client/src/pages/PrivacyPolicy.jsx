@@ -1,36 +1,39 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import styles from './StaticPages.module.scss';
 import SeoHead from '../components/SeoHead';
 import { withLanguagePrefix } from '../utils/localeRoutes';
+import StaticPageLayout from '../components/StaticPageLayout';
+import StaticPageLink from '../components/StaticPageLink';
 
 const PrivacyPolicy = () => {
   const { t } = useTranslation();
   const { lang } = useParams();
-  const homePath = withLanguagePrefix(lang, "/");
   const contactPath = withLanguagePrefix(lang, "/contact");
 
   return (
-    <div className={styles.container}>
+    <StaticPageLayout
+      title={t('privacy.title')}
+      intro={t('privacy.introText')}
+      summary={t('privacy.summary')}
+      metaItems={[
+        { label: t('static.updatedLabel'), value: t('privacy.lastUpdatedValue') },
+        { label: t('static.effectiveLabel'), value: t('privacy.effectiveDate') },
+      ]}
+    >
       <SeoHead
         lang={lang}
         title={`${t('privacy.title')} | Draw & Guess`}
         description={t('privacy.introText')}
         path="/privacy"
       />
-      <Link to={homePath} className={styles['back-link']}>
-        ← {t('static.backHome')}
-      </Link>
-      <h1>{t('privacy.title')}</h1>
-      <p className={styles.meta}>{t('privacy.lastUpdated')}</p>
-      
-      <section>
+      <section className={styles.section}>
         <h2>{t('privacy.intro')}</h2>
         <p>{t('privacy.introText')}</p>
       </section>
 
-      <section>
+      <section className={styles.section}>
         <h2>{t('privacy.dataCollection')}</h2>
         <p>{t('privacy.dataCollectionText')}</p>
         <ul>
@@ -41,7 +44,7 @@ const PrivacyPolicy = () => {
         </ul>
       </section>
 
-      <section>
+      <section className={styles.section}>
         <h2>{t('privacy.dataUsage')}</h2>
         <p>{t('privacy.dataUsageText')}</p>
         <ul>
@@ -51,12 +54,12 @@ const PrivacyPolicy = () => {
         </ul>
       </section>
 
-      <section>
+      <section className={styles.section}>
         <h2>{t('privacy.cookies')}</h2>
         <p>{t('privacy.cookiesText')}</p>
       </section>
 
-      <section>
+      <section className={styles.section}>
         <h2>{t('privacy.thirdParty')}</h2>
         <p>{t('privacy.thirdPartyText')}</p>
         <ul>
@@ -66,21 +69,21 @@ const PrivacyPolicy = () => {
         </ul>
       </section>
 
-      <section>
+      <section className={styles.section}>
         <h2>{t('privacy.retention')}</h2>
         <p>{t('privacy.retentionText')}</p>
       </section>
 
-      <section>
+      <section className={styles.section}>
         <h2>{t('privacy.rights')}</h2>
         <p>{t('privacy.rightsText')}</p>
       </section>
 
-      <section>
+      <section className={styles.section}>
         <h2>{t('privacy.contact')}</h2>
-        <p>{t('privacy.contactText')} <Link to={contactPath}>{t('static.contactUs')}</Link>.</p>
+        <p>{t('privacy.contactText')} <StaticPageLink to={contactPath}>{t('static.contactUs')}</StaticPageLink>.</p>
       </section>
-    </div>
+    </StaticPageLayout>
   );
 };
 

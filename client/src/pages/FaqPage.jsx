@@ -1,16 +1,15 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import styles from "./StaticPages.module.scss";
 import SeoHead from "../components/SeoHead";
-import { withLanguagePrefix } from "../utils/localeRoutes";
+import StaticPageLayout from "../components/StaticPageLayout";
 
 const FAQ_ITEMS = ["what", "download", "friends", "mobile", "private", "ai"];
 
 const FaqPage = () => {
   const { t } = useTranslation();
   const { lang } = useParams();
-  const homePath = withLanguagePrefix(lang, "/");
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -25,7 +24,11 @@ const FaqPage = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <StaticPageLayout
+      title={t("faqPage.title")}
+      intro={t("faqPage.intro")}
+      summary={t("faqPage.summary")}
+    >
       <SeoHead
         lang={lang}
         title={`${t("faqPage.title")} | Draw & Guess`}
@@ -33,21 +36,19 @@ const FaqPage = () => {
         path="/faq"
         structuredData={structuredData}
       />
-      <Link to={homePath} className={styles["back-link"]}>
-        ← {t("static.backHome")}
-      </Link>
-      <h1>{t("faqPage.title")}</h1>
-      <p>{t("faqPage.intro")}</p>
-
-      <div className={styles["faq-stack"]}>
+      <section className={styles.section}>
+        <span className={styles.eyebrow}>{t("faqPage.sectionLabel")}</span>
+        <h2>{t("faqPage.sectionTitle")}</h2>
+        <div className={styles["faq-stack"]}>
         {FAQ_ITEMS.map((key) => (
-          <section key={key} className={styles.card}>
+          <article key={key} className={styles.card}>
             <h2>{t(`faqPage.items.${key}.question`)}</h2>
             <p>{t(`faqPage.items.${key}.answer`)}</p>
-          </section>
+          </article>
         ))}
-      </div>
-    </div>
+        </div>
+      </section>
+    </StaticPageLayout>
   );
 };
 

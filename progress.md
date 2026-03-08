@@ -264,3 +264,23 @@ Original prompt: 优化一下当前项目移动端的样式，主要是布局显
   - 摘要结果确认首页、Features 页和房间页都已成功加载；移动端聊天面板可见。`playerToggleVisible` 在本轮摘要里为 `false`，更像是验证脚本选择器过窄，未见对应布局回归证据。
 - 结论:
   - 这轮补丁稳定，说明当前流程适合继续从“结构性问题”转向“系统级细节统一”；后续可以继续精修房间页状态栏、首页 hero 和中英文排版细节，而不用再怀疑方法本身。
+
+- 2026-03-08（静态页业务版式重构 + 新标签页链接）:
+  1) 参考用户给出的业务文档页布局，把 `Features / Use Cases / FAQ / About / Privacy / Contact` 统一改为共享静态页外壳：大标题居中、导读摘要、可选元信息行、章节卡片化内容区。新增共享组件 `client/src/components/StaticPageLayout.jsx` 与 `client/src/components/StaticPageLink.jsx`，避免 6 个页面各自演化出不同结构。
+  2) 重写 `client/src/pages/StaticPages.module.scss`，把静态页从原先“简单内容容器”升级成更接近正式业务页/政策页的版式：大宽度容器、hero 区、meta grid、章节 section、两列卡片和联系页表单区。
+  3) `Features / Use Cases / FAQ / About / Privacy / Contact` 全部接入共享外壳；`Privacy` 新增更新日期/生效日期元信息；`Contact` 调整为“直接联系 + 邮件草稿”双区块。
+  4) 首页 Learn more 卡片和页脚静态页链接改为新标签页打开，满足“点击上面几个页面的链接新开一个页面”的要求。
+- 验证:
+  - `npm --prefix client run build` 通过。
+  - 本地 Playwright 截图产物：
+    - `output/static-pages-pass/features.png`
+    - `output/static-pages-pass/faq.png`
+    - `output/static-pages-pass/privacy.png`
+    - `output/static-pages-pass/contact.png`
+    - `output/static-pages-pass/summary.json`
+  - 摘要确认：
+    - 静态页标题正常渲染
+    - 首页静态卡片链接 `target="_blank"`
+    - 页脚静态页链接 `target="_blank"`
+- 结论:
+  - 这轮静态页重构已经把“营销/说明页”和“政策/联系页”收敛成一套统一的业务页结构，且新标签页行为已生效；后续如果继续，只需要精修文案与细部层级，不需要再返工整体框架。
