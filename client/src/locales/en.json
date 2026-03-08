@@ -16,7 +16,7 @@
     "createAndEnter": "Create & Enter",
     "features": {
       "title": "Why play Draw & Guess online",
-      "intro": "This version is built for quick party sessions, simple sharing, and smooth browser play across devices.",
+      "intro": "Create a room, share the link, and start playing quickly on mobile or desktop.",
       "instantTitle": "Instant room setup",
       "instantText": "Create a room in one step, send the link, and let friends join without accounts or downloads.",
       "socialTitle": "Real-time multiplayer rounds",
@@ -26,7 +26,7 @@
     },
     "how": {
       "title": "How the game works",
-      "intro": "The flow stays simple so new players can join a room and understand the rules immediately.",
+      "intro": "Create a room, take turns drawing, and let everyone guess in just a few simple steps.",
       "step1Title": "Create or join a room",
       "step1Text": "Enter a nickname, create a room, or paste a room ID to jump into an existing game with friends.",
       "step2Title": "Draw when it is your turn",
@@ -35,9 +35,9 @@
       "step3Text": "Other players type guesses in chat. Correct guesses score points, and the game rotates until everyone has drawn."
     },
     "faqTitle": "Frequently asked questions",
-    "faqIntro": "Quick answers for players comparing browser party games or checking whether this one fits their group.",
+    "faqIntro": "These answers help you check setup, devices, and gameplay before you share a room.",
     "linksTitle": "Learn more",
-    "linksIntro": "These pages add more product and trust context for both players and search engines.",
+    "linksIntro": "Open these pages if you want more details on gameplay, devices, privacy, and support.",
     "linkFeaturesText": "Explore the core gameplay, real-time drawing flow, and browser-first product capabilities.",
     "linkUseCasesText": "See which group scenarios fit this game, from friend hangouts to remote team breaks.",
     "linkFaqText": "Read common setup, device, privacy, and gameplay questions before sharing a room.",
@@ -226,7 +226,7 @@
       },
       "bilingual": {
         "title": "Bilingual routes and content",
-        "text": "English and Chinese routes, content, and metadata help support international players and localized SEO."
+        "text": "English and Chinese interfaces make it easier to play with mixed-language groups."
       }
     }
   },
