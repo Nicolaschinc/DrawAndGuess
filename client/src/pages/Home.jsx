@@ -150,7 +150,14 @@ export default function Home() {
       <div className={styles["hero-shell"]}>
         <div className={styles["join-card"]}>
           <div className={styles["join-card-left"]}>
-            <img src={currentBanner} alt="Draw and Guess Banner" className={styles["banner-img"]} />
+            <img 
+              src={currentBanner} 
+              alt="Draw and Guess Banner" 
+              className={styles["banner-img"]} 
+              fetchPriority="high"
+              width="600"
+              height="400"
+            />
           </div>
           <div className={styles["join-card-right"]}>
             <div className={styles["header-row"]}>

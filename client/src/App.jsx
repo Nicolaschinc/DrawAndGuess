@@ -1,16 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import Home from "./pages/Home";
-import GameRoom from "./pages/GameRoom";
-import ShareRedirect from "./pages/ShareRedirect";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import AboutUs from "./pages/AboutUs";
-import ContactUs from "./pages/ContactUs";
-import Features from "./pages/Features";
-import UseCases from "./pages/UseCases";
-import FaqPage from "./pages/FaqPage";
+
+const Home = lazy(() => import("./pages/Home"));
+const GameRoom = lazy(() => import("./pages/GameRoom"));
+const ShareRedirect = lazy(() => import("./pages/ShareRedirect"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const AboutUs = lazy(() => import("./pages/AboutUs"));
+const ContactUs = lazy(() => import("./pages/ContactUs"));
+const Features = lazy(() => import("./pages/Features"));
+const UseCases = lazy(() => import("./pages/UseCases"));
+const FaqPage = lazy(() => import("./pages/FaqPage"));
+
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import Footer from "./components/Footer";
 import {
@@ -51,7 +53,11 @@ function LanguageLayout() {
     return <Navigate to={withLanguagePrefix(normalizedLang, suffix)} replace />;
   }
 
-  return <Outlet />;
+  return (
+    <Suspense fallback={<div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>Loading...</div>}>
+      <Outlet />
+    </Suspense>
+  );
 }
 
 function LanguageFallbackRedirect() {
