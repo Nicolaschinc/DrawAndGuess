@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import bannerCn from "../assets/img/banner_cn.png";
-import bannerEn from "../assets/img/banner_en.png";
+import bannerCn from "../assets/img/banner_cn.webp";
+import bannerEn from "../assets/img/banner_en.webp";
 import styles from "../home.module.scss";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import SeoHead from "../components/SeoHead";
