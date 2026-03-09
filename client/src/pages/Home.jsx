@@ -154,7 +154,7 @@ export default function Home() {
               src={currentBanner} 
               alt="Draw and Guess Banner" 
               className={styles["banner-img"]} 
-              fetchPriority="high"
+              fetchpriority="high"
               width="600"
               height="400"
             />
